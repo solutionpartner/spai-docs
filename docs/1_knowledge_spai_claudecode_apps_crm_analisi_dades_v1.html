@@ -1,0 +1,208 @@
+<!doctype html><html><head><meta charset="utf-8"><title>SPAI_ClaudeCode_apps_CRM_analisi-dades_v1.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>SPAI Guia per a Hermes sobre aplicacions CRM i anàlisi de dades</h1>
+<p><strong>SolutionPartner.ai — AI Strategy &amp; Automation</strong><br />
+<strong>Identificador:</strong> SPAI-KP-DEV-DATA-001<br />
+<strong>Versió:</strong> 1.0 · 5 d’octubre de 2026<br />
+<strong>Objectiu:</strong> convertir tres recursos de formació en procediments reutilitzables per desenvolupar serveis de SPAI.</p>
+<h2>1 Conclusió operativa i qualitat de l’evidència</h2>
+<p>Els tres temes encaixen en una mateixa oferta: construir una aplicació, gestionar-hi l’activitat comercial i analitzar les dades resultants. Per a SPAI, el valor és disposar d’un mètode repetible amb requisits, proves i resultats traçables.</p>
+<p>Aquest document distingeix el que s’ha pogut contrastar de les propostes pròpies. No s’ha accedit a la reproducció completa ni a la transcripció íntegra dels vídeos. No s’han executat els projectes dels autors. Els prompts de la secció 8 són originals de SPAI, no transcripcions.</p>
+<table>
+<thead>
+<tr>
+<th>Recurs</th>
+<th>Evidència recuperada</th>
+<th>Límit de l’anàlisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Leon van Zyl, Advanced Workflow</td>
+<td>Publicació del mateix autor que explica el vídeo, el procés i l’aplicació construïda</td>
+<td>No s’han verificat totes les comandes ni descarregat el projecte</td>
+</tr>
+<tr>
+<td>Brendan Jowett, CRM From Scratch</td>
+<td>Títol i autoria confirmats a YouTube</td>
+<td>No s’han recuperat els passos, el stack, el repositori ni els prompts exactes</td>
+</tr>
+<tr>
+<td>Teacher’s Tech, Data Analysis</td>
+<td>Títol i breu descripció indexats a YouTube; una còpia externa de la descripció inclou recursos i capítols</td>
+<td>Els detalls de la còpia externa són provisionals fins a contrastar-los amb l’original</td>
+</tr>
+</tbody>
+</table>
+<p>La documentació oficial de Claude Code s’utilitza per contrastar el mètode de treball; no demostra quines funcions utilitza cada vídeo. El nombre de visualitzacions no s’utilitza com a prova de qualitat o de rendibilitat.</p>
+<h2>2 Vídeo de Leon van Zyl</h2>
+<p><strong>Claude Code Advanced Workflow – Build &amp; Ship Real Apps</strong><br />
+https://www.youtube.com/watch?v=zVZotTk6ZWU</p>
+<h3>Contingut contrastat amb l’autor</h3>
+<p>Leon descriu un procés amb preparació repetible del projecte, sistema de disseny, especificacions prèvies, punts de control, proves i revisions de seguretat i interfície. El cas és un assistent de lectura: rep URLs d’articles públics, obté contingut mitjançant Oxylabs Web Scraper API i utilitza IA per resumir-lo i etiquetar-lo abans de conservar-lo. L’autor identifica Oxylabs com a patrocinador i component del projecte. [S1]</p>
+<h3>Aplicació proposada a SPAI</h3>
+<p>Transformar aquest patró en una plantilla de desenvolupament: abast i criteris d’acceptació; disseny i model de dades; tasques petites; implementació; comprovació; revisió; release. Conservar els acords de disseny i les decisions tècniques al repositori perquè cada sessió no hagi de reconstruir-los.</p>
+<p>Per al servei d’auditoria, el patró de lectura web podria ajudar a reunir evidències públiques de l’empresa: URL, data de captura, extracte i resum. Les afirmacions sobre l’empresa han de remetre a aquestes evidències. El contingut web és una entrada no fiable i no pot instruir l’agent a executar accions.</p>
+<p><strong>Valoració:</strong> és el recurs amb més connexió amb una metodologia de construcció reutilitzable. Oxylabs és una opció del tutorial, no una dependència obligatòria de SPAI. Escollir qualsevol servei de recollida web segons necessitat, cost, permisos i qualitat; no inferir que permet accedir a qualsevol contingut.</p>
+<p><strong>Recursos:</strong> el portal de Leon anuncia codi, prompts, workflows i materials dels vídeos. La comunitat es presenta com a gratuïta i privada; pot requerir registre. No s’ha identificat ni descarregat el repositori concret d’aquest vídeo. [S2]</p>
+<h2>3 Vídeo de Brendan Jowett</h2>
+<p><strong>Building a CRM From Scratch With Claude Code (Start to Finish)</strong><br />
+https://www.youtube.com/watch?v=nVLal5ihzbw</p>
+<h3>Què es pot afirmar</h3>
+<p>El recurs tracta de construir un CRM amb Claude Code. La recuperació disponible confirma el títol i el canal, però no permet reconstruir de manera fiable la implementació. Per tant, no atribuïm al vídeo una base de dades, sistema d’autenticació, hosting o funcionalitats concretes. [S3]</p>
+<h3>Anàlisi i aplicació proposada a SPAI</h3>
+<p>És un tema rellevant per al servei de CRM a mida, però un tutorial no demostra que un producte estigui preparat per a diversos clients. Abans de construir, comparar adaptar una solució existent amb desenvolupar-ne una de nova. Decidir segons processos diferencials, integracions, manteniment, migració i cost total.</p>
+<p>Un MVP proposat per a SPAI podria incloure empreses, contactes, oportunitats, fases comercials, activitats, tasques i historial de canvis. L’objectiu inicial seria un recorregut complet: registrar un contacte, crear una oportunitat, assignar un responsable, programar una tasca i consultar l’estat. Aquest abast és propi de SPAI, no una llista extreta del vídeo.</p>
+<p>El resultat acceptable ha d’incloure permisos verificats al servidor, persistència, importació/exportació, còpies i proves d’accés entre clients. Amagar un botó a la interfície no protegeix les dades. En un entorn multi-tenant, un identificador rebut del navegador no és autorització suficient.</p>
+<p><strong>Valoració:</strong> útil com a demostració del tipus de producte que es pot explorar; la transferència tècnica exacta resta pendent d’accedir al material original. Evitar equiparar un prototip ràpid amb un reemplaçament complet d’un CRM comercial.</p>
+<h2>4 Vídeo de Teacher’s Tech</h2>
+<p><strong>Claude Code: Data Analysis Without the Spreadsheet Headaches</strong><br />
+https://www.youtube.com/watch?v=we4J_JgPeQA</p>
+<h3>Contingut recuperat i límits</h3>
+<p>La descripció indexada a YouTube presenta l’anàlisi de dos fulls amb un agent. Una còpia externa de la descripció situa la demostració en una empresa fictícia, Basecamp Brew Co., amb dotze mesos de vendes i 200 clients. També enumera preparació del projecte, <code>CLAUDE.md</code>, planificació, anàlisi de vendes i clients, revisió i iteració d’informes. Són dades de demostració, no resultats empresarials reals. [S4, S5]</p>
+<p>La còpia proporciona aquest recurs del creador: https://go.teachers.tech/Claude_Code_BA. S’ha localitzat l’enllaç, però no se n’ha pogut obrir el destí ni comprovar els fitxers. Cal validar-lo abans de reutilitzar dades o instruccions.</p>
+<h3>Aplicació proposada a SPAI</h3>
+<p>Convertir el cas en un servei de diagnòstic i seguiment empresarial. El client aporta exportacions autoritzades, defineix les preguntes i valida el significat dels camps. Un procés calculable prepara mètriques i taules; Hermes interpreta resultats, explica limitacions i proposa accions amb evidències.</p>
+<p><strong>Valoració:</strong> candidat adequat per a un primer pilot amb risc operatiu baix si només llegeix còpies de dades. Els minuts de la demostració no són una estimació de durada per netejar dades reals ni una promesa de qualitat.</p>
+<h2>5 Procediment proposat per construir aplicacions</h2>
+<p>Aquest procediment és una adaptació de SPAI, coherent amb la recomanació oficial de donar a Claude criteris verificables i treballar amb exploració, planificació i implementació. [S6]</p>
+<ol>
+<li><strong>Entendre l’encàrrec.</strong> Recuperar l’onboarding i identificar usuaris, problema, integracions, dades, restriccions i criteris d’acceptació. No tornar a preguntar allò que ja està validat.</li>
+<li><strong>Inspeccionar abans d’escollir.</strong> Revisar repositori, versions, arquitectura i serveis existents. No canviar de stack per imitació d’un tutorial.</li>
+<li><strong>Especificar.</strong> Escriure recorreguts d’usuari, model de dades, permisos, casos de fallada i exclusions. Convertir cada requisit crític en una comprovació.</li>
+<li><strong>Definir la interfície.</strong> Reutilitzar estils de SPAI o del client. Contemplar càrrega, dades buides, errors, dispositius i accessibilitat, no només la pantalla ideal.</li>
+<li><strong>Dividir el treball.</strong> Crear tasques amb entrada, sortida, dependències i criteri de finalització. Separar treballs independents només quan l’entorn i el pressupost ho permetin.</li>
+<li><strong>Construir incrementalment.</strong> Implementar un recorregut complet, revisar els canvis i executar comprovacions abans d’ampliar l’abast. No alterar altres components per comoditat.</li>
+<li><strong>Verificar.</strong> Fer proves del comportament, dels permisos, de les migracions i de les integracions. Revisar visualment les pantalles importants. L’èxit del build no demostra que el procés de negoci sigui correcte.</li>
+<li><strong>Preparar la release.</strong> Registrar versions, configuració, dependències, canvis de dades i recuperació. Un checkpoint de codi no és una còpia de la base de dades ni desfà efectes externs.</li>
+<li><strong>Lliurar pel procés governat.</strong> Utilitzar el procediment d’onboarding i desplegament vigent de SPAI; conservar aprovacions, proves i responsable de suport.</li>
+</ol>
+<p>Hermes coordina. Claude Code pot actuar com a eina de construcció en un entorn autoritzat. La publicació continua subjecta als controls del projecte; cap prompt d’aquest document concedeix accés a producció.</p>
+<h2>6 Procediment proposat per a un CRM de client</h2>
+<h3>Decisions abans de programar</h3>
+<ul>
+<li>Què vol dir lead, contacte, client i oportunitat en aquest negoci?</li>
+<li>Quines fases hi ha i quines transicions estan permeses?</li>
+<li>Qui pot veure, modificar, exportar o eliminar cada tipus de registre?</li>
+<li>Quina aplicació és la font oficial de cada dada i quines sincronitzacions calen?</li>
+<li>Què s’ha de migrar i com es detecten coincidències sense fusionar persones equivocades?</li>
+<li>Quines automatitzacions generen un esborrany i quines poden actuar amb aprovació?</li>
+</ul>
+<h3>Estructura mínima proposada</h3>
+<table>
+<thead>
+<tr>
+<th>Entitat</th>
+<th>Camps orientatius</th>
+<th>Control essencial</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empresa</td>
+<td>Identificador, nom, estat, responsable</td>
+<td>Pertinença i permisos del tenant</td>
+</tr>
+<tr>
+<td>Contacte</td>
+<td>Empresa, nom, canals i preferències</td>
+<td>Minimització i accés segons rol</td>
+</tr>
+<tr>
+<td>Oportunitat</td>
+<td>Fase, valor, moneda, responsable i dates</td>
+<td>Historial de canvis i regles de transició</td>
+</tr>
+<tr>
+<td>Activitat</td>
+<td>Tipus, data, resultat i relacions</td>
+<td>Autor i procedència</td>
+</tr>
+<tr>
+<td>Tasca</td>
+<td>Responsable, venciment i estat</td>
+<td>Evitar duplicats en reintents</td>
+</tr>
+<tr>
+<td>Esdeveniment d’auditoria</td>
+<td>Actor, acció, data i referència</td>
+<td>No guardar secrets o contingut innecessari</td>
+</tr>
+</tbody>
+</table>
+<p>Els imports del pipeline són estimacions comercials, no ingressos reconeguts. La probabilitat de tancament necessita una definició; no s’ha d’inventar perquè una pantalla demani un percentatge.</p>
+<h3>Proves d’acceptació</h3>
+<p>Comprovar el recorregut complet del MVP, persistència després de reiniciar, permisos per rol, denegació entre tenants, cerca i paginació, importació amb incidències, exportació, reintents d’integració i restauració. Per als correus, generar primer esborranys i requerir l’autorització prevista abans d’enviar.</p>
+<h2>7 Procediment proposat per analitzar dades</h2>
+<ol>
+<li><strong>Definir la pregunta.</strong> Acordar període, unitats, moneda i decisió que es vol informar.</li>
+<li><strong>Preservar l’original.</strong> Conservar la referència del fitxer, data i empremta; treballar sobre una còpia sense modificar l’entrada.</li>
+<li><strong>Perfilar les dades.</strong> Inventariar fulls, files, columnes, tipus, absències, duplicats, dates i imports. Identificar fórmules o valors que requereixin recalculació; no executar macros rebudes.</li>
+<li><strong>Fixar definicions.</strong> Explicitar què és venda, devolució, cost, client actiu i repetició de compra. Un import sense context no pot convertir-se en marge o benefici net.</li>
+<li><strong>Netejar amb registre.</strong> Documentar correccions i exclusions. Distingir zero, buit i desconegut. No imputar dades econòmiques silenciosament.</li>
+<li><strong>Unir amb controls.</strong> Verificar claus, cardinalitat i cobertura. Comparar files i totals abans i després per detectar multiplicació de vendes. No forçar unions només per noms similars.</li>
+<li><strong>Calcular.</strong> Fer servir SQL, Python o una eina adequada perquè els resultats es puguin reproduir. Guardar codi, paràmetres i dependències. Hermes explica els càlculs; no els substitueix amb estimacions verbals.</li>
+<li><strong>Contrastar.</strong> Conciliar totals i revisar una mostra de registres. Amb dotze mesos es poden observar patrons, però no demostrar estacionalitat recurrent sense més evidència.</li>
+<li><strong>Informar.</strong> Separar resultat observat, hipòtesi i recomanació. Associar cada xifra a la seva taula o càlcul. No interpretar correlació com a causalitat.</li>
+<li><strong>Repetir.</strong> Reexecutar amb el període següent i detectar canvis d’esquema. Si falta una columna crítica, marcar l’anàlisi afectada com a incompleta.</li>
+</ol>
+<h3>Contracte de sortida proposat</h3>
+<p>Cada informe ha d’incloure fonts i període, qualitat de dades, definicions de mètriques, taules conciliades, conclusions amb evidència, limitacions i accions proposades. Cada acció indicarà motiu, responsable suggerit i mètrica de seguiment. Els gràfics han d’explicitar escala, unitat i període.</p>
+<p>Per a una anàlisi comercial, començar per vendes, nombre d’operacions, tiquet mitjà i evolució per canal, si els camps ho permeten. Analitzar marge només amb costos definits; analitzar recurrència només amb identitats i dates fiables. No anomenar LTV una suma de despesa observada sense modelar-ne l’abast.</p>
+<h2>8 Prompts originals per a Hermes i l’eina de desenvolupament</h2>
+<h3>A Convertir un encàrrec en un pla</h3>
+<blockquote>
+<p>Revisa l’expedient del client i el repositori autoritzat. Identifica requisits confirmats, dades pendents i components reutilitzables. Proposa un MVP, model de dades, permisos, recorreguts i criteris d’acceptació. Divideix el treball en tasques petites amb dependències. No inventis integracions disponibles. No despleguis ni modifiquis producció. Entrega el pla i els bloquejos que afecten la construcció.</p>
+</blockquote>
+<h3>B Implementar una funcionalitat de CRM</h3>
+<blockquote>
+<p>Implementa només la funcionalitat aprovada [referència] en l’entorn autoritzat. Reutilitza les convencions existents. Valida entrades i permisos al servidor i limita cada accés al tenant autenticat. Inclou errors, estats buits i traça necessària. Verifica el recorregut d’usuari i els accessos denegats. Informa de fitxers modificats, proves executades, resultat i limitacions. No enviïs comunicacions reals.</p>
+</blockquote>
+<h3>C Fer una anàlisi empresarial reproduïble</h3>
+<blockquote>
+<p>Analitza els fitxers autoritzats [referències] per respondre [preguntes]. Comença pel diccionari i la qualitat de dades. Conserva els originals i registra transformacions. Defineix mètriques, períodes i unions abans de calcular. Utilitza càlculs reproduïbles i concilia totals. Entrega taules, gràfics justificats i recomanacions vinculades a evidències. No inventis dades, causalitat o rendibilitat. Si no pots respondre una pregunta, explica quina dada falta.</p>
+</blockquote>
+<h3>D Revisar abans d’acceptar</h3>
+<blockquote>
+<p>Contrasta el lliurable amb els criteris aprovats i l’evidència disponible. Busca errors de permisos, dades, càlculs, integracions i recuperació. Separa defectes bloquejants i millores. No acceptis afirmacions d’èxit sense proves. Retorna resultat per criteri, evidència i acció correctora. Aquesta revisió no autoritza la publicació.</p>
+</blockquote>
+<h2>9 Coneixement reutilitzable i pilot</h2>
+<p>Proposar tres procediments interns: <code>spai-build-reviewed-app</code>, <code>spai-crm-delivery</code> i <code>spai-business-data-analysis</code>. Són noms suggerits, no skills instal·lades. Cadascun necessita finalitat, entrades, permisos, passos, sortides, errors, proves i versió.</p>
+<p>Claude Code disposa de mecanismes de skills i instruccions de projecte. Cal adaptar aquests continguts al mecanisme real de Hermes: no assumir que llegeix <code>CLAUDE.md</code> ni que interpreta les mateixes comandes. Un fitxer d’instruccions tampoc és una barrera tècnica de permisos. [S7, S8]</p>
+<p><strong>Pilot recomanat de SPAI:</strong> preparar un conjunt fictici de contactes i oportunitats, definir un MVP de CRM i generar un informe de la seva activitat amb mètriques conciliades. El valor de la prova és comprovar la continuïtat entre captura, permisos i anàlisi, no demostrar tots els serveis alhora.</p>
+<p>Mesurar temps de preparació, errors detectats, correccions, cost de models i temps de revisió. No prometre estalvis comercials abans de comparar amb una línia base.</p>
+<h3>Instrucció d’incorporació per a Hermes</h3>
+<blockquote>
+<p>Indexa SPAI-KP-DEV-DATA-001 v1.0 com a guia de referència. Preserva el nivell d’evidència de cada vídeo i no transformis les propostes en fets atribuïts als autors. Localitza les metodologies canòniques de SPAI abans d’aplicar-la. Proposa el pilot, identifica allò que ja existeix i allò que s’ha de construir. Reutilitza els controls de Business AI OS. Després de desar-la, comprova que es recupera amb una consulta nova. Incorporar coneixement no equival a entrenar un model ni a instal·lar una skill executable.</p>
+</blockquote>
+<h2>10 Fonts i recursos</h2>
+<p><strong>S1 — Explicació directa de Leon sobre el vídeo i l’aplicació</strong><br />
+https://www.linkedin.com/posts/leonvz_claude-code-advanced-workflow-build-ship-activity-7465016220904439808-0-tO</p>
+<p><strong>S2 — Comunitat i recursos de Leon</strong><br />
+https://www.skool.com/leonvanzyl/about<br />
+El portal anuncia materials dels vídeos; el paquet específic no s’ha inspeccionat.</p>
+<p><strong>S3 — Vídeo de Brendan Jowett</strong><br />
+https://www.youtube.com/watch?v=nVLal5ihzbw<br />
+Títol i canal contrastats; implementació detallada pendent.</p>
+<p><strong>S4 — Vídeo de Teacher’s Tech</strong><br />
+https://www.youtube.com/watch?v=we4J_JgPeQA</p>
+<p><strong>S5 — Còpia externa de la descripció de Teacher’s Tech</strong><br />
+https://zolotube.com/watch?v=we4J_JgPeQA<br />
+Només s’utilitza per identificar provisionalment el contingut anunciat i el recurs del creador; no és la base de les recomanacions tècniques.</p>
+<p><strong>Recurs de dades anunciat per Teacher’s Tech</strong><br />
+https://go.teachers.tech/Claude_Code_BA<br />
+Destí i contingut no verificats; no s’ha descarregat.</p>
+<p><strong>S6 — Bones pràctiques oficials de Claude Code</strong><br />
+https://code.claude.com/docs/en/best-practices</p>
+<p><strong>S7 — Skills de Claude Code</strong><br />
+https://code.claude.com/docs/en/skills</p>
+<p><strong>S8 — Instruccions i memòria de projecte</strong><br />
+https://code.claude.com/docs/en/memory</p>
+<p><strong>Vídeo original de Leon</strong><br />
+https://www.youtube.com/watch?v=zVZotTk6ZWU</p>
+<h3>Pendents de verificació</h3>
+<p>Obtenir la transcripció o materials originals del CRM; comprovar els recursos del vídeo d’anàlisi; identificar el repositori específic de Leon; revisar llicències abans de reutilitzar codi; confirmar compatibilitat de les eines amb l’entorn de SPAI. No s’ha inventat cap URL de GitHub ni s’ha importat cap projecte.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

@@ -1,0 +1,62 @@
+<!doctype html><html><head><meta charset="utf-8"><title>SKILL.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><hr />
+<p>name: generacio-oferta-comercial
+description: "Use when generar ofertes comercials o canviar-ne el layout."
+version: 1.0.0
+author: Hermes Agent (curador)
+license: MIT
+metadata:
+  hermes:
+    tags: [oferta, kit02, layout, bpmn, pdf, html, mesures]
+    related_skills: [multi-circuit-audit-pipeline, reporting-engine, diagnostic-processos-a-oferta]</p>
+<hr />
+<h1>Generació i edició d'ofertes comercials (kit02 oferta-soluciones)</h1>
+<p>El kit genera els dos entregables d'un client: <strong>oferta comercial</strong> (<code>comercial/oferta-&lt;cliente&gt;-v&lt;N&gt;.{html,pdf}</code>) i <strong>dossier intern</strong> (<code>interno/dossier-interno-...</code>). Motor a <code>/opt/data/deliverables/kits/02-kit-oferta-soluciones/</code>. És feina recurrent: qualsevol client nou (estudi-aiguaviva, clínica, supermercat...) passa per aquí.</p>
+<h2>Comanda de generació</h2>
+<pre><code class="language-bash">cd /opt/data/deliverables/kits/02-kit-oferta-soluciones &amp;&amp; node herramientas/generar.mjs &lt;id-client&gt;
+</code></pre>
+<ul>
+<li><code>id-client</code> = carpetes a <code>workspace/clientes/</code> (ex: <code>estudi-aiguaviva</code>). NO duplica la versió: <strong>un document emès no se sobrescriu</strong>, cada execució suma <code>v&lt;N+1&gt;</code>.</li>
+<li>Les versions surten com a <strong>BORRADOR NO VINCULANTE</strong> si les tarifes/dades jurídiques no estan aprovades (normal al kit local: <code>Borrador porque: Las tarifas no están aprobadas...</code>). És el comportament esperat, no un error.</li>
+<li>Després de generar, revisa les <strong>pàgines del PDF</strong> abans de donar-la per bona (<code>Falta: revisar las páginas...</code>).</li>
+</ul>
+<h2>Layout per procés — el definitiu (triat per l'usuari, no canviar)</h2>
+<p>Cada <code>article.proceso</code> porta <strong>diagrames a dalt (2 columnes) + text a sota</strong>, tot a la mateixa pàgina quan el contingut hi cap:</p>
+<ol>
+<li><strong>Dalt (<code>div.diagramas-fila</code>, grid 2 columnes)</strong>: diagrama AS-IS (esq) i TO-BE/proposta (dreta) com a <strong><code>vista()</code> en miniatura</strong> — <code>svg.vista</code> amb <code>max-height: 62mm</code> (CSS a <code>plantillas/oferta.html</code>). El peu ja diu que el detall es llegeix a l'annex.</li>
+<li><strong>Sota (<code>div.proceso-cols</code>, grid 2 columnes)</strong>: <code>col-izq</code> = <strong>Problemas encontrados</strong> (targetes compactes) + manuals; <code>col-dcha</code> = <strong>Soluciones propuestas</strong> (targetes compactes).</li>
+<li>Problema i solució del mateix procés queden <strong>sempre junts</strong> a la mateixa pàgina (objectiu original de l'usuari: abans es partien entre pàgines).</li>
+</ol>
+<p>L'usuari vol que el format sigui <strong>llegible</strong>: diagrames petits a dalt com a vista general (el detall va a les làmines de l'annex) i el text ample a sota. <strong>No</strong> tornar a posar els diagrames grans dins de la pàgina del procés: això era el que feia cada procés de 3-7 pàgines.</p>
+<h3>Targetes compactes (ja aplicades al motor)</h3>
+<ul>
+<li><strong>Problema</strong> = títol + etiqueta + només <code>Como se resolvería</code> (classe <code>resol-linia</code>). <em>No</em> descripció llarga / consecuencia / dónde / cita (van al dossier).</li>
+<li><strong>Solució</strong> = títol + descripció curta + <code>dl-2 slim</code> amb només <code>Para qué sirve</code> (beneficio) + <code>Inversión</code> (si inclosa). <em>No</em> cadena-flux, equipo, aprobación, fuera, aceptación, viabilidad, efecto cuota.</li>
+</ul>
+<h2>Mesurar l'alçada per procés (pre/post qualsevol canvi de layout)</h2>
+<p>L'única manera objectiva de saber si un procés cap a una pàgina és <strong>mesurar amb Playwright</strong> (A4 ~ 182-190 mm útils; 1mm ≈ 3,78 CSS px):</p>
+<pre><code class="language-python"># /opt/data/measure_proc2.py (adaptar-html=fitxer vN) — PLAYWRIGHT_BROWSERS_PATH=/opt/data/tools/.pw-browsers /tmp/pilvenv/bin/python measure_proc2.py
+# per cada article.proceso: getBoundingClientRect().height/3.78 → mm; i per blocs: .diagramas-fila, .proceso-cols
+</code></pre>
+<p>Valors de referència mesurats (client estudi-aiguaviva, motor original vs final):
+- Original (tot vertical): VEN-01 569mm, FUL-01 1266mm, ADM-02 899mm — 3-7 pàgines per procés.
+- Estructura final (diagrames dalt + text sota): diagrames 70-95mm dalt; text 206-277mm. Processos petits ≈ 1 full; els grans (5 problemes) es reparteixen en 2.</p>
+<h2>Pitfalls d'edició del motor — CRÍTIC</h2>
+<p><code>herramientas/oferta-html.mjs</code> és un sol template literal JS gegant amb sub-template literals niats (<code>${}</code>). <strong>NO reescriure la funció amb índexs de línia via <code>execute_code</code></strong>: els desplaçaments d'índex causen errors silenciosos i corrupció (<code>Unexpected token '&lt;'</code>, <code>&lt;/div&gt;&lt;/article&gt;</code>;</article><code>;</code>). Patró validat:</p>
+<ol>
+<li><strong>Usar el tool <code>patch</code> amb anchors exactes i únics</strong> (cadenes senceres, no línies).</li>
+<li>Després de CADA canvi: <code>node --check herramientas/oferta-html.mjs</code> — l'import ESM (<code>import('./herramientas/oferta-html.mjs')</code>) també valida però és més lent.</li>
+<li>El CSS NO és al mjs: viu a <code>plantillas/oferta.html</code> (ex. <code>.diagramas-fila</code>, <code>svg.vista max-height</code>). Els canvis de layout toquen DOS fitxers.</li>
+<li>Si encara es fa substring-surgery amb Python: extreure per markers exactes (find d'anchors únics), concatenar en l'ordre nou, i <strong>recomptar backticks parells</strong> abans d'escriure.</li>
+<li>L'escàner del kit bloqueja els <strong>comentaris HTML <code>&lt;!-- --&gt;</code></strong> dins el template com a "terme tècnic" — no posar-ne de nous a les targetes.</li>
+</ol>
+<h2>Altres</h2>
+<ul>
+<li>Hi ha <code>herramientas/generar.mjs</code> (runner), <code>oferta-html.mjs</code> (layout comercial) i <code>dossier.mjs</code> (dossier intern). Els canvis de layout comercial van només a <code>oferta-html.mjs</code> + <code>plantillas/oferta.html</code>.</li>
+<li>Els clients utilitzen <code>tr('ES','CA','EN')</code> per idioma; fer servir els 3 paràmetres sempre en textos nous.</li>
+</ul>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

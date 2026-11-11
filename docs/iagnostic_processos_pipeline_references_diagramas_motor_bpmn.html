@@ -1,0 +1,60 @@
+<!doctype html><html><head><meta charset="utf-8"><title>diagramas-motor-bpmn.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Dibuixar diagrames BPMN amb el MOTOR del kit (regla d'or, 2026-10-12)</h1>
+<p>Regla de fons: <strong>mai reinventar el layout BPMN.</strong> El kit de diagnòstic (<code>02-kit-oferta-soluciones/</code>)
+porta un motor de 687 línies (<code>herramientas/motor-bpmn/colocar.mjs</code>) amb enrutament A*, mesura
+tipogràfica, subfiles de decisions i carrils. Reescriure això en Python produeix diagrames que el
+client rebutja ("les línies no coordinen", "ningu pagaria un duro").</p>
+<h2>Pipeline correcte (genera-diagramas.mjs)</h2>
+<pre><code>ficha (modelo/&lt;codi&gt;.json, format ficha-proceso/1)
+  → normalizarFicha()      (motor-bpmn/modelo.mjs)
+  → comprobarFicha()       (rebutja fitxes invàlides abans de dibuixar)
+  → colocar()              (motor-bpmn/colocar.mjs — layout)
+  → generarXML()           (motor-bpmn/bpmn.mjs — BPMN 2.0 amb DI correcte)
+  → render bpmn-js         (plantillas/render-bpmn.html + visor-bpmn/)
+  → svg/&lt;codi&gt;.svg         (vectorial, llest per web i PDF)
+</code></pre>
+<p>Els mòduls del motor s'importen per ruta <code>file://</code> (depenen entre si per imports relatius,
+que es resolen correctament). bpmn.mjs depèn de TIPOS/VERSION_KIT/claseErrorKit dels seus
+<code>./*.mjs</code> veïns — importar-los TODS del mateix directori.</p>
+<h2>Format de fitxa VÀLID (el que exigeix comprobarFicha)</h2>
+<ul>
+<li><strong>àrees</strong>: <code>marketing</code>, <code>ventas</code>, <code>fulfillment</code>, <code>administracion</code> (els kits de SPAI usen
+  aquestes; <code>comercial</code>/<code>fabricacion</code> NO existeixen → mapejar-les a ventas/fulfillment).</li>
+<li><strong>subtipo d'inici/fin</strong>: <code>ninguno</code> (no <code>evento</code>).</li>
+<li><strong>decisió</strong>: tipus <code>exclusiva</code> (compuerta exclusiva), NO una tasca amb <code>tipo:"decision"</code>.
+  Modelar així: node <code>d{j}</code> amb la pregunta + un flujo <code>nombre:"No"</code> → fin alternatiu + el
+  flux següent porta <code>nombre:"Sí"</code>.</li>
+<li><strong>participants</strong>: únics (sense duplicats del mateix extern).</li>
+<li><strong>missatges</strong>: sempre entre un node i un participant extern (mai node↔node; mai entre dos
+  participants). <code>enviar</code> → node→extern; <code>rebre</code> → extern→node.</li>
+<li><strong>carrils</strong> <code>l1,l2,…</code> referenciats correctament per cada node.</li>
+</ul>
+<h2>Render a SVG (chrome-headless-shell)</h2>
+<p>El chromium FULL (<code>chrome-linux64/chrome</code>) retorna stdout buit amb <code>--dump-dom</code>; el
+<strong><code>chrome-headless-shell</code></strong> és el binari correcte per al render bpmn-js → SVG:</p>
+<pre><code class="language-bash">/opt/data/tools/.pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell \
+  --headless=new --disable-gpu --no-sandbox --user-data-dir=&lt;tmp&gt; \
+  --virtual-time-budget=15000 --dump-dom &quot;file://&lt;render-bpmn.html&gt;&quot;
+</code></pre>
+<p>El resultat ve al <code>&lt;pre id="salida"&gt;...&lt;/pre&gt;</code> (JSON), cal desescapar <code>&amp;lt;/&amp;gt;/&amp;quot;/&amp;#39;/&amp;amp;</code>.
+Els logs DBus/GLib/CSP/font són soroll esperat al contenidor — ignorar-los (sortida per stderr).</p>
+<h2>PDF (no reportlab)</h2>
+<p>El kit imprimeix un HTML de impresión amb el navegador invisible (<code>--print-to-pdf</code>). Reproduir
+amb Playwright (<code>scrapling-env</code>): <code>chromium.launch(args=["--no-sandbox"])</code> → <code>goto(file://…)</code> →
+<code>page.pdf(format="A4", print_background=True)</code>. L'HTML ja porta els SVG incrustats → el PDF surt
+amb els diagrames vectorials. Verificar amb PyMuPDF <code>get_drawings()</code>: ~80-90 dibuixos vectorials
+per làmina de procés = correcte.</p>
+<h2>Trampes</h2>
+<ul>
+<li><code>--with-deps</code> de playwright install intenta sudo i falla al contenidor → instal·lar <strong>sense</strong>
+  <code>--with-deps</code>, només <code>PLAYWRIGHT_BROWSERS_PATH=/opt/data/tools/.pw-browsers</code>.</li>
+<li>Els SVG de bpmn-js porten hits/outlines invisibles (<code>djs-hit</code>, <code>djs-outline</code>): prescindibles;
+  si s'incrusten a HTML no molesten perquè ja són transparents.</li>
+<li><code>comprobarFicha</code> retorna <code>errores</code> (atura) i <code>avisos</code> (estil, p. ex. verb genèric); els avisos
+  no bloquejen el dibuix però s'han de tenir vistos.</li>
+</ul>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

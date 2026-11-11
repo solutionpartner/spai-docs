@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><title>local-ai-runtime.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Local AI Runtime — Phase 18</h1>
+<p>Phase 18 adds local model inference to the Phase 17 Local Agent. In <code>strict_local</code>, document extraction, retrieval, prompt construction and generation all happen inside the client machine/server.</p>
+<h2>Supported backends</h2>
+<ul>
+<li><code>ollama</code>: native Ollama <code>/api/chat</code> and <code>/api/embed</code> APIs.</li>
+<li><code>openai_compat</code>: local OpenAI-compatible endpoint intended for <code>llama-server</code> / llama.cpp.</li>
+</ul>
+<p>Both are rejected unless <code>base_url</code> resolves to loopback (<code>localhost</code>, <code>127.0.0.1</code>, <code>::1</code>). Phase 18 does not automatically download models and does not accept a cloud URL as a local runtime.</p>
+<h2>Flow</h2>
+<pre><code class="language-text">Local files/NAS
+   -&gt; Private RAG (SQLite FTS5)
+   -&gt; selected chunks
+   -&gt; Local AI Runtime
+   -&gt; local answer
+</code></pre>
+<p>The Control Plane may receive operational telemetry (backend, health, model identifier, latency/error counts) but not questions, retrieved chunks, document content, prompts or generated answers.</p>
+<h2>Endpoints</h2>
+<ul>
+<li><code>GET /v1/ai/health</code></li>
+<li><code>POST /v1/ai/chat</code></li>
+<li><code>POST /v1/ai/embed</code></li>
+<li><code>POST /v1/rag/answer</code></li>
+</ul>
+<p>All Phase 18 endpoints require the Local Agent bearer token. The Local Agent should bind to <code>127.0.0.1</code> unless a separately authenticated local reverse proxy is deliberately configured.</p>
+<h2>Privacy modes</h2>
+<h3>strict_local</h3>
+<p>RAG and answer generation stay on the client host. Use a local chat model. This is the default for sensitive data.</p>
+<h3>hybrid_retrieval</h3>
+<p>The Phase 17 retrieval policy may allow selected chunks to be forwarded to the tenant Business OS. Phase 18 still offers local generation, but hybrid forwarding must remain an explicit tenant policy.</p>
+<h2>Production recommendations</h2>
+<p>Pin an approved model/version, restrict outbound egress from the Local Agent where practical, keep inference endpoints on loopback, monitor model/runtime health, and use signed Phase 8 deployments to update the Local Agent configuration/runtime components.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

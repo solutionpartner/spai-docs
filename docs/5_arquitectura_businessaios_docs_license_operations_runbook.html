@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8"><title>license-operations-runbook.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>License operations runbook</h1>
+<h2>Key setup</h2>
+<ol>
+<li>Generate an Ed25519 license keypair with <code>scripts/generate_license_keys.py</code>.</li>
+<li>Keep the private key on an isolated signer host/HSM. Never mount it into the Control Plane.</li>
+<li>Configure <code>SP_LICENSE_PUBLIC_KEY_PEM</code> or <code>SP_LICENSE_PUBLIC_KEY_PATH</code> on the Control Plane.</li>
+<li>Install the same public key on tenant runtimes for local lease verification.</li>
+</ol>
+<h2>Signer</h2>
+<p>Create a service account with role <code>license_signer</code> and run <code>scripts/license_signer_worker.py</code> on the isolated signing host. In production use a timer/queue runner rather than sharing a general-purpose shell with Hermes.</p>
+<h2>Tenant sync</h2>
+<p>The tenant VPS periodically runs <code>scripts/license_client_sync.py</code>. It registers/binds its installation, fetches the current valid lease, or requests a renewal. The saved lease is mode <code>0600</code>.</p>
+<h2>Payment failure</h2>
+<p><code>payment.failed</code> sets the subscription to <code>past_due</code> and starts a bounded grace period. After the grace timestamp, the next entitlement evaluation/lease renewal yields <code>restricted</code>. <code>payment.succeeded</code> returns the tenant to <code>active</code>.</p>
+<h2>No destructive enforcement</h2>
+<p>Billing status never deletes databases, documents, workflows, backups or secrets. Suspension is access/enforcement state only.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

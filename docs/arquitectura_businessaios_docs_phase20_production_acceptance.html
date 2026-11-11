@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>phase20-production-acceptance.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Phase 20 Production Acceptance Test (PAT)</h1>
+<p>A tenant/customer may pass the legal milestone only when all applicable checks succeed.</p>
+<ul>
+<li>[ ] Counsel-approved templates registered with immutable version and SHA-256.</li>
+<li>[ ] Required document matrix configured for customer/plan/use case.</li>
+<li>[ ] Provider adapter creates request and binds transaction ID.</li>
+<li>[ ] Signer receives and completes provider flow.</li>
+<li>[ ] Invalid webhook authentication is rejected.</li>
+<li>[ ] Duplicate webhook is idempotent.</li>
+<li>[ ] Final status cannot be rewritten to another final state.</li>
+<li>[ ] Signed artifact/evidence references are captured.</li>
+<li>[ ] Event-chain and evidence-manifest verification returns valid.</li>
+<li>[ ] Legal Gate remains false if any required document is pending.</li>
+<li>[ ] Legal Gate is false when nothing is configured.</li>
+<li>[ ] Legal Gate becomes true only after all required documents are signed.</li>
+<li>[ ] Strict onboarding blocks on legal gate and opens only after READY.</li>
+<li>[ ] Audit users can read evidence but cannot send/modify contracts.</li>
+<li>[ ] Provider credentials/secrets do not appear in DB payloads/logs.</li>
+<li>[ ] Backup/restore retains contract/evidence integrity.</li>
+<li>[ ] Retention/legal-hold policy is approved and configured.</li>
+<li>[ ] Vendor/QTSP status and required trust service verified for production use.</li>
+</ul>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

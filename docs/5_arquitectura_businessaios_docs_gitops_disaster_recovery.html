@@ -1,0 +1,49 @@
+<!doctype html><html><head><meta charset="utf-8"><title>gitops-disaster-recovery.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Phase 15.1 — GitOps &amp; Disaster Recovery</h1>
+<h2>Goal</h2>
+<p>No tenant-specific deployable state should exist only on a client VPS. A tenant can be reconstructed from independent sources without copying secrets into Git.</p>
+<h2>Four backup planes</h2>
+<ol>
+<li><strong>Git repository (recommended: private GitHub repository)</strong> — declarative tenant state, runtime policy, package activations, component versions and versioned n8n workflow JSON.</li>
+<li><strong>Object storage</strong> — signed release artifacts and encrypted database/data backups.</li>
+<li><strong>Secret manager</strong> — secret values. Git and the Control Plane store references only.</li>
+<li><strong>Control Plane database</strong> — operational indexes, audit, health and recovery metadata. It also needs encrypted backups.</li>
+</ol>
+<h2>Git layout</h2>
+<pre><code class="language-text">tenants/
+  acme/
+    tenant-state.json
+</code></pre>
+<p>The snapshot contains no inline secret values. <code>secret_references</code> point to Vault/Secret Manager/env locations.</p>
+<h2>Worker trust boundary</h2>
+<p>The Control Plane creates a sync job containing a repo reference and a credential reference. A dedicated <code>gitops_worker</code> claims the job. The worker host/CI environment resolves credentials; the credential value is never returned by the Control Plane.</p>
+<p>Recommended GitHub setup:
+- private repository;
+- protected <code>main</code> branch;
+- dedicated deploy key or fine-grained machine credential with access only to that repository;
+- required review for manual edits;
+- immutable tags/releases for product artifacts;
+- repository credential injected into the worker by a secret manager/CI environment.</p>
+<h2>Recovery point</h2>
+<p>A recovery point is created only when:
+- the tenant snapshot has been successfully synced to Git;
+- every referenced backup has completed;
+- hashes are known.</p>
+<p>The recovery manifest records Git commit, snapshot hash, encrypted backup locations/hashes and deployment fingerprint.</p>
+<h2>Restore principle</h2>
+<p><code>GET /recovery-points/{id}/plan</code> returns a plan only. The Control Plane does not automatically run destructive restore/cutover operations.</p>
+<p>Suggested sequence:
+1. provision clean host;
+2. restore exact Git commit;
+3. restore encrypted backups;
+4. resolve secret references from the secret manager;
+5. deploy locked component versions;
+6. pass health/runtime sync gates;
+7. human approval for cutover.</p>
+<h2>n8n</h2>
+<p>Workflows that are unique to a tenant should be registered as <code>n8n_workflow</code> GitOps objects before/with deployment. That JSON then becomes part of the tenant snapshot and can be rolled back/versioned in Git.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

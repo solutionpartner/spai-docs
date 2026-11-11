@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta charset="utf-8"><title>local-agent-private-rag.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Local Agent + Private RAG architecture</h1>
+<h2>Goal</h2>
+<p>Keep private documents and local-system access inside the tenant environment while exposing only a narrow, authenticated capability surface to Business AI OS.</p>
+<pre><code class="language-text">Web UI / Business AI OS
+        |
+Tenant Router + Approval Engine
+        |
+Local Agent capability request
+        |
++---------------- tenant LAN / PC ----------------+
+| Local Agent                                     |
+|  - signed installation / license lease          |
+|  - allowlisted roots                            |
+|  - Private RAG index (SQLite FTS5)              |
+|  - local connectors                             |
+|  - telemetry only -&gt; Control Plane              |
++-------------------------------------------------+
+</code></pre>
+<h2>Privacy boundaries</h2>
+<ul>
+<li>Document bytes, extracted text and RAG chunks remain local by default.</li>
+<li>Control Plane receives health/metrics only, never document contents or user queries.</li>
+<li>Paths are allowlisted and resolved canonically; symlinks are ignored to prevent escaping configured roots.</li>
+<li>No arbitrary shell execution is part of the Local Agent protocol.</li>
+<li>Write-capable local connectors must still go through the tenant Approval Engine.</li>
+<li>Licensing is verified locally using the signed Phase 16 entitlement lease.</li>
+</ul>
+<h2>Search</h2>
+<p>Phase 17 ships a zero-cloud lexical retrieval backend based on SQLite FTS5. PDF parsing uses optional <code>pypdf</code>; DOCX parsing is stdlib ZIP/XML. A later embedding backend can be added behind the same interface (local Ollama/llama.cpp/ONNX, etc.).</p>
+<h2>Updates</h2>
+<p>The Local Agent is a normal signed catalog/deployment component. Phase 8 deployment and Phase 15.1 GitOps/DR apply to it; the installer never self-updates from an arbitrary URL.</p>
+<h2>Privacy modes</h2>
+<ul>
+<li><code>strict_local</code>: retrieved chunks are not intended to leave the local machine. Pair with a local inference backend for fully private answer generation.</li>
+<li><code>hybrid_retrieval</code>: retrieval remains local, but selected chunks may be passed to the tenant Business OS/model under tenant policy.</li>
+</ul>
+<p>The shipped HTTP service binds to <code>127.0.0.1</code> by default and requires <code>SP_LOCAL_AGENT_TOKEN</code>; exposing it to a LAN requires an explicit deployment decision and network controls.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

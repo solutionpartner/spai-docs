@@ -1,0 +1,80 @@
+<!doctype html><html><head><meta charset="utf-8"><title>phase19-readme.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>SolutionPartner Business AI OS — Phase 19</h1>
+<h2>AI FinOps, Token Metering &amp; Model Router</h2>
+<p>Phase 19 extends the Phase 18 Local AI Runtime with deterministic AI cost governance across every tenant.</p>
+<h3>What this phase adds</h3>
+<ul>
+<li>AI model registry with classes: <code>local</code>, <code>free_tier</code>, <code>low_cost</code>, <code>premium</code>.</li>
+<li>Per-tenant monthly budgets, soft/hard thresholds and hard-limit actions.</li>
+<li>Routing modes: <code>economy_first</code>, <code>balanced</code>, <code>quality_first</code>.</li>
+<li>Privacy-aware routing (<code>strict_local</code> can never route to cloud).</li>
+<li>Capability-aware routing (chat/tools/json/etc.).</li>
+<li>Model fallback chains.</li>
+<li>Token metering by tenant, model, agent, workflow and task type.</li>
+<li>Server-computed estimated EUR cost from versioned price metadata.</li>
+<li>Month-to-date cost summaries and simple spend-anomaly detection.</li>
+<li>Billing entitlement enforcement before model routing.</li>
+<li>Read-only AI cost visibility for the SP Supervisor/Hermes.</li>
+<li>No prompt/response storage in FinOps telemetry.</li>
+</ul>
+<h3>Recommended SME policy</h3>
+<p>Use <code>economy_first</code> from day one. Run deterministic workflows without an LLM, use Local AI or a genuine free tier for repetitive/simple work, low-cost cloud for normal work, and premium models only for tasks where their extra quality is justified. At the soft budget threshold, automatically become more conservative. At the hard threshold, switch to <code>local_only</code> or deny non-essential tasks.</p>
+<blockquote>
+<p>Important: “open-weight/local” and “free API” are not the same. A self-hosted model can have zero marginal API-token cost while still consuming hardware/electricity. A cloud API advertised as inexpensive can still be paid. Provider rates and free allowances must be refreshed in the model registry.</p>
+</blockquote>
+<h3>Main flow</h3>
+<pre><code class="language-text">Tenant request
+    |
+    v
+Billing entitlement check
+    |
+    v
+AI Model Router
+    |-- privacy
+    |-- required capabilities
+    |-- task complexity
+    |-- routing policy
+    |-- month-to-date budget band
+    v
+Selected model + fallback chain
+    |
+    v
+Provider/Local AI adapter
+    |
+    v
+Usage report (tokens only)
+    |
+    v
+AI FinOps ledger + cost dashboard/Supervisor
+</code></pre>
+<h3>API surface</h3>
+<ul>
+<li><code>GET/POST /ai/models</code></li>
+<li><code>GET/PUT /ai/tenants/{tenant_id}/budget</code></li>
+<li><code>GET/PUT /ai/tenants/{tenant_id}/routing</code></li>
+<li><code>POST /client/{tenant_id}/ai/route</code></li>
+<li><code>POST /client/{tenant_id}/ai/usage</code></li>
+<li><code>GET /ai/tenants/{tenant_id}/usage</code></li>
+<li><code>GET /ai/fleet/usage</code></li>
+</ul>
+<p>Administrative route/usage endpoints are also available with the appropriate <code>ai.*</code> RBAC scopes.</p>
+<h3>Security and privacy</h3>
+<p>FinOps does not accept prompt text, generated text, RAG chunks, API keys or secret values. Model endpoints should be represented by references and provider credentials stay in the Secret Manager/Vault. <code>strict_local</code> routes only to models registered as <code>local</code>.</p>
+<h3>Files</h3>
+<ul>
+<li><code>control_plane/ai_finops.py</code> — registry, budget, routing, metering, anomaly logic.</li>
+<li><code>docs/ai-finops-model-routing.md</code> — architecture and operational policy.</li>
+<li><code>contracts/ai-*.schema.json</code> — new Phase 19 contracts.</li>
+<li><code>examples/ai-*.json</code> — sample budget/routing/local-model/usage payloads.</li>
+<li><code>tests/test_phase19_ai_finops.py</code> — domain tests.</li>
+<li><code>tests/test_api_phase19.py</code> — HTTP/RBAC/client-flow tests.</li>
+</ul>
+<h3>Run tests</h3>
+<pre><code class="language-bash">python -m pytest -q
+</code></pre>
+<p>Phase 19 remains additive and compatible with the Phase 18 database.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

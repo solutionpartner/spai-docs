@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><title>local-agent-installation.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Local Agent installation</h1>
+<ol>
+<li>Create/register a tenant installation and obtain a valid signed entitlement lease.</li>
+<li>Install the signed <code>local-agent</code> release through the Deployment Engine.</li>
+<li>Configure one or more RAG roots locally. Use least privilege: read-only service account where possible.</li>
+<li>Register the Local Agent with the Control Plane and report health metrics only.</li>
+<li>Create a RAG profile in the Control Plane for desired-state/audit visibility; the actual file paths are interpreted only on the tenant machine.</li>
+<li>Run an initial scan and verify that no roots can be escaped through symlinks.</li>
+<li>Enable scheduled incremental scans.</li>
+</ol>
+<p>Never put Holded/ERP/API credentials or document contents in the Control Plane profile.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

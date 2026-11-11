@@ -1,0 +1,73 @@
+<!doctype html><html><head><meta charset="utf-8"><title>analisi-kit02-2autom-per-proces.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Construir l'anàlisi del kit 02 quan cada procés té 2+ automatitzacions</h1>
+<p>Anti-pattern clar: <code>node herramientas/importar.mjs</code> NOMÉS importa les fitxes/processos
+(empresa, procesos, pendientes, equivalencias, herramientas, contradicciones). <strong>NO genera
+<code>areas.json</code>, <code>hallazgos.json</code>, <code>automatizaciones.json</code>, <code>to-be/*</code>, <code>escandallo.json</code> ni
+<code>oferta.json</code>.</strong> Aquests 6 fitxers els ha de construir l'analista (el "Claude" del kit / un
+script generador), NO es deriven automàticament de les respostes.</p>
+<h2>Model de dades real</h2>
+<ul>
+<li><strong>1 <code>hallazgo</code> = 1 punt de dolor concret</strong> (normalment un node amb <code>dolor</code> no buit).</li>
+<li><strong>1 <code>automatización</code> = 1 capacitat de negoci</strong> (un ID <code>AUT-*</code>, es cobra un cop), que pot
+  resoldre <strong>1 o més hallazgos del MATEIX procés</strong> (<code>process_ids</code> + <code>finding_ids</code>).</li>
+<li><strong>Per què un procés pot tenir 2+</strong>: el mapeig va per dolors independents, no per processos.
+  Un procés amb 3 punts de dolor independents → 3 automatitzacions (o 2, agrupant-los).
+  Dada de venda per a Josep: NO és 1 procés = 1 flux; <code>ADM-01</code> facturació = factura + impagats.</li>
+</ul>
+<h2>Recepta per a un client on CADA procés en té 2+ (provat 14/10, Ràpids Logistics CL-0004)</h2>
+<p>Un script Python que llegeix les fitxes AS IS i produeix els 6 fitxers de manera vàlida i
+coherent (evita errors d'esquema i referències trencades en l'edició a mà). Patró a
+<code>workspace/clientes/rapids-logistics/genera-analisi.py</code>.</p>
+<p>Per procés: <code>mapping TODEF = { node_id: [aut_ids] }</code> assigna cada node millorat a la seva
+automatització. Les AUT que toquen el mateix procés comparteixen nodes disjunts → cada
+automatització té els seus propis <code>finding_ids</code>.</p>
+<p>Ordre d'escriptura (i validar després de cada fitxer):
+1. <code>areas.json</code> (schema areas/1) — codi→<code>primary_business_area_id</code> + <code>related_area_ids</code>
+   (de <code>config/areas.json</code>: MKT,VEN,CLI,OPE,LOG,TEC,FAC,COB,COM,ADM,PER,DIR,IT).
+2. <code>hallazgos.json</code> (schema hallazgos/1) — un per node amb <code>dolor</code>. Camp <code>cita</code> = el dolor
+   LITERAL. <code>cita_ref</code> = <code>PROC#node.dolor</code>.
+3. <code>automatizaciones.json</code> (schema automatizaciones/1) — <code>client.*</code> en llenguatge de negoci
+   (sense jerga), <code>internal.*</code> (pattern/escalera/autonomy/systems), <code>prioridad</code> 1-5,
+   <code>baseline.estado:'pendiente'</code>.
+4. <code>to-be/&lt;codi&gt;.json</code> — clone de la ficha AS IS amb <code>propuesta:'AUT-x'</code> als nodes
+   millorats + bloc <code>cambios[]</code> (<code>{tipo:'automatizado', nodo, antes, despues, automatizacion}</code>).
+5. <code>escandallo.json</code> (schema escandallo/1) — hores per rol per AUT + BASE (0 preus → tot
+   <code>pendiente_estudio</code>).
+6. <code>oferta.json</code> (schema oferta/1) — <code>incluidas</code> (totes), <code>fases</code>, <code>resumen_ejecutivo</code>.</p>
+<h2>Pitfalls verificats (no topar-hi)</h2>
+<ul>
+<li><strong>Cites literal: llegir el <code>dolor</code> de la fitxa AS IS, NO del formulari original.</strong> El
+  formulari (respostes.json) pot tenir <code>idx</code> no alineat amb el codi del procés (VEN-01≠idx 1),
+  i <code>validar.mjs</code> dóna <code>✗ HAL-xxx: la cita no aparece literal en PROC#node.dolor</code>. La font
+  fiable és <code>modelo/fichas-as-is/PROC.json</code> → node <code>.dolor</code>.</li>
+<li><strong><code>validar.mjs</code> només BLOQUEJA amb <code>✗</code>; els <code>!</code> (avisos)</strong> — to de l'esdeveniment massa llarg,
+  verb genèric "Gestionar..." — són estil, no impedeixen generar. No perseguir-los tots.</li>
+<li><strong>Cada hallazgo amb <code>decision:'automatizar'</code> ha d'estar resolt per alguna AUT</strong> (quedaria
+  un avís <code>HAL dice automatizar pero ninguna automatización lo resuelve</code>). El mapping TODEF
+  ha de cobrir tots els nodes amb dolor; si un dolor no es vol automatitzar, canviar la
+  <code>decision</code> (no deixar-lo penjant amb 'automatizar').</li>
+<li><strong>El <code>despues</code> dels canvis ha de ser DIFERENT del <code>antes</code> (bug 14/10)</strong>: si el generador posa
+  <code>despues = n.get('nombre')</code> (el mateix nom AS IS), la taula de canvis de l'oferta mostra
+  columna «Hoy» i «Con la propuesta» IDÈNTIQUES i Josep ho nota ("he vist que els canvis hoy i
+  con la propuesta diuen el mateix"). Fix: definir un mapa <code>TOBE_NOM = { proc: { node: '&lt;nom&gt;&lt;...&gt;automatitzat' } }</code>
+  per node i assignar-lo com a <strong>nou <code>nombre</code> del node al TO BE</strong> (<code>n['nombre'] = TOBE_NOM[proc][nid]</code>), de
+  manera que el <code>despues</code> del canvi reflecteixi la millora real (ex. «Recibir pedidos por varias vías»
+  → «Recibir los pedidos por un único canal»; «Avisar al conductor de su ruta» → «Avisar al conductor
+  automáticamente»). Verificar amb el script de recompte: cap <code>cambios[]</code> amb <code>antes == despues</code>.</li>
+<li><strong>Comprova per procés el recompte</strong>: llegir <code>automatizaciones.json</code>, agrupar per
+  <code>process_ids[0]</code>, i confirmar que cada procés en té el nombre desitjat. <code>Ràpids: VEN-01:2,
+  FUL-01:2, FUL-02:3, ADM-01:2, ADM-02:2 = 11 AUT / 5 processos</code>, 23/23 hallazgos resolts.</li>
+</ul>
+<h2>clients-bd.py — bug d'IDs (fix 14/10)</h2>
+<p>L'ID nou es calculava com <code>COUNT(*) + 1</code>, que col·lisiona quan hi ha registres esborrats a
+mig (CL-0001 i CL-0003 existents, COUNT=2 → CL-0003 duplicat). Fix: basar-se en el MÀXIM
+numèric:</p>
+<pre><code class="language-sql">SELECT COALESCE(MAX(CAST(SUBSTR(id,4) AS INTEGER)),0) FROM clients
+</code></pre>
+<p>Si <code>nou</code> falla amb <code>UNIQUE constraint failed: clients.id</code>, esborrar la carpeta òrfena
+<code>clients/CL-XXXX-.../</code> que l'intent fallit hagi pogut crear abans de l'INSERT.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

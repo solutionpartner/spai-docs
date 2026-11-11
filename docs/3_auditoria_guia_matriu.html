@@ -1,0 +1,150 @@
+<!doctype html><html><head><meta charset="utf-8"><title>GUIA_MATRIU.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Guia de Hermes per recrear i omplir la matriu de prioritats</h1>
+<h2>Objectiu</h2>
+<p>Generar una matriu reutilitzable en informes Word o PDF de SPAI. La forma, els nivells i les regles de correspondència es mantenen; les troballes, l’empresa, les evidències i les prioritats resultants canvien a cada auditoria. No reutilitzar dades d’un client en un altre.</p>
+<p>Fitxers: Hermes_Matriu_Prioritats_Config.json conté la configuració; Hermes_Matriu_Prioritats_Dades.csv és una plantilla buida de registres. PrioritMatrix_ITIL.jpg és la referència visual. Els colors d’aquesta guia són aproximacions de disseny, no mostres exactes de la captura.</p>
+<h2>Transcripció de la font</h2>
+<p>Títol original: ITSM Priority Matrix Cheat Sheet. Subtítol: How Impact × Urgency Becomes Priority. Instrucció: Use this matrix to consistently determine the right priority for incidents and service requests. Al peu apareixen ezosoft.com i © ezosoft.com.</p>
+<p>L’eix horitzontal és URGENCY (How quickly action is needed), d’esquerra a dreta: LOW, MEDIUM, HIGH, VERY HIGH, IMMEDIATE. L’eix vertical és IMPACT (Business Effect), de dalt a baix: CRITICAL, HIGH, MEDIUM, LOW, VERY LOW.</p>
+<p>El símbol × indica combinar impacte i urgència mitjançant la taula. No multiplicar puntuacions numèriques per obtenir P1, P2, P3 o P4. La font és una proposta de matriu ITSM; no presentar-la com una matriu única obligatòria ni oficial d’ITIL.</p>
+<h2>Matriu exacta llegida</h2>
+<table>
+<thead>
+<tr>
+<th>Impacte / Urgència</th>
+<th>Baixa</th>
+<th>Mitjana</th>
+<th>Alta</th>
+<th>Molt alta</th>
+<th>Immediata</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crític</td>
+<td>P2</td>
+<td>P2</td>
+<td>P1</td>
+<td>P1</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Alt</td>
+<td>P3</td>
+<td>P2</td>
+<td>P2</td>
+<td>P1</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Mitjà</td>
+<td>P4</td>
+<td>P3</td>
+<td>P2</td>
+<td>P2</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Baix</td>
+<td>P4</td>
+<td>P4</td>
+<td>P3</td>
+<td>P3</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Molt baix</td>
+<td>P4</td>
+<td>P4</td>
+<td>P4</td>
+<td>P3</td>
+<td>P3</td>
+</tr>
+</tbody>
+</table>
+<p>Algunes combinacions poden sorprendre: impacte crític amb urgència baixa dona P2; impacte molt baix amb urgència immediata dona P3. Conservar la taula quan es pretengui reproduir la font. Si el client necessita una política diferent, crear una versió explícita, aprovada i datada; no canviar cel·les silenciosament.</p>
+<h2>Impacte i urgència</h2>
+<p>Impacte: conseqüència real o potencial per al negoci, nombre d’usuaris, serveis afectats i criticitat. Urgència: rapidesa amb què cal actuar abans que el retard provoqui una conseqüència inacceptable. No confondre una petició insistida amb una urgència alta.</p>
+<p>Text dels nivells d’impacte de la font:
+- Crític: efecte greu en el negoci.
+- Alt: efecte important en el negoci.
+- Mitjà: efecte moderat en el negoci.
+- Baix: efecte menor en el negoci.
+- Molt baix: efecte negligible en el negoci.</p>
+<p>La font no dona llindars numèrics d’usuaris, imports, temps o serveis. Acordar-los amb el client abans de classificar automàticament. No equiparar automàticament molts usuaris amb impacte crític: també compta la funció afectada.</p>
+<p>Criteris operatius proposats per SPAI, pendents d’aprovació:
+- Crític: interrupció d’un procés essencial o conseqüència greu per a la continuïtat.
+- Alt: degradació significativa d’un procés important o afectació extensa.
+- Mitjà: afectació delimitada amb capacitat de continuar parcialment.
+- Baix: afectació menor, localitzada i amb alternativa viable.
+- Molt baix: inconvenient negligible sense interrupció rellevant.
+- Urgència baixa: es pot planificar sense perjudici rellevant.
+- Mitjana: cal actuar, però es pot esperar dins del període acordat.
+- Alta: esperar empitjora materialment la situació o compromet un termini proper.
+- Molt alta: marge molt reduït per evitar una conseqüència greu.
+- Immediata: cal actuar ara per contenir un dany en curs o imminent.</p>
+<p>No assignar aquests nivells sense evidència. Cap definició imposa per si mateixa un temps contractual.</p>
+<h2>Llegenda P1 a P4</h2>
+<p>P1 CRITICAL: vermell. Exemple de la font: caiguda d’un sistema crític a tota l’empresa, sense alternativa. Exemple concret: sistema ERP principal fora de servei.</p>
+<p>P2 HIGH: taronja. Exemple: impacte significatiu en molts usuaris o en un procés clau, amb alternativa limitada. Exemple concret: correu inoperatiu en diversos departaments.</p>
+<p>P3 MEDIUM: verd. Exemple: impacte limitat en un grup o ubicació, amb alternativa disponible. Exemple concret: lentitud en una aplicació no crítica.</p>
+<p>P4 LOW: blau. Exemple: impacte mínim o problema d’un sol usuari, sense interrupció del negoci. Exemple concret: restabliment de contrasenya d’un usuari.</p>
+<p>Aquests són exemples de la captura, no regles absolutes: un restabliment de contrasenya pot tenir un altre impacte si afecta un compte crític. La classificació final surt de l’evidència i la política del client.</p>
+<h2>Guia d’escalat transcrita</h2>
+<ul>
+<li>P1: escalar immediatament a L2/L3 i avisar la direcció de guàrdia; comunicar freqüentment.</li>
+<li>P2: escalar a L2 i informar regularment les parts interessades fins a la resolució.</li>
+<li>P3: gestionar a L1 o escalar a L2 si cal coneixement o accés addicional.</li>
+<li>P4: resoldre amb el procediment estàndard; escalar si hi ha bloqueig.</li>
+<li>Documentar sempre les decisions i comunicar amb claredat.</li>
+</ul>
+<p>L1, L2 i L3 són nivells de suport; adaptar-los als rols reals del client. La font no fixa minuts ni hores de resposta o resolució. No prometre servei 24 × 7 per una etiqueta P1. La cobertura, els contactes, els temps, el calendari i els canals es defineixen en l’SLA aplicable.</p>
+<h2>Consells de la font</h2>
+<p>Començar per impacte i després valorar urgència. En cas de dubte, la font proposa triar la prioritat més alta. Reavaluar quan canvien impacte o urgència. Per SPAI: registrar el dubte i l’evidència pendent; una prioritat preventiva ha de ser revisada, no tractada com a conclusió definitiva.</p>
+<h2>Dades variables per empresa</h2>
+<p>Un registre per troballa. Camps de la plantilla:
+- finding_id, company_id, audit_id i audit_date: identificació i data.
+- process i finding: procés afectat i descripció concreta de la troballa.
+- business_effect: conseqüència observada o potencial, especificant quina de les dues.
+- affected_users, affected_services, critical_service: abast i criticitat; si no se saben, deixar-los sense valor i marcar-los com a pendents.
+- workaround i deadline: alternativa disponible i termini justificat.
+- impact i urgency: valors enumerats del JSON, sense text lliure.
+- priority_calculated: sortida de la matriu.
+- priority_final: prioritat aprovada, igual a la calculada excepte excepció registrada.
+- evidence_ref i confidence: referència verificable i confiança de l’avaluació.
+- owner i recommended_action: responsable i acció.
+- sla_policy_id: política contractual aplicable o buit si no n’hi ha.
+- override_reason, approved_by i approved_at: excepció a la regla amb justificació, autorització i data.</p>
+<p>No incloure credencials, noms personals innecessaris ni dades sensibles en les etiquetes del gràfic. Fer servir identificadors curts: F01, F02, F03. Dates en ISO 8601; usuaris com a enters quan siguin coneguts. La confiança és una valoració d’evidència, no un percentatge inventat.</p>
+<h2>Algoritme de classificació</h2>
+<ol>
+<li>Validar la configuració de la matriu aprovada per aquesta empresa.</li>
+<li>Llegir impacte i urgència del registre, contrastats amb l’evidència.</li>
+<li>Si algun valor és desconegut, marcar pendent de classificació. No substituir-lo per baix ni per zero.</li>
+<li>Consultar la cel·la matrix[impact][urgency].</li>
+<li>Escriure priority_calculated. Copiar-la a priority_final si no hi ha una excepció aprovada.</li>
+<li>Si hi ha excepció, conservar la calculada, registrar la final i els camps d’aprovació.</li>
+<li>Agrupar els identificadors a la cel·la que correspon al seu impacte i urgència. Una excepció no canvia la ubicació: es mostra amb un asterisc i una nota.</li>
+<li>Ordenar el llistat d’accions per P1, P2, P3, P4; dins de la mateixa prioritat, fer servir terminis i dependències reals. No deduir un ordre precís només de la posició de la cel·la.</li>
+<li>Si canvien les dades, recalcular conservant l’historial.</li>
+</ol>
+<p>Exemple sintètic de comprovació, que NO s’ha de presentar com a troballa del client: F01, impacte alt i urgència molt alta → P1. F02, impacte baix i urgència mitjana → P4.</p>
+<h2>Representació amb dades de l’auditoria</h2>
+<p>Cada cel·la mostra la prioritat fixa i, si escau, el nombre de troballes i els seus identificadors. Exemple de format: «P2 · 3 troballes» i a sota «F02, F08, F11». Una cel·la buida no vol dir risc zero: vol dir cap troballa classificada aquí. Si no hi ha dades, mostrar «Pendent de dades», mai generar casos ficticis.</p>
+<p>Amb molts registres, mostrar només el recompte i una llista annexa amb totes les troballes. El recompte usa els mateixos filtres que l’informe: empresa, auditoria, data i estat. No comptar duplicats ni barrejar registres històrics i actuals. Mostrar a part el nombre de registres pendents. Verificar: total classificats + pendents = total de registres únics inclosos.</p>
+<p>En un informe d’oportunitats de millora o d’IA, explicar que és una adaptació de la priorització per impacte i urgència. No confondre prioritat amb ROI, esforç, cost o viabilitat. Afegir aquests camps en una taula separada si cal decidir una cartera d’inversions.</p>
+<h2>Disseny visual</h2>
+<p>Títol SPAI: «Matriu de priorització per impacte i urgència». Subtítol: empresa, data, identificador d’auditoria i versió de política. No reproduir logotips o elements decoratius de l’autor com si fossin de SPAI. Si s’utilitza la correspondència de la font, indicar: «Correspondència adaptada de la imatge PrioritMatrix_ITIL.jpg, amb peu ezosoft.com. Criteris i dades de l’auditoria: SPAI».</p>
+<p>Eix horitzontal superior: urgència, baixa → immediata. Eix vertical esquerre: impacte, crític → molt baix. Matriu de 5 × 5 amb caselles iguals; cap fila o columna ha de canviar d’ordre segons els resultats. Capçaleres blau fosc amb text blanc. Línies blanques o grises fines entre caselles. Fons general blanc i text fosc.</p>
+<p>Paleta aproximada: P1 #D93649, P2 #F4AD38, P3 #70A94F, P4 #2676B6. Per al fons de cel·les: P1 #E54B5B amb text blanc; P2 #FFF0BA, P3 #E6F0CD i P4 #DFEDF7 amb text fosc. Capçaleres #103450. No usar només color: cada casella i entrada de llegenda inclou sempre P1–P4.</p>
+<p>Llegenda sota la matriu: P1 Crítica, P2 Alta, P3 Mitjana, P4 Baixa. Distingir en el text que aquests són nivells de PRIORITAT, mentre que les files són nivells d’IMPACTE. Els icones de la font són opcionals: rellotge i alerta per urgència, grups d’usuaris i alerta per impacte. Evitar emoji dependents de la font; usar formes vectorials simples o prescindir-ne.</p>
+<p>Word A4 vertical: matriu d’uns 16 cm d’amplada; àrea de files aproximadament 10–12 cm d’alçada. Etiquetes d’almenys 9–10 punts i prioritats 14–16 punts. Si hi ha molts identificadors, usar una secció horitzontal o només recomptes. Llegenda i nota a la mateixa pàgina quan sigui possible. Exportar SVG/PDF vectorial i PNG a 300 ppp (16 cm equivalen aproximadament a 1890 píxels). Generar amb Matplotlib, SVG o formes de document; no amb generació d’imatges d’IA, perquè la correspondència ha de ser exacta.</p>
+<h2>Controls abans de lliurar</h2>
+<p>Comprovar les 25 cel·les contra el JSON. Validar enumeracions, duplicats, correspondència entre registres i recomptes, excepcions aprovades i absència de dades d’altres clients. Comprovar llegibilitat en color i en escala de grisos. Renderitzar totes les pàgines del Word/PDF i revisar que no es tallin títols, caselles, llegenda ni taules. Cap dada fictícia, SLA inventat o conclusió sense evidència.</p>
+<h2>Instrucció per passar a Hermes</h2>
+<p>«Llegeix aquesta guia, el JSON de configuració i el CSV amb les dades de l’empresa auditada. Genera una matriu 5 × 5 conservant els nivells i l’ordre de la política aprovada. Calcula cada prioritat per consulta de taula, no per multiplicació. Si falta impacte o urgència, deixa la troballa pendent i demana l’evidència necessària. Representa a cada cel·la la prioritat, el recompte i, si hi caben, identificadors curts. Mostra els pendents i excepcions en notes i relaciona cada troballa amb evidència, responsable i acció en un annex. Inclou llegenda accessible, empresa, data, política, procedència i limitacions. Utilitza només els SLA acordats. Exporta un gràfic vectorial i PNG a 300 ppp, insereix-lo al Word o PDF, conserva dades i codi, i comprova visualment cada pàgina. No confonguis prioritat operativa amb ROI ni maduresa tecnològica.»</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

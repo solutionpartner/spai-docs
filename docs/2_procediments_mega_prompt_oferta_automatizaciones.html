@@ -1,0 +1,271 @@
+<!doctype html><html><head><meta charset="utf-8"><title>MEGA-prompt-oferta-automatizaciones.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>MEGA-PROMPT — Crea el kit «Oferta de Automatizaciones» (SolutionPartner.AI)</h1>
+<p>Pega tot aquest bloc al teu kit creador de kits de Claude (el que et genera un kit de
+Claude Code complet i executable). L'objectiu és que generis un KIT NOU de Claude Code,
+des del zero, amb tota la seva estructura (<code>CLAUDE.md</code>, <code>.claude/skills</code>, <code>herramientas/</code>,
+<code>plantillas/</code>, <code>marca/</code>, <code>config/</code>, <code>entrada/</code>, <code>workspace/</code>), seguint exactament la mateixa
+filosofia i ossos d'un kit de diagnòstic de processos que ja tenim (BPMN + SOP), però per a
+<strong>la fase comercial posterior</strong>: convertir les sortides de l'auditor de processos en DOS
+entregables — un <strong>Document d'Oferta de Solucions</strong> (per al client, sense informació tècnica,
+amb preus) i un <strong>document intern tècnic</strong> (per a l'agència, amb les eines de cada
+automatització, per guardar al repositori del client).</p>
+<p>Llegeix primer el bloc «Filosofia del kit» i no et saltis cap norma de «No fer».</p>
+<hr />
+<h2>FILOSOFIA DEL KIT (obligatori)</h2>
+<ol>
+<li><strong>És un kit de Claude Code, marca blanca i reutilitzable.</strong> El consultor (usuari del kit)
+   el fa servir per a cada client nou. El que veu EL CLIENT porta la marca de l'agència
+   (nom, logo, colors blau nit #0B1D32 + daurat #E7C47D + tinta #14243A). El document intern
+   és només de l'agència i pot anar sense marca o amb marca interna.</li>
+<li><strong>Entrada = sortides de l'auditor de processos BPMN.</strong> El kit rep (en <code>entrada/&lt;cliente&gt;/</code>,
+   o enganxats al chat, o com a PDF/Word/Markdown) els documents que genera l'auditor de
+   processos: el mapa de processos en BPMN (informe de diagnòstic, <code>diagnostico-fase1.json</code>,
+   els SOP, els diagrames <code>.bpmn</code>, o el PDF/Word/HTML de l'informe de processos). El kit ha de
+   saber llegir qualsevol d'aquests formats i extreure'n: client, àrees, processos, passos,
+   <strong>punts vermells</strong> (on el propi equip va dir que falla o s'atasca), temps, freqüències,
+   hores/mes, i la narrativa de cada procés.</li>
+<li><strong>Sortida = DOS documents separats que es generen a la mateixa execució:</strong></li>
+</ol>
+<p><strong>A) DOCUMENT D'OFERTA DE SOLUCIONS</strong> (deliverable O, <code>workspace/&lt;cliente&gt;/oferta/</code>):
+   - Aquest és el que es lliura AL CLIENT. <strong>NO pot contenir informació tècnica interna</strong>:
+     no es menciona MAI n8n, Make, Zapier, Cloudflare, Tailscale, MCP, dockers, tenants,
+     API keys, llibreries ni cap eina de l'agència. Es parla en llenguatge de negoci.
+   - Per a CADA procés de l'entrada hi ha UN bloc/sessió amb <strong>dues sub-seccions</strong>:
+     (1) <strong>«Problemas encontrados»</strong> — recull els punts vermells / colls d'ampolla / malbaratament
+     que va detectar l'auditor, en llenguatge planer i amb les hores/diners que costen.
+     (2) <strong>«Soluciones propuestas»</strong> — quines automatitzacions es poden aplicar a aquell procés,
+     amb un <strong>dibuix/diagrama de la solució</strong> (com quedaria el flux amb l'automatització) i una
+     <strong>explicació curta de quin serà el flux correcte de dades</strong> (d'on surt la dada, com es
+     processa, què passaria automàtic, què quedarà per a una persona).
+   - A més, cada procés porta un <strong>mini-diagrama resum</strong> del procés BPMN actual (més petit) i un
+     <strong>llistat de les automatitzacions «futuribles»</strong> que s'hi podrien aplicar.
+   - <strong>Oferta econòmica</strong>: una secció final de preus amb 3 blocs:
+       1. <strong>Business AI OS</strong> (la base): implementació/posada en marxa (preu fixe).
+       2. <strong>Cada automatització</strong> (o paquet d'automatitzacions): preu d'implementació individual.
+       3. <strong>Servei mensual</strong>: preu fixe mensual que depèn del <strong>nombre d'automatitzacions
+          implementades</strong> (graella per trams, que el consultor configura).
+   - <strong>Format</strong>: PDF professional acabat. S'ha de fer seguint els estàndards dels entregables
+     professionals de l'agència: portada amb fons de color ple (blau nit) + marges interiors
+     oberts (aire ~2,3 cm a tots els costats, contingut centrat), paràgrafs de to consultoria
+     (estil KPMG/Deloitte) a TOTES les seccions, enllaços clicables quan apliquen, i un format
+     semblant al de l'entrada (com l'exemple PorcoFarma: portada, resum en xifres, mapa, i per
+     procés dues seccions, problemes + solucions amb diagrama). El PDF es genera des d'una
+     plantilla HTML + conversió a PDF (WeasyPrint o Chrome headless). També es deixen els
+     fonts (<code>.md</code> / <code>.html</code>) per si es vol retocar.
+   - L'idioma del document d'oferta és el del client i del consultant (català o castellà),
+     configurable, i sempre net i sense argot.</p>
+<p><strong>B) DOCUMENT INTERN TÈCNIC</strong> (deliverable I, <code>workspace/&lt;cliente&gt;/intern/</code>):
+   - Aquest és <strong>només per a l'agència</strong> i es desa a un <strong>repositori del client</strong> (carpeta
+     <code>clientes/&lt;cliente&gt;/</code> o similar, segons el que configuri el consultor).
+   - <strong>SÍ que inclou la informació tècnica</strong>: per a cada procés i cada automatització que es
+     proposa, quina eina tecnològica (per exemple n8n, n8n+IA, i en general quina IA —model,
+     proveïdor—, connexions amb MCP, bases de dades, webhooks, taules de cron, connectors de
+     tercers, etc.), i amb quins passos tècnics es muntaria.
+   - Resumen del client: dades bàsiques (nom, sector, àrees, nº de processos, nº de punts
+     vermells, hores/mes estimades), quins processos té, quins punts vermells i quines
+     automatitzacions se li poden fer, amb les eines.
+   - Aquest document és la <strong>fitxa tècnica</strong> que permet a l'agència pressupostar, planificar i
+     executar, i que es guarda per a futures fases (seguretat, hoja de ruta, manteniment).</p>
+<ol>
+<li><strong>Reproduïbilitat i no inventar.</strong> El kit NO inventa processos, ni passos, ni hores, ni
+   problemes que no surtin de l'entrada. Tot el que proposa una automatització es basa en un
+   punt vermell o un malbaratament detectable a l'entrada. Tot el que no està clar es marca
+   com «per confirmar». Els preus els posa el consultor en config, mai el kit.</li>
+</ol>
+<hr />
+<h2>ARQUITECTURA DE L'EXECUCIÓ (flux pas a pas)</h2>
+<p>El kit ha de treballar en passos amb el consultant, un cada vegada, i confirmar abans
+d'avançar (com el kit de diagnòstic):</p>
+<ul>
+<li><strong>PAS 0 — Privacitat i entrada.</strong> Llegir <code>entrada/&lt;cliente&gt;/</code> (fitxers .bpmn, .json,
+  .md, .html, .pdf, .docx). Comprovar que no hi hagi dades personals de tercers ni secrets
+  (el kit es para i avisa, com fa el kit de diagnòstic). Extraure l'estructura: client,
+  àrees, processos, passos, punts vermells, temps, freqüències, hores/mes i narratives.</li>
+<li><strong>PAS 1 — Diagnòstic d'automatitzabilitat.</strong> Per a cada procés, enumerar per a cada punt
+  vermell / tasca manual / malbaratament: quina automatització (regla, integració, IA,
+  agent) la resol, quina dada ha de circular, on s'origina i on acaba. <strong>No es genera res
+  tècnic encara</strong> en aquest pas; només la llista d'oportunitats per procés.</li>
+<li><strong>PAS 2 — Revisió amb el consultant.</strong> Abans de generar els documents, el kit presenta al
+  consultant les oportunitats detectades (per procés: problema → solució proposada en una
+  frase) perquè les validi, afini o descarti. El consultant pot editar la llista
+  (<code>workspace/&lt;cliente&gt;/oportunidades.json</code>). No es genera res definitiu fins que el
+  consultant dona OK.</li>
+<li><strong>PAS 3 — Generar els DOS documents.</strong> Amb les oportunitats validades, el kit construeix:
+  (a) el document d'oferta (deliverable O, en PDF+HTML+MD) i (b) el document intern tècnic
+  (deliverable I, en MD i opcionalment HTML/PDF). Incorpora els mini-diagrames BPMN dels
+  processos i els diagrames de les solucions.</li>
+<li><strong>PAS 4 — Entrega.</strong> El kit explica al consultant què s'ha generat, on és cada cosa, i què
+  ha de revisar abans d'enviar-ho al client. Si falta confirmar alguna cosa, ho marca com a
+  «per confirmar» a la sessió de validació.</li>
+<li><strong>PAS 5 — Desar al repositori.</strong> El document intern (I) es copia a la carpeta del client
+  dins del repositori de l'agència, seguint la convenció que configuri el consultor.</li>
+</ul>
+<hr />
+<h2>QUÈ HA DE CONTENIR CADA DOCUMENT (concret)</h2>
+<h3>A) Document d'Oferta de Solucions (deliverable O)</h3>
+<p>Estructura de seccions (ordre recomanat, seguint l'esperit de l'exemple PorcoFarma):</p>
+<ol>
+<li><strong>Portada</strong>: nom de l'agència, «Oferta de Solucions de Automatización», nom del client,
+   data, estat («Propuesta para revisión»).</li>
+<li><strong>Resum executiu en xifres</strong>: nº de processos analitzats, nº de problemes trobats,
+   hores/mes que s'hi poden estalviar (si surten de l'entrada), nº de solucions proposades.</li>
+<li><strong>Resum dels problemes de fons</strong>: què passa avui (malbaratament comú), en llenguatge
+   de negoci, sense noms d'eines.</li>
+<li><strong>Per a cada procés</strong> (un capítol/bloc per procés), amb <code>Codi · Nom del procés</code>:</li>
+<li>Mini-diagrama BPMN actual (el procés de l'entrada, reproduït a mida petita).</li>
+<li>Sub-secció <strong>«Problemas encontrados»</strong>: els punts vermells del procés, en planer,
+     amb les hores o diners que costen si l'entrada ho porta.</li>
+<li>Sub-secció <strong>«Soluciones propuestas»</strong>: una o més solucions. Per a cadascuna:
+     un <strong>diagrama de la solució</strong> (com quedaria el flux amb l'automatització, dibuix
+     senzill i net) i una <strong>explicació del flux correcte de dades</strong> (d'on surt, cap a on
+     va, què fa automàtic, què revisa una persona).</li>
+<li>Llistat <strong>«Automatizaciones futuribles»</strong> (curtes, tipus llista de punts).</li>
+<li><strong>Oferta econòmica</strong>: els 3 blocs (Business AI OS base + automatitzacions + servei
+   mensual per trams). Xifres que venen de <code>config/precios.json</code> (mai inventades).</li>
+<li><strong>Condicions i següents passos</strong>: com es desplega (en planer), garanties, próxims passos.</li>
+<li><strong>Peu de marca</strong> de l'agència.</li>
+</ol>
+<p>Normes del document O:
+- Zero informació tècnica. Prohibit: n8n, Make, Zapier, Cloudflare, Tailscale, MCP, Docker,
+  terminis, API, etc. Si cal dir que «una màquina automàtica» ho fa, es diu així.
+- Llenguatge consultora, net, sense argot, idioma configurable (ca/es/en).
+- Càlcul d'estalvi només amb dades de l'entrada i operació a la vista; mai inventar.</p>
+<h3>B) Document Intern Tècnic (deliverable I)</h3>
+<p>Estructura:
+1. Fitxa del client: nom, sector, àrees, data, contacte (si el consultant el posa).
+2. Resum de processos i problemes (d'on surten les automatitzacions).
+3. <strong>Taula de solucions tècniques</strong>: per a cada procés → automatització proposada →
+   <strong>eina/es</strong> (per exemple n8n, n8n+IA amb model X, gegant via node APIs, MCP, cron,
+   webhooks, connectors, base de dades, etc.) → grau d'esforç (b/M/A) → valor.
+4. <strong>Fitxa per automatització</strong>: què fa, quina dada consumeix, quina genera, amb quines
+   eines es connecta, quins passos tècnics de muntatge, quins permisos/accés calen, si
+   necessita IA i de quin tipus (extracció, text, classificació, agent), si toca un ERP i
+   com, si hi ha MCP implicat i amb què.
+5. <strong>Consideracions de seguiment/manteniment</strong> i «per confirmar» (el que l'entrada no deixa clar).
+6. Ubicació al repositori: <code>clientes/&lt;cliente&gt;/</code> (o el que configuri el consultor).</p>
+<p>Normes del document I:
+- Aquest SÍ porta la informació tècnica. És la font per pressupostar i executar.
+- No s'inventen eines ni integracions: el consultor les valida al PAS 2 - PAS 3, i el kit pot
+  oferir un catàleg de solucions tipus (a <code>data/automatizaciones-tipo.md</code>) <strong>que el consultant
+  edita</strong>, no que el kit assumeixi a cegues.</p>
+<hr />
+<h2>CATÀLEG DE SOLUCIONS TIPUS (el kit l'ofereix, el consultant l'edita)</h2>
+<p>El kit inclou un fitxer editable <code>data/automatizaciones-tipo.md</code> amb un recull de solucions
+recurrents per a pime (a tall de catàleg, mai automàtic): per exemple —</p>
+<ul>
+<li>«Registro de pedidos en ERP desde múltiples canales (WhatsApp, email, web)» → n8n + conector
+  API del ERP + (opcional) IA d'extracció dels camps → document O parla de «registro
+  automático desde cualquier canal»; document I detalla n8n + API + model d'extracció.</li>
+<li>«Confirmación de existencias y precios al momento» → n8n + consulta a l'ERP + resposta per
+  WhatsApp/email amb IA que redacta → O parla de «respuesta al instante»; I detalla n8n,
+  la missatgeria i la IA de redacció.</li>
+<li>«Avisos y recordatorios de cobro» → programador (cron) + n8n + email/WhatsApp + seguiment →
+  O parla de «recordatorios automáticos»; I detalla la rutina programada i els connectors.</li>
+<li>«Preparación de pedidos: validación de lotes y albaranes» → n8n + escaneig/ocr de documents</li>
+<li>cruce amb l'ERP → O parla de «validación automática»; I detalla l'OCR/n8n/ERP.</li>
+<li>«Compras a proveedores: consulta de disponibilidad y pedido automático» → n8n + correu/portal
+  del proveïdor + IA de propostes → O parla de «pedido a tiempo»; I detalla els connectors.</li>
+<li>«Facturación: generar y enviar la factura» → n8n + plantilles PDF + confirmació per email →
+  O parla de «factura preparada y enviada»; I detalla l'eina de PDF i el correu.</li>
+<li>«Agente / asistent de IA per atendre consultes» → agent IA amb accés a unes eines concretes i
+  supervisió humana → O parla de «asistente que responde y deriva»; I detalla l'agent, el
+  proveïdor de model, les eines (MCP si aplica) i les regles de supervisió.</li>
+<li>I els que el consultant afegeixi.</li>
+</ul>
+<p>Regla: el catàleg és un <strong>recull per inspiració</strong>, mai una resposta automàtica. El consultant
+tria i edita per a cada client; res no es proposa a un client sense passar pel PAS 2.</p>
+<hr />
+<h2>MARCA I CONFIG (obligatori)</h2>
+<ul>
+<li><code>marca/marca.json</code> amb: nom de l'agència, telèfon/web/email, colors (primary #0B1D32,
+  accent #E7C47D, tint #14243A), logo optional (data-URI), idioma per defecte per al client.</li>
+<li><code>config/precios.json</code> editable amb els 3 blocs d'oferta econòmica:</li>
+<li><code>business_ai_os_base</code> (preu d'implementació del Business AI OS),</li>
+<li><code>automatizacion</code> (preu per automatització o una llista per complexitat b/M/A),</li>
+<li><code>mensual</code> (trams: preu mensual segons el nº d'automatitzacions, per exemple
+    «1-3 → X €/mes», «4-6 → Y €/mes», «7+ → Z €/mes»).</li>
+<li><code>moneda</code> i <code>impuestos</code> (per si s'han d'indicar).</li>
+<li>El document d'oferta usa la marca i els preus de config. Mai un altre número.</li>
+</ul>
+<hr />
+<h2>GENERACIÓ DEL PDF / VISUALS (obligatori)</h2>
+<ul>
+<li>El kit genera el document d'oferta (O) des d'una <strong>plantilla HTML</strong> (<code>plantillas/oferta.html</code>)
+  on injecta els continguts amb marca, i després el converteix a <strong>PDF</strong> amb WeasyPrint o
+  Chrome headless (el que funcioni a l'entorn i sense depender d'internet).</li>
+<li>Els <strong>diagrames BPMN</strong> (mini-del-procés i diagrama-de-solució) es poden generar com a SVG
+  integrat al HTML (millor per al PDF) o reproduir amb bpmn-js al HTML interactiu. Per al PDF
+  final, el que ha de quedar és el dibuix vectorial o una captura en bona resolució.</li>
+<li>El document intern (I) es genera en <strong>Markdown</strong> (i opcional HTML). Es deixa com a fitxers
+  <code>.md</code> perquè és la font d'execució.</li>
+<li>Qualitat: el PDF ha de ser professional — portada blava, marges oberts, paràgrafs de
+  consultora, enllaços clicables si apliquen, taules netes, cap element tallat.</li>
+</ul>
+<hr />
+<h2>STRUCTURA DE FITXERS QUE HA DE GENERAR EL KIT</h2>
+<pre><code>kit-oferta-automatizaciones/
+├── EMPIEZA-AQUI.md · README.md · CLAUDE.md
+├── .claude/
+│   ├── commands/         setup · marca · oferta · intern
+│   └── skills/oferta-automatizaciones/
+│       ├── SKILL.md      el mètode pas a pas (el teu cos)
+│       └── referencias/  llegir-entrada.md · oportunitats.md · doc-oferta.md ·
+│                          doc-intern.md · preus.md · automatizar-tipo.md
+├── herramientas/          llegir-entrada · oportunitats · generar-oferta · generar-intern ·
+│                          diagrames · pdf · (i els seus motors: model, sop, comun)
+├── plantillas/            oferta.html · intern.html · visor-bpmn (si aplica) · estils pdf
+├── data/                  automatizaciones-tipo.md · catalogo-soluciones.json
+├── config/                precios.json
+├── marca/                 marca.json i logo
+├── entrada/               sortides de l'auditor per client (una carpeta per client)
+├── ejemplos/              un client de pràctica (sortides d'exemple d'un auditor)
+└── workspace/             una carpeta per client amb oferta/ i intern/
+</code></pre>
+<h2>REGLES DE COMPORTAMENT DEL KIT (com el kit de diagnòstic)</h2>
+<ul>
+<li>Un pas a la vegada, espera la confirmació, explica en cristiano, sense jerga.</li>
+<li>No assumeix que una comanda ha funcionat: llegeix la sortida i confirma o arregla.</li>
+<li>Si hi ha un error, calma i solució concreta; no fa sentir ximple el consultant.</li>
+<li>Parlar en l'idioma configurat (per defecte català o castellà del consultant).</li>
+<li><strong>No inventar res</strong>: ni processos, ni problemes, ni hores, ni preus, ni eines que no
+  surtin de l'entrada o de la configuració consultor.</li>
+<li>Privacitat: entrada/ i workspace/ no es comparteixen; res es puja a cap lloc.</li>
+<li>Seguretat: si apareixen secrets o dades personals a l'entrada, aturar-se i avisar.</li>
+<li>Els preus només des de <code>config/precios.json</code>; el document d'oferta no inventa xifres.</li>
+<li>El document d'oferta NO porta informació tècnica. El document intern SÍ.</li>
+<li>Cada client = carpeta pròpia a <code>entrada/</code> i <code>workspace/</code>. El document intern (I) es desa
+  al repositori de clients de l'agència segons convenció configurada.</li>
+</ul>
+<h2>QUÈ HA DE VERIFICAR EL KIT EN ACABAR (checklist)</h2>
+<ul>
+<li>[ ] Ha llegit l'entrada real del client (no inventada).</li>
+<li>[ ] Els problemes de cada procés provenen dels punts vermells de l'entrada.</li>
+<li>[ ] Cada solució té diagrama + explicació del flux de dades.</li>
+<li>[ ] L'oferta econòmica surt íntegrament de <code>config/precios.json</code>.</li>
+<li>[ ] El document d'oferta NO conté cap nom d'eina interna (n8n, Make, Cloudflare,
+      Tailscale, MCP, Docker, API…). Comprova-ho amb un escaneig abans de lliurar.</li>
+<li>[ ] El document intern SÍ conté l'arquitectura tècnica de cada automatització.</li>
+<li>[ ] El PDF s'ha generat i s'obre bé; cap element tallat; enllaços clicables si calen.</li>
+<li>[ ] El document intern s'ha desat al repositori del client.</li>
+</ul>
+<hr />
+<h2>EXEMPLE DE REFERÈNCIA (per entendre el format del que volem emular)</h2>
+<p>L'exemple és un informe de diagnòstic de processos (com el que genera l'auditor de
+processos que tens, estil PorcoFarma): portada amb marca, resum en xifres, mapa general,
+i per a cada procés: el diagrama BPMN, «lo que dice el mapa» (senyals i hores/mes), el
+procediment (SOP) i «por confirmar». El nostre kit d'oferta ha de mantenir aquesta
+família visual i d'estructura (portada, resum, per-procés amb sub-seccions) però per al
+propòsit comercial: en comptes de «lo que dice el mapa» → «Problemas encontrados», i en
+comptes de només el mapa → afegeix «Soluciones propuestas» amb diagrama de solució i flux
+de dades, i l'oferta econòmica al final.</p>
+<hr />
+<h2>NOTA FINAL</h2>
+<p>Genera el kit complet i funcional, amb un <code>README.md</code> curt i clar que expliqui com fer-lo
+servir de principi a fi, i amb un <strong>client d'exemple</strong> a <code>ejemplos/</code> (unes sortides d'un
+auditor d'exemple, potser les de PorcoFarma si caldrà, o un cas fictici net) perquè el
+consultor pugui practicar abans de fer servir el kit amb un client real.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="t_titol" data-i18n-attr="title">Qüestionari d'empresa — Auditoria digital</title>
+<style>
+  :root{
+    --accent:#0b1d32;--accent-dark:#14243a;--gold:#e7c47d;--ink:#0b1d32;
+    --muted:#64748b;--bg:#f8fafc;--card:#fff;--line:#e2e8f0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+  .container{max-width:760px;margin:0 auto;padding:0 20px;}
+
+  header{background:linear-gradient(160deg,#0b1d32,#14243a,#0b1d32);color:#fff;padding:56px 0 64px;position:relative;overflow:hidden;}
+  header::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(217,154,43,.18),transparent 45%);}
+  .eyebrow{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;}
+  h1{font-size:clamp(1.8rem,4.5vw,2.5rem);line-height:1.15;font-weight:800;max-width:20ch;}
+  .subtitle{margin-top:14px;color:#e9ecf4;max-width:55ch;}
+  .premium{display:flex;align-items:center;gap:10px;margin-top:18px;background:rgba(231,196,125,.10);border:1px solid rgba(231,196,125,.35);border-radius:12px;padding:12px 16px;}
+  .premium .tag{flex-shrink:0;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;}
+  .premium p{color:#e9ecf4;font-size:.92rem;line-height:1.5;margin:0;}
+
+  .langswitch{position:absolute;top:18px;right:18px;z-index:20;text-align:right;}
+  .langswitch .lang-label{color:#ccd8ec;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+  .langswitch select{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;}
+  .langswitch select option{color:#0b1d32;background:#fff;}
+
+  .progress-wrap{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .progress-inner{max-width:760px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;}
+  .progress-bar{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:99px;transition:width .4s;}
+  .progress-label{font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+
+  section{padding:34px 0;}
+  .area-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+  .area-num{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
+  .area-head h2{font-size:1.3rem;font-weight:800;}
+  .area-note{color:var(--muted);font-size:.9rem;margin-bottom:18px;}
+
+  .field{margin-bottom:16px;}
+  .lbl{display:block;font-weight:700;font-size:.9rem;margin-bottom:5px;color:var(--ink);}
+  .req{color:#b91c1c;}
+  textarea.inp,.inp{width:100%;padding:12px;border:2px solid var(--line);border-radius:10px;font-size:.95rem;font-family:inherit;resize:vertical;min-height:44px;}
+  .inp:focus{outline:none;border-color:var(--accent);}
+  .hint{font-size:.78rem;color:var(--muted);margin-top:4px;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:20px;}
+  .card .lead-title{font-size:1.15rem;font-weight:800;margin-bottom:6px;}
+  .card .lead-desc{color:var(--muted);font-size:.9rem;margin-bottom:20px;}
+
+  .actions{text-align:center;padding:24px 0 40px;}
+  .btn{display:inline-block;background:var(--accent);color:#fff;font-weight:800;text-decoration:none;padding:15px 34px;border-radius:10px;font-size:1.05rem;border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.15);}
+  .btn.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);}
+
+  .msg{display:none;text-align:center;padding:18px;border-radius:12px;margin-bottom:20px;font-weight:600;}
+  .msg.ok{background:#fdf6e3;color:#14243a;border:1px solid #e8c987;}
+  .msg.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+
+  #toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0b1d32;color:#fff;padding:14px 22px;border-radius:12px;font-weight:600;font-size:.95rem;box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:200;max-width:90vw;text-align:center;transition:opacity .3s,transform .3s;}
+  #toast.err{background:#991b1b;}
+  #toast.ok{background:#14243a;}
+
+  #successScreen{display:none;padding:60px 0;text-align:center;}
+  .success-icon{width:76px;height:76px;border-radius:50%;background:#fdf6e3;border:2px solid #e8c987;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;}
+  .success-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:44px 30px;box-shadow:0 20px 50px rgba(15,23,42,.08);}
+  .success-card h2{font-size:1.7rem;font-weight:800;margin-bottom:12px;}
+  .success-card p{color:var(--muted);margin-bottom:8px;max-width:48ch;margin-left:auto;margin-right:auto;}
+
+  .field.missing .inp{border-color:#b91c1c;}
+  .field.missing .lbl::after{content:" — obligatori";color:#b91c1c;font-weight:600;font-size:.78rem;}
+
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="text-align:center;padding:26px 5vw 0;">
+    <img src="logo.png" alt="SolutionPartner.AI" style="width:100%;height:auto;position:relative;z-index:2;display:block;">
+  </div>
+  <div class="container" style="position:relative;">
+    <div class="langswitch">
+      <div class="lang-label" data-i18n="t_lang">Idioma</div>
+      <select id="langSel" aria-label="Idioma / Language / Idioma">
+        <option value="ca">Català</option>
+        <option value="es">Español</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+    <span class="eyebrow" data-i18n="t_eyebrow">Pas 1 de 2 · Dades de contacte</span>
+    <h1 data-i18n="t_h1">Qüestionari per a la teva auditoria digital</h1>
+    <p class="subtitle" data-i18n="t_subtitle">Primer, deixa'ns les teves dades. Després trobaràs el qüestionari complet que ens permetrà preparar el teu informe de digitalització.</p>
+    <div class="premium">
+      <span class="tag" data-i18n="t_tag">Auditoria premium</span>
+      <p><b data-i18n="t_prem_b">No és un qüestionari genèric:</b> <span data-i18n="t_prem_p">cada resposta es contrasta amb benchmarks d'autoritat del sector (Gartner, IDC, Forrester i instituts nacionals) i s'aplica la metodologia de les grans consultores (McKinsey, Deloitte, KPMG). El resultat: un pla de millora prioritzat amb xifres i terminis.</span></p>
+    </div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 30</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- PAS 1: LEAD -->
+  <div id="leadStep">
+    <section>
+      <div class="card">
+        <div class="lead-title"><span data-i18n="t_lead_h">Les teves dades</span> <span style="color:#b91c1c;">*</span></div>
+        <div class="lead-desc" data-i18n="t_lead_d">Necessitem aquestes dades per associar-te l'informe i poder contactar-te. No les compartim amb tercers.</div>
+        <div id="leadMsg" class="msg"></div>
+        <div class="field"><label class="lbl"><span data-i18n="t_l_nom">Nom i cognoms</span> <span class="req">*</span></label><input class="inp" id="lNom" type="text"></div>
+        <div class="field"><label class="lbl"><span data-i18n="t_l_empresa">Empresa</span> <span class="req">*</span></label><input class="inp" id="lEmpresa" type="text"></div>
+        <div class="field"><label class="lbl"><span data-i18n="t_l_email">Email</span> <span class="req">*</span></label><input class="inp" id="lEmail" type="email"></div>
+        <div class="field"><label class="lbl" data-i18n="t_l_telefon">Telèfon</label><input class="inp" id="lTelefon" type="tel"></div>
+        <div class="field"><label class="lbl" data-i18n="t_l_whatsapp">WhatsApp</label><input class="inp" id="lWhatsapp" type="tel"></div>
+        <div class="actions" style="padding:0;margin-top:8px;text-align:right;">
+          <button class="btn" id="leadBtn" onclick="submitLeadOnly()" data-i18n="t_lead_btn">Continuar al qüestionari →</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAS 2: QÜESTIONARI -->
+  <div id="quizStep" style="display:none;">
+    <div class="msg" id="quizMsg"></div>
+
+    <section>
+      <div class="area-head"><div class="area-num">A</div><div><h2 data-i18n="t_a1">Identificació</h2><p class="area-note" data-i18n="t_a1d">Dades bàsiques de l'empresa.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_A1">Nom de l'empresa</label><textarea class="inp q" data-k="A1_Nom empresa"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_A2">Sector / activitat</label><textarea class="inp q" data-k="A2_Sector"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_A3">Any de fundació</label><textarea class="inp q" data-k="A3_Any fundació"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_A4">Nombre d'empleats i rols principals</label><textarea class="inp q" data-k="A4_Empleats i rols"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_A5">Ubicació (adreça / ciutat)</label><textarea class="inp q" data-k="A5_Ubicació"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_A7">País <span class="req">*</span></label>
+        <select class="inp q" data-k="A7_Pais" onchange="_selPais(this)">
+          <option value="">—</option>
+          <option value="es">Espanya</option>
+          <option value="usa">Estats Units</option>
+          <option value="mx">Mèxic</option>
+          <option value="ar">Argentina</option>
+          <option value="co">Colòmbia</option>
+          <option value="cl">Xile</option>
+          <option value="pe">Perú</option>
+          <option value="fr">França</option>
+          <option value="it">Itàlia</option>
+          <option value="de">Alemanya</option>
+          <option value="pt">Portugal</option>
+          <option value="uk">Regne Unit</option>
+          <option value="altre">Altres (digue-m'ho a Ubicació)</option>
+        </select>
+      </div>
+      <div class="field"><label class="lbl" data-i18n="f_A6">Què us fa diferents de la competència?</label><textarea class="inp q" data-k="A6_Diferencial"></textarea></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">B</div><div><h2 data-i18n="t_b1">Què i a qui</h2><p class="area-note" data-i18n="t_b1d">El que veneu i a qui.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_B1">Productes/serveis principals (amb preu aproximat)</label><textarea class="inp q" data-k="B1_Productes i preus"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_B2">Qui és el vostre client ideal?</label><textarea class="inp q" data-k="B2_Client ideal"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_B3">Com arriben els clients a vosaltres (canals)?</label><textarea class="inp q" data-k="B3_Canals captació"></textarea></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">C</div><div><h2 data-i18n="t_c1">Processos</h2><p class="area-note" data-i18n="t_c1d">El dia a dia i les feines manuals.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_C1">Com és el dia a dia en cada àrea?</label><textarea class="inp q" data-k="C1_Dia a dia"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_C2">Quines feines són manuals i repetitives?</label><textarea class="inp q" data-k="C2_Feines manuals"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_C3">On sorgeixen més errors o colls d'ampolla?</label><textarea class="inp q" data-k="C3_Errors i colls"></textarea></div>
+
+      <!-- CHECKLIST de processos (sí/no): captura fàcil dels fluxos del client -->
+      <div class="field" style="margin-top:16px;">
+        <label class="lbl" data-i18n="ck_titol">Quins processos té la vostra empresa? (Sí/No a cada columna)</label>
+        <div class="ck-grid" style="overflow-x:auto;margin-top:6px;">
+<table style="width:100%;border-collapse:collapse;font-size:13px;">
+<thead><tr style="border-bottom:1px solid #ddd;text-align:left;"><th style="padding:4px 6px;" data-i18n="ck_proces">Procés</th><th style="padding:4px 6px;text-align:center;" data-i18n="ck_tenit">El teniu?</th><th style="padding:4px 6px;text-align:center;" data-i18n="ck_manual">Es fa a mà?</th><th style="padding:4px 6px;text-align:center;" data-i18n="ck_hores">Hores/setmana (si manual)</th></tr></thead>
+<tbody>
+<tr><td style="padding:4px 6px;">Comandes / vendes</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Comandes" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Comandes_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Comandes_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Facturació i cobraments</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Factura" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Factura_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Factura_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Compres a proveïdors</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Compres" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Compres_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Compres_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Producció / elaboració / servei</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Produccio" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Produccio_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Produccio_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Estocs / magatzem / inventari</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Estocs" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Estocs_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Estocs_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Logística / entrega / enviament</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Logistica" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Logistica_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Logistica_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Atenció al client / reclamacions</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Atencio" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Atencio_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Atencio_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Màrqueting / xarxes / leads</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Marketing" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Marketing_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Marketing_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Comptabilitat / tresoreria</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Comptabilitat" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Comptabilitat_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Comptabilitat_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+<tr><td style="padding:4px 6px;">Informes / reports periòdics</td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Informes" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><select class="inp q" data-k="CK_Informes_manual" style="padding:2px;"><option value=""></option><option value="sí">Sí</option><option value="no">No</option></select></td>
+<td style="padding:2px;text-align:center;"><input type="number" min="0" max="80" step="0.5" class="inp q" data-k="CK_Informes_hores" style="width:58px;padding:2px;text-align:center;" placeholder="—"></td></tr>
+</tbody>
+</table>
+</div>
+        </div>
+        <div style="font-size:14px;color:#64748b;margin-top:6px;" data-i18n="ck_ajuda">Només cal que marqueu quins processos tenen i si els fan a mà. No cal descriure'ls aquí; l'entrevista aprofundeix.</div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">D</div><div><h2 data-i18n="t_d1">Punts de dolor</h2><p class="area-note" data-i18n="t_d1d">El que més us preocupa.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_D1">Quin és el problema principal que us preocupa ara?</label><textarea class="inp q" data-k="D1_Problema principal"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_D2">Què us fa perdre diners o clients?</label><textarea class="inp q" data-k="D2_Pèrdua diners/clients"></textarea></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">E</div><div><h2 data-i18n="t_e1">Tecnologies</h2><p class="area-note" data-i18n="t_e1d">Les eines que feu servir avui.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_E1">Quines eines/programes feu servir actualment?</label><textarea class="inp q" data-k="E1_Eines actuals"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_E2">Teniu web, reserva/compra online o botiga digital?</label><textarea class="inp q" data-k="E2_Web i botiga online"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_E2extra">URL exacte de la vostra web i xarxes socials (per analitzar-vos la presència digital)</label><textarea class="inp q" data-k="E2_Web i botiga online extra" placeholder="Ex: www.lawebdelrestaurant.com · @elrestaurant a Instagram"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_E3">Quines xarxes socials feu servir i amb quina freqüència?</label><textarea class="inp q" data-k="E3_Xarxes i freqüència"></textarea></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">F</div><div><h2 data-i18n="t_f1">Finances</h2><p class="area-note" data-i18n="t_f1d">Les xifres clau (aproximades, confidencials).</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_F1">Ingressos anuals aproximats</label><textarea class="inp q" data-k="F1_Ingressos"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_F2">Marge aproximat (%)</label><textarea class="inp q" data-k="F2_Marge"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_F3">Volum de vendes i valor mitjà (ticket)</label><textarea class="inp q" data-k="F3_Volum i ticket"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_F4">Els 3 costos principals</label><textarea class="inp q" data-k="F4_Costos principals"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_F5">Estacionalitat (quan pugen/baixen les vendes)</label><textarea class="inp q" data-k="F5_Estacionalitat"></textarea></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">G</div><div><h2 data-i18n="t_g1">Competidors</h2><p class="area-note"><span data-i18n="t_g1d">Les empreses amb qui competeixes.</span> <strong style="color:#0b1d32;" data-i18n="t_g1opt">Opcional</strong> <span data-i18n="t_g1optd">— si no els saps o no els vols buscar, els localitzarem i analitzarem nosaltres.</span></p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_G1">Els vostres 5 principals competidors (noms i web)</label><textarea class="inp q" data-k="G1_Competidors" data-i18n-ph="f_G1ph"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_G2">On us guanyen?</label><textarea class="inp q" data-k="G2_On us guanyen"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_G3">On els guanyeu vosaltres?</label><textarea class="inp q" data-k="G3_On els guanyeu"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_G4">Adreça o barri de cadascun (per geolocalització)</label><textarea class="inp q" data-k="G4_Adreces competidors"></textarea><div class="hint" data-i18n="f_G4hint">Si no la saps, la localitzarem nosaltres.</div></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">H</div><div><h2 data-i18n="t_h1x">Objectius</h2><p class="area-note" data-i18n="t_h1d">Cap a on voleu anar.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_H1">Quines metes concretes voleu assolir?</label><textarea class="inp q" data-k="H1_Metes"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_H2">Què hauria canviat d'aquí a 6 mesos?</label><textarea class="inp q" data-k="H2_Canvi en 6 mesos"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_H3">Quin pressupost teniu per a aquestes millores?</label><textarea class="inp q" data-k="H3_Pressupost"></textarea></div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">I</div><div><h2 data-i18n="t_i1">Tancament</h2><p class="area-note" data-i18n="t_i1d">Últimes coses.</p></div></div>
+      <div class="field"><label class="lbl" data-i18n="f_I1">Hi ha res més que vulgueu afegir?</label><textarea class="inp q" data-k="I1_Altres"></textarea></div>
+      <div class="field"><label class="lbl" data-i18n="f_I2">Canal i dades de contacte preferit</label><textarea class="inp q" data-k="I2_Contacte"></textarea></div>
+    </section>
+
+    <div class="actions">
+      <button class="btn" id="quizBtn" onclick="submitQuiz()" data-i18n="t_quiz_btn">Enviar el qüestionari</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA ÈXIT -->
+  <div id="successScreen">
+    <div class="container">
+      <div class="success-card">
+        <div class="success-icon">✓</div>
+        <h2 data-i18n="t_ok_h">Hem rebut les teves respostes</h2>
+        <p data-i18n="t_ok_p1">Gràcies per completar el qüestionari.</p>
+        <p data-i18n="t_ok_p2">El nostre equip analitzarà la informació i et contactarà en breu per preparar el teu informe de digitalització.</p>
+        <p style="margin-top:16px;color:#0b1d32;font-weight:700;" data-i18n="t_ok_p3">T'enviarem els propers passos al teu email.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<footer>
+  <span data-i18n="t_footer1">Les teves respostes són confidencials i es fan servir només per elaborar el teu informe.</span><br>
+  <span data-i18n="t_footer2">Llest per a la teva empresa</span>
+</footer>
+
+<script id="i18n-dict">
+// Diccionaris generats automàticament (gen_i18n_dicts.py) — no editar a mà.
+var I18N = {
+  ca: {
+ "t_titol": "Qüestionari d'empresa — Auditoria digital",
+ "t_lang": "Idioma",
+ "t_eyebrow": "Pas 1 de 2 · Dades de contacte",
+ "t_h1": "Qüestionari per a la teva auditoria digital",
+ "t_subtitle": "Primer, deixa'ns les teves dades. Després trobaràs el qüestionari complet que ens permetrà preparar el teu informe de digitalització.",
+ "t_tag": "Auditoria premium",
+ "t_prem_b": "No és un qüestionari genèric:",
+ "t_prem_p": "cada resposta es contrasta amb benchmarks d'autoritat del sector (Gartner, IDC, Forrester i instituts nacionals) i s'aplica la metodologia de les grans consultores (McKinsey, Deloitte, KPMG). El resultat: un pla de millora prioritzat amb xifres i terminis.",
+ "t_lead_h": "Les teves dades",
+ "t_lead_d": "Necessitem aquestes dades per associar-te l'informe i poder contactar-te. No les compartim amb tercers.",
+ "t_l_nom": "Nom i cognoms",
+ "t_l_empresa": "Empresa",
+ "t_l_email": "Email",
+ "t_l_telefon": "Telèfon",
+ "t_l_whatsapp": "WhatsApp",
+ "t_lead_btn": "Continuar al qüestionari →",
+ "t_a1": "Identificació",
+ "t_a1d": "Dades bàsiques de l'empresa.",
+ "f_A1": "Nom de l'empresa",
+ "f_A2": "Sector / activitat",
+ "f_A3": "Any de fundació",
+ "f_A4": "Nombre d'empleats i rols principals",
+ "f_A5": "Ubicació (adreça / ciutat)",
+ "f_A7": "País",
+ "f_A6": "Què us fa diferents de la competència?",
+ "t_b1": "Què i a qui",
+ "t_b1d": "El que veneu i a qui.",
+ "f_B1": "Productes/serveis principals (amb preu aproximat)",
+ "f_B2": "Qui és el vostre client ideal?",
+ "f_B3": "Com arriben els clients a vosaltres (canals)?",
+ "t_c1": "Processos",
+ "t_c1d": "El dia a dia i les feines manuals.",
+ "f_C1": "Com és el dia a dia en cada àrea?",
+ "f_C2": "Quines feines són manuals i repetitives?",
+ "f_C3": "On sorgeixen més errors o colls d'ampolla?",
+  "ck_titol": "Quins processos té la vostra empresa? (Sí/No a cada columna)",
+  "ck_proces": "Procés",
+  "ck_tenit": "El teniu?",
+  "ck_manual": "Es fa a mà?",
+  "ck_ajuda": "Només cal que marqueu quins processos tenen i si els fan a mà. No cal descriure'ls aquí; l'entrevista aprofundeix.",
+  "ck_hores": "Hores/setmana (si el feu a mà)",
+ "t_d1": "Punts de dolor",
+ "t_d1d": "El que més us preocupa.",
+ "f_D1": "Quin és el problema principal que us preocupa ara?",
+ "f_D2": "Què us fa perdre diners o clients?",
+ "t_e1": "Tecnologies",
+ "t_e1d": "Les eines que feu servir avui.",
+ "f_E1": "Quines eines/programes feu servir actualment?",
+ "f_E2": "Teniu web, reserva/compra online o botiga digital?",
+ "f_E2extra": "URL exacte de la vostra web i xarxes socials (per analitzar-vos la presència digital)",
+ "f_E3": "Quines xarxes socials feu servir i amb quina freqüència?",
+ "t_f1": "Finances",
+ "t_f1d": "Les xifres clau (aproximades, confidencials).",
+ "f_F1": "Ingressos anuals aproximats",
+ "f_F2": "Marge aproximat (%)",
+ "f_F3": "Volum de vendes i valor mitjà (ticket)",
+ "f_F4": "Els 3 costos principals",
+ "f_F5": "Estacionalitat (quan pugen/baixen les vendes)",
+ "t_g1": "Competidors",
+ "t_g1d": "Les empreses amb qui competeixes.",
+ "t_g1opt": "Opcional",
+ "t_g1optd": "— si no els saps o no els vols buscar, els localitzarem i analitzarem nosaltres.",
+ "f_G1": "Els vostres 5 principals competidors (noms i web)",
+ "f_G2": "On us guanyen?",
+ "f_G3": "On els guanyeu vosaltres?",
+ "f_G4": "Adreça o barri de cadascun (per geolocalització)",
+ "f_G4hint": "Si no la saps, la localitzarem nosaltres.",
+ "t_h1x": "Objectius",
+ "t_h1d": "Cap a on voleu anar.",
+ "f_H1": "Quines metes concretes voleu assolir?",
+ "f_H2": "Què hauria canviat d'aquí a 6 mesos?",
+ "f_H3": "Quin pressupost teniu per a aquestes millores?",
+ "t_i1": "Tancament",
+ "t_i1d": "Últimes coses.",
+ "f_I1": "Hi ha res més que vulgueu afegir?",
+ "f_I2": "Canal i dades de contacte preferit",
+ "t_quiz_btn": "Enviar el qüestionari",
+ "t_ok_h": "Hem rebut les teves respostes",
+ "t_ok_p1": "Gràcies per completar el qüestionari.",
+ "t_ok_p2": "El nostre equip analitzarà la informació i et contactarà en breu per preparar el teu informe de digitalització.",
+ "t_ok_p3": "T'enviarem els propers passos al teu email.",
+ "t_footer1": "Les teves respostes són confidencials i es fan servir només per elaborar el teu informe.",
+ "t_footer2": "Llest per a la teva empresa",
+ "d_queden": "Encara queden",
+ "d_preguntes": "preguntes per contestar",
+ "d_guardant": "Guardant...",
+ "d_email_err": "Introdueix un email amb format vàlid (ex: nom@empresa.com).",
+ "d_tel_err": "El telèfon ha de ser numèric (ex: 600 123 456).",
+ "d_wa_err": "El WhatsApp ha de ser numèric.",
+ "d_err": "Error desconegut",
+ "d_net_err": "No s'ha pogut desar. Revisa la connexió i torna-ho a provar.",
+ "d_proxim": "Pròxim pas recomanat:",
+ "d_reco_h": "On pots millorar ara mateix",
+ "d_nofebles": "No tens cap àrea clarament feble. Centra't a escalar el que ja fas bé — demana'ns una full de ruta per aprofitar-ho al màxim.",
+ "n1": "Fase inicial",
+ "n1d": "La teva empresa encara no està preparada per a la IA, però això no és negatiu: significa que hi ha molt potencial de millora.",
+ "n1s": "Formació bàsica en IA per a la direcció + audit digital.",
+ "n2": "En procés de maduració",
+ "n2d": "Tens una base, però falta estructura. Les dades potser no estan prou netes ni organitzades per alimentar eines d'IA.",
+ "n2s": "Pla de digitalització + identificació de quick wins amb IA.",
+ "n3": "Preparada per començar",
+ "n3d": "La teva empresa té una bona base tecnològica i cultural per començar a implementar IA.",
+ "n3s": "Projecte pilot d'IA en una àrea concreta.",
+ "n4": "Preparada per escalar",
+ "n4d": "Excel·lent! La teva empresa està molt ben posicionada. Tens dades, cultura i infraestructura.",
+ "n4s": "Estratègia d'IA a escala + integració amb processos clau.",
+ "tip_dades": "Organitza les dades en un CRM i digitalitza l'històric de vendes: sense dades netes, cap eina d'IA pot render.",
+ "tip_proc": "Identifica 2-3 tasques repetitives (facturació, informes) i automatitza-les: són els estalvis més ràpids.",
+ "tip_equip": "Forma l'equip en eines bàsiques d'IA (ChatGPT, Copilot): la resistència al canvi és la barrera número u.",
+ "tip_tec": "Adopta eines al núvol i reserva un petit pressupost per tecnologia: sense base, la IA no es pot integrar.",
+ "tip_est": "Defineix 1-2 casos d'ús concrets on la IA aporti valor i marca un pilot en 6 mesos.",
+ "area_dades": "Dades i informació",
+ "area_proc": "Processos i operacions",
+ "area_equip": "Equip i cultura",
+ "area_tec": "Tecnologia",
+ "area_est": "Estratègia i visió",
+ "d_req": "Hi ha camps obligatoris per omplir (nom, empresa i email).",
+ "d_min": "Omple com a mínim ",
+ "d_camps": " camps perquè puguem avaluar la teva empresa",
+ "d_ara": "ara en tens ",
+ "d_de": " de ",
+ "f_G1ph": "Opcional — si ho deixes en blanc, els buscarem nosaltres",
+ "d_enviat": "Enviant...",
+ "d_no_trobat": "No hem trobat el registre. Torna-ho a provar."
+},
+  es: {
+ "t_titol": "Cuestionario de empresa — Auditoría digital",
+ "t_lang": "Idioma",
+ "t_eyebrow": "Paso 1 de 2 · Datos de contacto",
+ "t_h1": "Cuestionario para tu auditoría digital",
+ "t_subtitle": "Primero, déjanos tus datos. Después encontrarás el cuestionario completo que nos permitirá preparar tu informe de digitalización.",
+ "t_tag": "Auditoría premium",
+ "t_prem_b": "No es un cuestionario genérico:",
+ "t_prem_p": "cada respuesta se contrasta con benchmarks de autoridad del sector (Gartner, IDC, Forrester e institutos nacionales) y se aplica la metodología de las grandes consultoras (McKinsey, Deloitte, KPMG). El resultado: un plan de mejora priorizado con cifras y plazos.",
+ "t_lead_h": "Tus datos",
+ "t_lead_d": "Necesitamos estos datos para asociarte el informe y poder contactarte. No los compartimos con terceros.",
+ "t_l_nom": "Nombre y apellidos",
+ "t_l_empresa": "Empresa",
+ "t_l_email": "Email",
+ "t_l_telefon": "Teléfono",
+ "t_l_whatsapp": "WhatsApp",
+ "t_lead_btn": "Continuar al cuestionario →",
+ "t_a1": "Identificación",
+ "t_a1d": "Datos básicos de la empresa.",
+ "f_A1": "Nombre de la empresa",
+ "f_A2": "Sector / actividad",
+ "f_A3": "Año de fundación",
+ "f_A4": "Número de empleados y roles principales",
+ "f_A5": "Ubicación (dirección / ciudad)",
+ "f_A7": "País",
+ "f_A6": "¿Qué os hace diferentes de la competencia?",
+ "t_b1": "Qué y a quién",
+ "t_b1d": "Lo que vendéis y a quién.",
+ "f_B1": "Productos/servicios principales (con precio aproximado)",
+ "f_B2": "¿Quién es vuestro cliente ideal?",
+ "f_B3": "¿Cómo llegan los clientes a vosotros (canales)?",
+ "t_c1": "Procesos",
+ "t_c1d": "El día a día y los trabajos manuales.",
+ "f_C1": "¿Cómo es el día a día en cada área?",
+ "f_C2": "¿Qué trabajos son manuales y repetitivos?",
+ "f_C3": "¿Dónde surgen más errores o cuellos de botella?",
+  "ck_titol": "¿Qué procesos tiene su empresa? (Sí/No en cada columna)",
+  "ck_proces": "Proceso",
+  "ck_tenit": "¿Lo tiene?",
+  "ck_manual": "¿Se hace a mano?",
+  "ck_ajuda": "Solo tiene que marcar qué procesos tiene y si se hacen a mano. No hace falta describirlos aquí; la entrevista profundiza.",
+  "ck_hores": "Horas/semana (si se hace a mano)",
+ "t_d1": "Puntos de dolor",
+ "t_d1d": "Lo que más os preocupa.",
+ "f_D1": "¿Cuál es el problema principal que os preocupa ahora?",
+ "f_D2": "¿Qué os hace perder dinero o clientes?",
+ "t_e1": "Tecnologías",
+ "t_e1d": "Las herramientas que usáis hoy.",
+ "f_E1": "¿Qué herramientas/programas usáis actualmente?",
+ "f_E2": "¿Tenéis web, reserva/compra online o tienda digital?",
+ "f_E2extra": "URL exacta de vuestra web y redes sociales (para analizaros la presencia digital)",
+ "f_E3": "Cuáles redes sociales usas y con qué frecuencia?",
+ "t_f1": "Finanzas",
+ "t_f1d": "Las cifras clave (aproximadas, confidenciales).",
+ "f_F1": "Ingresos anuales aproximados",
+ "f_F2": "Margen aproximado (%)",
+ "f_F3": "Volumen de ventas y valor medio (ticket)",
+ "f_F4": "Los 3 costes principales",
+ "f_F5": "Estacionalidad (cuando suben/bajan las ventas)",
+ "t_g1": "Competidores",
+ "t_g1d": "Las empresas con las que compites.",
+ "t_g1opt": "Opcional",
+ "t_g1optd": "— si no los sabes o no los quieres buscar, los localizaremos y analizaremos nosotros.",
+ "f_G1": "Tus 5 principales competidores (nombres y web)",
+ "f_G2": "Dónde te ganan?",
+ "f_G3": "Dónde les ganas tú?",
+ "f_G4": "Dirección o barrio de cada uno (por geolocalización)",
+ "f_G4hint": "Si no la sabes, la localizaremos nosotros.",
+ "t_h1x": "Objetivos",
+ "t_h1d": "Hacia dónde quieres ir.",
+ "f_H1": "Qué metas concretas quieres alcanzar?",
+ "f_H2": "Qué habría cambiado de aquí a 6 meses?",
+ "f_H3": "Qué presupuesto tienes para estas mejoras?",
+ "t_i1": "Cierre",
+ "t_i1d": "Últimas cosas.",
+ "f_I1": "Hay algo más que quieras añadir?",
+ "f_I2": "Canal y datos de contacto preferido",
+ "t_quiz_btn": "Enviar el cuestionario",
+ "t_ok_h": "Hemos recibido tus respuestas",
+ "t_ok_p1": "Gracias por completar el cuestionario.",
+ "t_ok_p2": "Nuestro equipo analizará la información y te contactará en breve para preparar tu informe de digitalización.",
+ "t_ok_p3": "Te enviaremos los próximos pasos a tu email.",
+ "t_footer1": "Tus respuestas son confidenciales y se usan solo para elaborar tu informe.",
+ "t_footer2": "Listo para tu empresa",
+ "d_queden": "Todavía quedan",
+ "d_preguntes": "preguntas por contestar",
+ "d_guardant": "Guardando...",
+ "d_email_err": "Introduce un email con formato válido (ej: nombre@empresa.com).",
+ "d_tel_err": "El teléfono debe ser numérico (ej: 600 123 456).",
+ "d_wa_err": "El WhatsApp debe ser numérico.",
+ "d_err": "Error desconocido",
+ "d_net_err": "No se ha podido guardar. Revisa la conexión y vuelve a intentarlo.",
+ "d_proxim": "Próximo paso recomendado:",
+ "d_reco_h": "Donde puedes mejorar ahora mismo",
+ "d_nofebles": "No tienes ninguna área claramente débil. Céntrate en escalar lo que ya haces bien — pídenos una hoja de ruta para aprovecharlo al máximo.",
+ "n1": "Fase inicial",
+ "n1d": "Tu empresa aún no está preparada para la IA, pero esto no es negativo: significa que hay mucho potencial de mejora.",
+ "n1s": "Formación básica en IA para la dirección + auditoría digital.",
+ "n2": "En proceso de maduración",
+ "n2d": "Tienes una base, pero falta estructura. Los datos quizás no están lo suficientemente limpios ni organizados para alimentar herramientas de IA.",
+ "n2s": "Plan de digitalización + identificación de quick wins con IA.",
+ "n3": "Preparada para empezar",
+ "n3d": "Tu empresa tiene una buena base tecnológica y cultural para empezar a implementar IA.",
+ "n3s": "Proyecto piloto de IA en un área concreta.",
+ "n4": "Preparada para escalar",
+ "n4d": "¡Excelente! Tu empresa está muy bien posicionada. Tienes datos, cultura e infraestructura.",
+ "n4s": "Estrategia de IA a escala + integración con procesos clave.",
+ "tip_dades": "Organiza los datos en un CRM y digitaliza el histórico de ventas: sin datos limpios, ninguna herramienta de IA puede rendir.",
+ "tip_proc": "Identifica 2-3 tareas repetitivas (facturación, informes) y automatízalas: son los ahorros más rápidos.",
+ "tip_equip": "Forma al equipo en herramientas básicas de IA (ChatGPT, Copilot): la resistencia al cambio es la barrera número uno.",
+ "tip_tec": "Adopta herramientas en la nube y reserva un pequeño presupuesto para tecnología: sin base, la IA no se puede integrar.",
+ "tip_est": "Define 1-2 casos de uso concretos donde la IA aporte valor y marca un piloto en 6 meses.",
+ "area_dades": "Datos e información",
+ "area_proc": "Procesos y operaciones",
+ "area_equip": "Equipo y cultura",
+ "area_tec": "Tecnología",
+ "area_est": "Estrategia y visión",
+ "d_req": "Hay campos obligatorios por rellenar (nombre, empresa y email).",
+ "d_min": "Rellena como mínimo",
+ "d_camps": "campos para que podamos evaluar tu empresa",
+ "d_ara": "ahora tienes",
+ "d_de": "de",
+ "f_G1ph": "Opcional — si lo dejas en blanco, los buscaremos nosotros",
+ "d_enviat": "Enviando...",
+ "d_no_trobat": "No hemos encontrado el registro. Vuelve a intentarlo."
+},
+  en: {
+ "t_titol": "Company questionnaire — Digital audit",
+ "t_lang": "Language",
+ "t_eyebrow": "Step 1 of 2 · Contact details",
+ "t_h1": "Questionnaire for your digital audit",
+ "t_subtitle": "First, leave us your details. Afterwards you will find the complete questionnaire that will allow us to prepare your digitization report.",
+ "t_tag": "Premium audit",
+ "t_prem_b": "It's not a generic questionnaire:",
+ "t_prem_p": "each answer is contrasted with authoritative industry benchmarks (Gartner, IDC, Forrester and national institutes) and the methodology of major consulting firms (McKinsey, Deloitte, KPMG) is applied. The result: a prioritized improvement plan with figures and deadlines.",
+ "t_lead_h": "Your data",
+ "t_lead_d": "We need this data to associate the report with you and to be able to contact you. We do not share it with third parties.",
+ "t_l_nom": "Name and surname",
+ "t_l_empresa": "Company",
+ "t_l_email": "Email",
+ "t_l_telefon": "Phone",
+ "t_l_whatsapp": "WhatsApp",
+ "t_lead_btn": "Continue to questionnaire →",
+ "t_a1": "Identification",
+ "t_a1d": "Basic company data.",
+ "f_A1": "Company name",
+ "f_A2": "Sector / activity",
+ "f_A3": "Year of foundation",
+ "f_A4": "Number of employees and main roles",
+ "f_A5": "Location (address / city)",
+ "f_A7": "Country",
+ "f_A6": "What makes you different from the competition?",
+ "t_b1": "What and to whom",
+ "t_b1d": "What you sell and to whom.",
+ "f_B1": "Main products/services (with approximate price)",
+ "f_B2": "Who is your ideal customer?",
+ "f_B3": "How do customers reach you (channels)?",
+ "t_c1": "Processes",
+ "t_c1d": "Day-to-day and manual tasks.",
+ "f_C1": "What is the day-to-day like in each area?",
+ "f_C2": "Which tasks are manual and repetitive?",
+ "f_C3": "Where do most errors or bottlenecks arise?",
+  "ck_titol": "What processes does your company have? (Yes/No in each column)",
+  "ck_proces": "Process",
+  "ck_tenit": "Do you have it?",
+  "ck_manual": "Done by hand?",
+  "ck_ajuda": "Just mark which processes you have and whether they are done by hand. No need to describe them here; the interview goes deeper.",
+  "ck_hores": "Hours/week (if done by hand)",
+ "t_d1": "Pain points",
+ "t_d1d": "What worries you the most.",
+ "f_D1": "What is the main problem that worries you now?",
+ "f_D2": "What makes you lose money or customers?",
+ "t_e1": "Technologies",
+ "t_e1d": "The tools you use today.",
+ "f_E1": "What tools/programs do you currently use?",
+ "f_E2": "Do you have a website, online booking/purchase or digital store?",
+ "f_E2extra": "Exact URL of your website and social networks (to analyze your digital presence)",
+ "f_E3": "Which social networks do you use and how often?",
+ "t_f1": "Finances",
+ "t_f1d": "Key figures (approximate, confidential).",
+ "f_F1": "Approximate annual income",
+ "f_F2": "Approximate margin (%)",
+ "f_F3": "Sales volume and average value (ticket)",
+ "f_F4": "The 3 main costs",
+ "f_F5": "Seasonality (when sales go up/down)",
+ "t_g1": "Competitors",
+ "t_g1d": "The companies you compete with.",
+ "t_g1opt": "Optional",
+ "t_g1optd": "— if you don't know them or don't want to look them up, we will locate and analyze them ourselves.",
+ "f_G1": "Your top 5 competitors (names and website)",
+ "f_G2": "Where do they beat you?",
+ "f_G3": "Where do you beat them?",
+ "f_G4": "Address or neighborhood of each (for geolocation)",
+ "f_G4hint": "If you don't know it, we will locate it ourselves.",
+ "t_h1x": "Objectives",
+ "t_h1d": "Where do you want to go.",
+ "f_H1": "What specific goals do you want to achieve?",
+ "f_H2": "What would have changed in 6 months?",
+ "f_H3": "What budget do you have for these improvements?",
+ "t_i1": "Closing",
+ "t_i1d": "Last things.",
+ "f_I1": "Is there anything else you would like to add?",
+ "f_I2": "Preferred contact channel and details",
+ "t_quiz_btn": "Send the questionnaire",
+ "t_ok_h": "We have received your answers",
+ "t_ok_p1": "Thank you for completing the questionnaire.",
+ "t_ok_p2": "Our team will analyze the information and contact you shortly to prepare your digitization report.",
+ "t_ok_p3": "We will send you the next steps to your email.",
+ "t_footer1": "Your answers are confidential and are used only to prepare your report.",
+ "t_footer2": "Ready for your company",
+ "d_queden": "There are still",
+ "d_preguntes": "questions to answer",
+ "d_guardant": "Saving...",
+ "d_email_err": "Enter a valid email format (e.g., name@company.com).",
+ "d_tel_err": "The phone number must be numeric (e.g., 600 123 456).",
+ "d_wa_err": "The WhatsApp number must be numeric.",
+ "d_err": "Unknown error",
+ "d_net_err": "Could not save. Check your connection and try again.",
+ "d_proxim": "Recommended next step:",
+ "d_reco_h": "Where you can improve right now",
+ "d_nofebles": "You don't have any clearly weak areas. Focus on scaling what you already do well — ask us for a roadmap to make the most of it.",
+ "n1": "Initial phase",
+ "n1d": "Your company is not yet ready for AI, but that's not a negative thing: it means there's a lot of potential for improvement.",
+ "n1s": "Basic AI training for management + digital audit.",
+ "n2": "Maturing process",
+ "n2d": "You have a base, but structure is lacking. Data may not be clean or organized enough to feed AI tools.",
+ "n2s": "Digitalization plan + identification of quick wins with AI.",
+ "n3": "Ready to start",
+ "n3d": "Your company has a good technological and cultural foundation to start implementing AI.",
+ "n3s": "Pilot AI project in a specific area.",
+ "n4": "Ready to scale",
+ "n4d": "Excellent! Your company is very well positioned. You have data, culture, and infrastructure.",
+ "n4s": "Scaled AI strategy + integration with key processes.",
+ "tip_dades": "Organize data in a CRM and digitize sales history: without clean data, no AI tool can perform.",
+ "tip_proc": "Identify 2-3 repetitive tasks (invoicing, reports) and automate them: these are the fastest savings.",
+ "tip_equip": "Train the team on basic AI tools (ChatGPT, Copilot): resistance to change is the number one barrier.",
+ "tip_tec": "Adopt cloud tools and allocate a small budget for technology: without a foundation, AI cannot be integrated.",
+ "tip_est": "Define 1-2 concrete use cases where AI adds value and plan a pilot in 6 months.",
+ "area_dades": "Data and information",
+ "area_proc": "Processes and operations",
+ "area_equip": "Team and culture",
+ "area_tec": "Technology",
+ "area_est": "Strategy and vision",
+ "d_req": "There are mandatory fields to fill in (name, company and email).",
+ "d_min": "Fill in at least ",
+ "d_camps": " fields so we can evaluate your company",
+ "d_ara": " you currently have ",
+ "d_de": " out of ",
+ "f_G1ph": "Optional — if you leave it blank, we will look for them ourselves",
+ "d_enviat": "Sending...",
+ "d_no_trobat": "We couldn't find the record. Please try again."
+}
+};
+var I18N_DYN = {
+  ca: {
+ "d_queden": "Encara queden",
+ "d_preguntes": "preguntes per contestar",
+ "d_guardant": "Guardant...",
+ "d_email_err": "Introdueix un email amb format vàlid (ex: nom@empresa.com).",
+ "d_tel_err": "El telèfon ha de ser numèric (ex: 600 123 456).",
+ "d_wa_err": "El WhatsApp ha de ser numèric.",
+ "d_err": "Error desconegut",
+ "d_net_err": "No s'ha pogut desar. Revisa la connexió i torna-ho a provar.",
+ "d_proxim": "Pròxim pas recomanat:",
+ "d_reco_h": "On pots millorar ara mateix",
+ "d_nofebles": "No tens cap àrea clarament feble. Centra't a escalar el que ja fas bé — demana'ns una full de ruta per aprofitar-ho al màxim.",
+ "n1": "Fase inicial",
+ "n1d": "La teva empresa encara no està preparada per a la IA, però això no és negatiu: significa que hi ha molt potencial de millora.",
+ "n1s": "Formació bàsica en IA per a la direcció + audit digital.",
+ "n2": "En procés de maduració",
+ "n2d": "Tens una base, però falta estructura. Les dades potser no estan prou netes ni organitzades per alimentar eines d'IA.",
+ "n2s": "Pla de digitalització + identificació de quick wins amb IA.",
+ "n3": "Preparada per començar",
+ "n3d": "La teva empresa té una bona base tecnològica i cultural per començar a implementar IA.",
+ "n3s": "Projecte pilot d'IA en una àrea concreta.",
+ "n4": "Preparada per escalar",
+ "n4d": "Excel·lent! La teva empresa està molt ben posicionada. Tens dades, cultura i infraestructura.",
+ "n4s": "Estratègia d'IA a escala + integració amb processos clau.",
+ "tip_dades": "Organitza les dades en un CRM i digitalitza l'històric de vendes: sense dades netes, cap eina d'IA pot render.",
+ "tip_proc": "Identifica 2-3 tasques repetitives (facturació, informes) i automatitza-les: són els estalvis més ràpids.",
+ "tip_equip": "Forma l'equip en eines bàsiques d'IA (ChatGPT, Copilot): la resistència al canvi és la barrera número u.",
+ "tip_tec": "Adopta eines al núvol i reserva un petit pressupost per tecnologia: sense base, la IA no es pot integrar.",
+ "tip_est": "Defineix 1-2 casos d'ús concrets on la IA aporti valor i marca un pilot en 6 mesos.",
+ "area_dades": "Dades i informació",
+ "area_proc": "Processos i operacions",
+ "area_equip": "Equip i cultura",
+ "area_tec": "Tecnologia",
+ "area_est": "Estratègia i visió",
+ "d_req": "Hi ha camps obligatoris per omplir (nom, empresa i email).",
+ "d_min": "Omple com a mínim ",
+ "d_camps": " camps perquè puguem avaluar la teva empresa",
+ "d_ara": "ara en tens ",
+ "d_de": " de ",
+ "f_G1ph": "Opcional — si ho deixes en blanc, els buscarem nosaltres",
+ "d_enviat": "Enviant...",
+ "d_no_trobat": "No hem trobat el registre. Torna-ho a provar."
+},
+  es: {
+ "d_queden": "Todavía quedan",
+ "d_preguntes": "preguntas por contestar",
+ "d_guardant": "Guardando...",
+ "d_email_err": "Introduce un email con formato válido (ej: nombre@empresa.com).",
+ "d_tel_err": "El teléfono debe ser numérico (ej: 600 123 456).",
+ "d_wa_err": "El WhatsApp debe ser numérico.",
+ "d_err": "Error desconocido",
+ "d_net_err": "No se ha podido guardar. Revisa la conexión y vuelve a intentarlo.",
+ "d_proxim": "Próximo paso recomendado:",
+ "d_reco_h": "Donde puedes mejorar ahora mismo",
+ "d_nofebles": "No tienes ninguna área claramente débil. Céntrate en escalar lo que ya haces bien — pídenos una hoja de ruta para aprovecharlo al máximo.",
+ "n1": "Fase inicial",
+ "n1d": "Tu empresa aún no está preparada para la IA, pero esto no es negativo: significa que hay mucho potencial de mejora.",
+ "n1s": "Formación básica en IA para la dirección + auditoría digital.",
+ "n2": "En proceso de maduración",
+ "n2d": "Tienes una base, pero falta estructura. Los datos quizás no están lo suficientemente limpios ni organizados para alimentar herramientas de IA.",
+ "n2s": "Plan de digitalización + identificación de quick wins con IA.",
+ "n3": "Preparada para empezar",
+ "n3d": "Tu empresa tiene una buena base tecnológica y cultural para empezar a implementar IA.",
+ "n3s": "Proyecto piloto de IA en un área concreta.",
+ "n4": "Preparada para escalar",
+ "n4d": "¡Excelente! Tu empresa está muy bien posicionada. Tienes datos, cultura e infraestructura.",
+ "n4s": "Estrategia de IA a escala + integración con procesos clave.",
+ "tip_dades": "Organiza los datos en un CRM y digitaliza el histórico de ventas: sin datos limpios, ninguna herramienta de IA puede rendir.",
+ "tip_proc": "Identifica 2-3 tareas repetitivas (facturación, informes) y automatízalas: son los ahorros más rápidos.",
+ "tip_equip": "Forma al equipo en herramientas básicas de IA (ChatGPT, Copilot): la resistencia al cambio es la barrera número uno.",
+ "tip_tec": "Adopta herramientas en la nube y reserva un pequeño presupuesto para tecnología: sin base, la IA no se puede integrar.",
+ "tip_est": "Define 1-2 casos de uso concretos donde la IA aporte valor y marca un piloto en 6 meses.",
+ "area_dades": "Datos e información",
+ "area_proc": "Procesos y operaciones",
+ "area_equip": "Equipo y cultura",
+ "area_tec": "Tecnología",
+ "area_est": "Estrategia y visión",
+ "d_req": "Hay campos obligatorios por rellenar (nombre, empresa y email).",
+ "d_min": "Rellena como mínimo",
+ "d_camps": "campos para que podamos evaluar tu empresa",
+ "d_ara": "ahora tienes",
+ "d_de": "de",
+ "f_G1ph": "Opcional — si lo dejas en blanco, los buscaremos nosotros",
+ "d_enviat": "Enviando...",
+ "d_no_trobat": "No hemos encontrado el registro. Vuelve a intentarlo."
+},
+  en: {
+ "d_queden": "There are still",
+ "d_preguntes": "questions to answer",
+ "d_guardant": "Saving...",
+ "d_email_err": "Enter a valid email format (e.g., name@company.com).",
+ "d_tel_err": "The phone number must be numeric (e.g., 600 123 456).",
+ "d_wa_err": "The WhatsApp number must be numeric.",
+ "d_err": "Unknown error",
+ "d_net_err": "Could not save. Check your connection and try again.",
+ "d_proxim": "Recommended next step:",
+ "d_reco_h": "Where you can improve right now",
+ "d_nofebles": "You don't have any clearly weak areas. Focus on scaling what you already do well — ask us for a roadmap to make the most of it.",
+ "n1": "Initial phase",
+ "n1d": "Your company is not yet ready for AI, but that's not a negative thing: it means there's a lot of potential for improvement.",
+ "n1s": "Basic AI training for management + digital audit.",
+ "n2": "Maturing process",
+ "n2d": "You have a base, but structure is lacking. Data may not be clean or organized enough to feed AI tools.",
+ "n2s": "Digitalization plan + identification of quick wins with AI.",
+ "n3": "Ready to start",
+ "n3d": "Your company has a good technological and cultural foundation to start implementing AI.",
+ "n3s": "Pilot AI project in a specific area.",
+ "n4": "Ready to scale",
+ "n4d": "Excellent! Your company is very well positioned. You have data, culture, and infrastructure.",
+ "n4s": "Scaled AI strategy + integration with key processes.",
+ "tip_dades": "Organize data in a CRM and digitize sales history: without clean data, no AI tool can perform.",
+ "tip_proc": "Identify 2-3 repetitive tasks (invoicing, reports) and automate them: these are the fastest savings.",
+ "tip_equip": "Train the team on basic AI tools (ChatGPT, Copilot): resistance to change is the number one barrier.",
+ "tip_tec": "Adopt cloud tools and allocate a small budget for technology: without a foundation, AI cannot be integrated.",
+ "tip_est": "Define 1-2 concrete use cases where AI adds value and plan a pilot in 6 months.",
+ "area_dades": "Data and information",
+ "area_proc": "Processes and operations",
+ "area_equip": "Team and culture",
+ "area_tec": "Technology",
+ "area_est": "Strategy and vision",
+ "d_req": "There are mandatory fields to fill in (name, company and email).",
+ "d_min": "Fill in at least ",
+ "d_camps": " fields so we can evaluate your company",
+ "d_ara": " you currently have ",
+ "d_de": " out of ",
+ "f_G1ph": "Optional — if you leave it blank, we will look for them ourselves",
+ "d_enviat": "Sending...",
+ "d_no_trobat": "We couldn't find the record. Please try again."
+}
+};
+</script>
+
+<script>
+  // ===== i18n =====
+  const LANGS = ['ca','es','en'];
+  const DEF_LANG = (navigator.language || 'ca').toLowerCase().slice(0,2) === 'es' ? 'es'
+    : (navigator.language || 'ca').toLowerCase().slice(0,2) === 'en' ? 'en' : 'ca';
+  let curLang = DEF_LANG;
+
+  function applyLang(lang){
+    curLang = lang;
+    const dict = I18N[lang] || {};
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      if(dict[k]) el.innerHTML = dict[k];
+    });
+    // placeholders
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const k = el.getAttribute('data-i18n-ph');
+      if(dict[k]) el.setAttribute('placeholder', dict[k]);
+    });
+    const t = I18N[lang] && I18N[lang]['t_titol'];
+    if(t) document.title = t;
+    document.documentElement.lang = lang;
+    document.getElementById('langSel').value = lang;
+  }
+
+  function L(key){
+    const dict = I18N[curLang] || {};
+    const dyn = I18N_DYN[curLang] || {};
+    return dict[key] || dyn[key] || key;
+  }
+
+  document.getElementById('langSel').addEventListener('change', e => applyLang(e.target.value));
+  window.addEventListener('load', () => applyLang(DEF_LANG));
+
+  // ===== Lògica =====
+  function _selPais(sel){
+    if(sel.value === "altre"){ sel.classList.add('missing'); }
+    else { sel.classList.remove('missing'); }
+  }
+
+  let leadId = null;
+  const qFields = document.querySelectorAll('.q');
+  const totalQ = qFields.length;
+
+  let toastTimer = null;
+  function toast(txt, type){
+    const t = document.getElementById('toast');
+    t.textContent = txt;
+    t.className = type || '';
+    t.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3500);
+  }
+
+  function showMsg(el, type, txt){
+    el.style.display = 'block';
+    el.className = 'msg ' + type;
+    el.textContent = txt;
+  }
+
+  function markMissing(id, missing){
+    const inp = document.getElementById(id);
+    const field = inp.closest('.field');
+    if(missing){ field.classList.add('missing'); } else { field.classList.remove('missing'); }
+  }
+
+  function submitLeadOnly(){
+    const nom = document.getElementById('lNom').value.trim();
+    const empresa = document.getElementById('lEmpresa').value.trim();
+    const email = document.getElementById('lEmail').value.trim();
+    const telefon = document.getElementById('lTelefon').value.trim();
+    const whatsapp = document.getElementById('lWhatsapp').value.trim();
+
+    markMissing('lNom', !nom);
+    markMissing('lEmpresa', !empresa);
+    markMissing('lEmail', !email);
+
+    if(!nom || !empresa || !email){ toast(L('d_req'), 'err'); return; }
+    const emailRe = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/;
+    const phoneRe = /^\+?[0-9][0-9 .\-()]{6,}$/;
+    if(!emailRe.test(email)){ toast(L('d_email_err'), 'err'); return; }
+    if(telefon && !phoneRe.test(telefon)){ toast(L('d_tel_err'), 'err'); return; }
+    if(whatsapp && !phoneRe.test(whatsapp)){ toast(L('d_wa_err'), 'err'); return; }
+
+    const btn = document.getElementById('leadBtn');
+    btn.disabled = true; btn.textContent = L('d_guardant');
+    fetch('/lead', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({nom, empresa, email, telefon, whatsapp, idioma: curLang})
+    }).then(r=>r.json()).then(res=>{
+      if(res.ok){
+        leadId = res.lead_id;
+        document.getElementById('leadStep').style.display = 'none';
+        document.getElementById('quizStep').style.display = 'block';
+        window.scrollTo({top:0, behavior:'smooth'});
+      } else {
+        toast((res.errors && res.errors.length) ? res.errors[0] : (res.error || L('d_err')), 'err');
+        btn.disabled = false; btn.textContent = L('t_lead_btn');
+      }
+    }).catch(err=>{
+      toast(L('d_net_err'), 'err');
+      btn.disabled = false; btn.textContent = L('t_lead_btn');
+    });
+  }
+
+  qFields.forEach(f => {
+    f.addEventListener('input', () => {
+      let n = 0;
+      qFields.forEach(x => { if(x.value.trim()) n++; });
+      document.getElementById('progressFill').style.width = (n/totalQ*100) + '%';
+      document.getElementById('progressLabel').textContent = n + ' / ' + totalQ;
+    });
+  });
+
+  function submitQuiz(){
+    const respostes = {};
+    qFields.forEach(f => { respostes[f.dataset.k] = f.value.trim(); });
+
+    const filled = Object.values(respostes).filter(v => v.length > 0).length;
+    const MIN = 15;
+    if(filled < MIN){
+      toast(L('d_min') + ' ' + MIN + L('d_camps') + ' (' + L('d_ara') + ' ' + filled + ' ' + L('d_de') + ' ' + totalQ + ').', 'err');
+      window.scrollTo({top:0, behavior:'smooth'});
+      return;
+    }
+
+    const btn = document.getElementById('quizBtn');
+    btn.disabled = true; btn.textContent = L('d_enviat');
+    fetch('/respostes', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({lead_id: leadId, respostes})
+    }).then(r=>r.json()).then(res=>{
+      if(res.ok){
+        document.getElementById('quizStep').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'block';
+        document.querySelector('.progress-wrap').style.display = 'none';
+        window.scrollTo({top:0, behavior:'smooth'});
+      } else {
+        toast(L('d_no_trobat'), 'err');
+        btn.disabled = false; btn.textContent = L('t_quiz_btn');
+      }
+    }).catch(err=>{
+      toast(L('d_net_err'), 'err');
+      btn.disabled = false; btn.textContent = L('t_quiz_btn');
+    });
+  }
+</script>
+
+</body>
+</html>

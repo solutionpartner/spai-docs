@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8"><title>PAS5B-provisionament-central.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>SalesPower · Connector + provisionament central (PAS 5b)</h1>
+<p>Aquest directori conté els fluxos n8n de producte (buzón + resum setmanal) que es
+despleguen a TOTS els tenants. Però el producte <strong>SalesPower (CRM/ERP) central</strong> és
+un servei a part (multitenant), i <strong>no tots els clients el pagen</strong>: només es
+provisiona el tenant central quan <code>producte.salespower:true</code>.</p>
+<h2>El que cal recordar sobre el connector</h2>
+<ul>
+<li>El connector Business Pulse del client (<code>erpsp_v2_readonly</code>) apunta al <strong>tenant
+  CENTRAL del client</strong> (no a un generic) — el <code>base_url</code> + <code>BUSINESS_PULSE_TOKEN</code>
+  propi. És així com el dashboard llegeix les DADES REALS del client (Gap 7).</li>
+<li>Modalitats: <code>crm</code> | <code>erp</code> | <code>ambdos</code> → <code>moduls</code> del TenantRegistry (<code>crm</code>/<code>erp</code>/<code>crm,erp</code>).</li>
+<li>Si el client NO té salespower (<code>cap</code>), <strong>no es provisiona res</strong>: baios + fluxos VPS només.</li>
+</ul>
+<h2>Script del PAS 5b (des del kit)</h2>
+<p><code>kit02/herramientas/provisionar-salespower-central.sh &lt;client&gt; [crm|erp|ambdos|cap]</code>
+- Sense arg, llegeix <code>producte</code>/<code>espai_producte</code> del model del tenant.
+- <code>cap</code> → surt net, no crida res (cas per defecte).
+- <code>crm/erp/ambdos</code> → crida <code>POST /api/onboarding/tenant</code> (upsert <code>TenantRegistry</code>) +
+  guarda el mapeig + emet la config del connector.
+- Requereix <code>ONBOARDING_TOKEN</code> i (opcional) <code>ONBOARDING_URL</code>.</p>
+<h2>Com s'aplica a l'arquitectura de venda</h2>
+<table>
+<thead>
+<tr>
+<th>Client</th>
+<th>Baios + automatitzacions</th>
+<th>SalesPower central</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Majoria</td>
+<td>✅ (sempre)</td>
+<td>❌ (no paga)</td>
+</tr>
+<tr>
+<td>Premium (crm/erp/ambdos)</td>
+<td>✅</td>
+<td>✅ provisiona tenant central</td>
+</tr>
+</tbody>
+</table>
+<p>Això fa que SalesPower sigui un <strong>add-on premium</strong>, no un requisit — que és el model
+que permet vendre a molts clients, no només als grans.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

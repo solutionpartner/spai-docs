@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8"><title>README.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Conservació dels paquets de coneixement SPAI (referent)</h1>
+<p>Aquest directori conserva els documents generats per SPAI com a <strong>referència de coneixement</strong>.
+No són skills executables ni configuracions desplegades; són guies operatives i procediments
+reutilitzables (marcats amb el seu <code>SPAI-KP-&lt;ÀREA&gt;-&lt;NUM&gt;</code> i versió). La seva substància
+metodològica ja viu a les skills de l'agència; aquí queden com a origen consultable.</p>
+<h2>Documents conservats</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Document</th>
+<th>Tema</th>
+<th>Font</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SPAI-KP-DEV-DATA-001</td>
+<td>apps CRM i anàlisi de dades</td>
+<td>Construcció d'aplicacions, CRM a mida, anàlisi empresarial reproduïble</td>
+<td>3 vídeos de formació</td>
+</tr>
+<tr>
+<td>SPAI-KP-AGENTS-001</td>
+<td>agents i automatitzacions</td>
+<td>Equip d'agents, Kanban, pilars (documents, suport, informe diari), governança</td>
+<td>6 vídeos</td>
+</tr>
+<tr>
+<td>SPAI-KP-PDF-OCR-001</td>
+<td>PDF / OCR / factures n8n</td>
+<td>Generació de PDF professional, extracció de factures, validació, idempotència</td>
+<td>3 vídeos</td>
+</tr>
+<tr>
+<td>SPAI-KP-DEPLOY-001</td>
+<td>encaix kit → Business AI OS</td>
+<td>Mapa d'encaix entre el kit d'oferta i el Build Pack (deploy governat per tenant)</td>
+<td>kit + Build Pack v1.1</td>
+</tr>
+</tbody>
+</table>
+<h3>SPAI-KP-DEPLOY-001 · encaix kit → Business AI OS</h3>
+<p>Ubicació: <code>spai-knowledge/kit-deploy-encaix/</code></p>
+<ul>
+<li><code>README.md</code> — el mapa d'encaix complet (5 capes, flux de deploy, decisions preses, què falta).</li>
+<li><code>mapa-encaix-kit-buildpack.d2</code> — font editable del diagrama (D2, layout ELK).</li>
+<li><code>mapa-encaix-kit-buildpack.svg</code> / <code>mapa-encaix.png</code> — el diagrama visual.</li>
+</ul>
+<p>Resum: el kit d'oferta (kit01 + kit02) produeix <strong>el model del tenant</strong> (automatismes →
+skills de l'Hermes, MCPs, JSON n8n, ordre de desplegament). El Build Pack descriu <strong>com es
+desplega un tenant</strong> (Control Plane/Optimus, signer, Action Gateway, tenant aïllat amb
+business-os + n8n + Hermes del client). El <strong>pont</strong> que els uneix (onboarding del tenant
+alimentat pel model del kit) és el que falta construir.</p>
+<h2>Notes de vigència</h2>
+<ul>
+<li>Cada document indica el <strong>grau d'evidència</strong> (DOC verificat / VÍDEO resum / PROPOSTA SPAI).</li>
+<li>Les xifres comercials dels autors NO són benchmarks de SPAI.</li>
+<li>Abans d'usar-ne parts com a procediment, contrastar amb les skills vigents i l'estat real
+  de l'entorn; els documents ho demanen explícitament (no "incorporar" per haver-los llegit).</li>
+<li>Aquesta col·lecció no autoritza cap desplegament ni acció a producció.</li>
+</ul>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><title>observability.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Observability model</h1>
+<h2>Objectiu</h2>
+<p>Separar <strong>telemetria operativa</strong> de <strong>dades de negoci</strong>. El Control Plane necessita saber si un Business OS funciona; no necessita conèixer el contingut del negoci del client.</p>
+<h2>Telemetria permesa</h2>
+<ul>
+<li>estat de components;</li>
+<li>latència;</li>
+<li>comptadors d'errors;</li>
+<li>versions;</li>
+<li>profunditat de cues;</li>
+<li>approvals pendents;</li>
+<li>jobs fallits;</li>
+<li>heartbeat timestamp;</li>
+<li>incidents i deployments.</li>
+</ul>
+<h2>Telemetria que no s'ha de centralitzar en aquesta capa</h2>
+<ul>
+<li>factures;</li>
+<li>imports de vendes per client final;</li>
+<li>contingut de correus;</li>
+<li>dades personals de contactes;</li>
+<li>tokens/API keys;</li>
+<li>payloads complets d'ERP/CRM;</li>
+<li>memòria conversacional del tenant.</li>
+</ul>
+<h2>Flux</h2>
+<pre><code class="language-text">Business OS client
+    │
+    │ authenticated heartbeat
+    ▼
+Health Snapshot ──► Metric Samples
+    │                    │
+    └──────────┬─────────┘
+               ▼
+        Incident Engine
+               │
+        ┌──────┴──────┐
+        ▼             ▼
+ Dashboard       SP Supervisor
+</code></pre>
+<h2>Incident lifecycle</h2>
+<pre><code class="language-text">condition detected
+      │
+      ▼
+     open ─────────► acknowledged
+      │                  │
+      └──────────┬───────┘
+                 ▼
+              resolved
+</code></pre>
+<p>Els incidents automàtics tenen fingerprint estable i <code>active_key</code> única. En recuperar-se el servei, <code>active_key</code> passa a NULL i l'incident queda a l'historial.</p>
+<h2>Stale evaluation</h2>
+<p>La detecció de heartbeat stale no ha de dependre d'un GET del dashboard. Per això existeix un evaluator explícit que es pot cridar periòdicament. Això evita efectes laterals en endpoints read-only i facilita escalar a més d'una rèplica en fases futures.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

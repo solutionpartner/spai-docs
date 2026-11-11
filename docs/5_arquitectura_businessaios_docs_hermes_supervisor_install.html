@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>hermes-supervisor-install.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Install SP Supervisor in Hermes</h1>
+<ol>
+<li>Create a dedicated Hermes profile (recommended name: <code>sp-supervisor</code>). Do not reuse a general-purpose profile.</li>
+<li>Copy <code>hermes-profile/SOUL.md</code>, <code>.hermes.md</code>, <code>knowledge/</code> and <code>skills/</code> into that profile, or run <code>scripts/bootstrap_hermes_supervisor.py</code>.</li>
+<li>Merge <code>hermes-profile/config.yaml.example</code> into the profile <code>config.yaml</code>.</li>
+<li>Put <code>SP_PHASE14_ROOT</code>, <code>SP_CONTROL_PLANE_URL</code> and <code>SP_SUPERVISOR_TOKEN</code> in the profile <code>.env</code>; never commit the real token.</li>
+<li>Create the Control Plane service account with role <code>supervisor_operator</code>. It can read, request governed actions, execute AUTO actions, and execute already-approved actions, but it cannot approve its own requests.</li>
+<li>Install MCP SDK v2 into the environment that launches the stdio server: <code>pip install -r requirements-hermes.txt</code>.</li>
+<li>Reload MCP or start a new Hermes session.</li>
+<li>Test with: “Show fleet health and identify any tenant requiring attention.” Then inspect <code>action_policies</code> before testing a low-risk AUTO action.</li>
+</ol>
+<h2>Recommended capability surface</h2>
+<p>The example profile enables only <code>skills</code>, <code>memory</code>, and the <code>mcp-sp_control_plane</code> toolset. Keep terminal, browser, generic code execution and connection-management disabled for this profile.</p>
+<h2>Token rotation</h2>
+<p>Rotate the Control Plane service-account token using the Phase 9 security workflow. Update the Hermes profile <code>.env</code>, then reload MCP. Do not store the token in SOUL.md, memory, skills, project context or git.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

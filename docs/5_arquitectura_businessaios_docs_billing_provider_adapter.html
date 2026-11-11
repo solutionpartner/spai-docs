@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset="utf-8"><title>billing-provider-adapter.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Billing provider adapter contract</h1>
+<p>A provider adapter has exactly two jobs:
+1. verify the provider's webhook signature/replay rules using a secret stored outside the Control Plane;
+2. map the event to the normalized Phase 16 event contract.</p>
+<p>Supported normalized event types:
+- <code>subscription.activated</code>
+- <code>payment.succeeded</code>
+- <code>payment.failed</code>
+- <code>subscription.suspended</code>
+- <code>subscription.cancelled</code></p>
+<p>The adapter authenticates to <code>POST /billing/events/normalized</code> with a dedicated <code>billing_adapter</code> Bearer token. Event IDs are idempotency keys. Reuse of an event ID with different content is rejected.</p>
+<p>The normalized payload must contain only billing state required by SolutionPartner (plan reference, subscription reference, period end, optional grace days). Do not forward card/payment-instrument data.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

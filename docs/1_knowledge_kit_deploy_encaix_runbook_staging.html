@@ -1,0 +1,119 @@
+<!doctype html><html><head><meta charset="utf-8"><title>RUNBOOK-staging.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>RUNBOOK · Staging del Business AI OS (una pàgina · genèric)</h1>
+<p><strong>Objectiu:</strong> aixecar el Control Plane + <strong>un tenant qualsevol</strong> en un VPS amb Docker,
+end-to-end governat i estàndard. Executar EN EL VPS (requereix daemon Docker). Les claus
+SPAI viuen a Optimus (<code>spai-build-pack/secrets/</code>) i <strong>no es copien mai</strong> als components.</p>
+<p><strong>Genericitat:</strong> tòt això funciona per a QUALSEVOL client produït pel kit (el pipeline és
+CL-XXXX → import → anàlisi → oferta → dossier → <code>onboarding.mjs</code> → desplegament). A cada
+passa se substitueix <code>&lt;TENANT&gt;</code> (l'slug del client) i <code>&lt;SLUG&gt;</code>. Vertex Mantenimientos és
+només el primer cas de prova (exemple entre parèntesis).</p>
+<p>Prerequisits: <code>docker</code>, <code>docker compose</code>, baseline (<code>SPAI_BASELINE</code>), claus públiques i
+certs ja generats a Optimus.</p>
+<hr />
+<h2>FASE A · Control Plane (central — es fa UNA vegada, val per tots els tenants)</h2>
+<pre><code class="language-bash">export BASELINE=/ruta/a/business_ai_os_production_milestone_1
+cd &quot;$BASELINE&quot;
+
+# 0. secrets: copiar NOMÉS les PÚBLIQUES des d'Optimus (mai les privades)
+mkdir -p secrets &amp;&amp; cp /opt/data/spai-build-pack/secrets/release-public.pem secrets/
+cp /opt/data/spai-build-pack/secrets/break-glass-public.pem secrets/
+cp /opt/data/spai-build-pack/secrets/pki/client-ca.pem secrets/   # edge mTLS
+
+# 1. config mínima
+cp config/control-plane.env.example .env   # editar creds admin, SP_RELEASE_PUBLIC_KEY_PATH
+export SP_AUTH_MODE=${SP_AUTH_MODE:-key}   # provisional; key+mtls després d'enrolar
+
+# 2. aixecar (INICIALMENT el compose normal; secure requereix TLS en producció)
+docker compose up -d --build
+curl -s http://127.0.0.1:8080/health &amp;&amp; echo &quot; → Control Plane OK&quot;
+</code></pre>
+<h2>FASE B · Onboarding del tenant (per a CADA client)</h2>
+<pre><code class="language-bash">TENANT=&lt;TENANT&gt;                          # ex: vertex-mantenimientos
+KIT=/opt/data/deliverables/kits/02-kit-oferta-soluciones
+
+# 1. Generar el template del kit (format Control Plane validat: REGISTRATION_OK)
+cd &quot;$KIT&quot; &amp;&amp; node herramientas/onboarding.mjs &quot;$TENANT&quot;
+# → genera modelo/onboarding-template.json + onboarding-request.json (per a aquest client)
+# 2. Registrar components + template + request (split genèric, reutilitza els scripts)
+python $BASELINE/scripts/seed_onboarding_template.py --template &quot;$KIT&quot;/workspace/clientes/$TENANT/modelo/onboarding-template.json
+python $BASELINE/scripts/onboard_client.py --request &quot;$KIT&quot;/workspace/clientes/$TENANT/modelo/onboarding-request.json --admin &quot;$ADMIN_TOKEN&quot;
+# → job status: pending_approval
+# 3. APROVACIÓ HUMANA (OP = Optimus, rol aprovador)
+curl -X POST http://127.0.0.1:8080/onboarding/jobs/&lt;id&gt;/approve -H &quot;Authorization: Bearer $ADMIN_TOKEN&quot;
+</code></pre>
+<h2>FASE C · Signar + registrar una release (per a cada versió d'un component)</h2>
+<pre><code class="language-bash"># 1. signar des d'Optimus (offline)
+cd /opt/data/spai-build-pack/secrets/offline
+PYTHONPATH=$BASELINE python $BASELINE/scripts/sign_release_manifest.py \
+  &lt;manifest.json&gt; --private-key release-private.pem --output signed-release.json
+# 2. registrar al Control Plane (verifica la signatura amb la pública)
+curl -X POST http://127.0.0.1:8080/releases/manifests \
+  -H &quot;Authorization: Bearer $ADMIN_TOKEN&quot; -H &quot;Content-Type: application/json&quot; -d @signed-release.json
+</code></pre>
+<h2>FASE D · Instal·lar el tenant al seu VPS (per a CADA client)</h2>
+<pre><code class="language-bash">TENANT=&lt;TENANT&gt;
+# 1. build de les imatges del tenant (UNA vegada, a cada VPS)
+bash /opt/data/spai-build-pack/tenant-images/build.sh   # SPAI_BASELINE apunta a la baseline
+
+# 2. cert mTLS del tenant — emetre des d'Optimus per a AQUEST client i copiar la seva parella
+#    (generar_client_pki.sh CA client; els .key/.pem RESULTANTS són els UNICS privats del VPS)
+cp /opt/data/spai-build-pack/secrets/pki/$TENANT.{key,pem} /srv/$TENANT/secrets/
+
+# 3. desplegar (el compose del tenant és GENÈRIC — no porta cap client hardcoded)
+cd /srv/$TENANT &amp;&amp; docker compose -f /opt/data/spai-knowledge/kit-deploy-encaix/docker-compose.tenant.esbós.yml up -d
+# → el deploy-worker fa pull de la release aprovada i el handler local l'aplica
+</code></pre>
+<h2>FASE E · Verificació final (per a CADA tenant)</h2>
+<ul>
+<li><code>curl</code> al <code>/health</code> del Control Plane → viu · localhost:8080.</li>
+<li>El tenant reporta <code>heartbeat</code> OK al Control Plane.</li>
+<li><code>runtime-sync</code> diu <code>status: applied</code> (estat desitjat aplicat atòmicament).</li>
+<li><code>verify_manifest</code> sobre la release → OK (signatura vàlida amb la pública).</li>
+<li><strong>Secret check:</strong> cap clau privada a les imatges ni logs (<code>grep</code> a <code>docker inspect</code> + logs).</li>
+</ul>
+<hr />
+<h2>Genericitat (què és fix i què canvia per client)</h2>
+<table>
+<thead>
+<tr>
+<th>Fix (UNA vegada)</th>
+<th>Per client</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Control Plane + seves claus públiques</td>
+<td>template + components + job d'onboarding</td>
+</tr>
+<tr>
+<td>Imatges del tenant (base/workers)</td>
+<td>cert mTLS (parella .key/.pem al seu VPS)</td>
+</tr>
+<tr>
+<td>Compose del tenant (esbós, sense client)</td>
+<td>secrets locals i releases signades</td>
+</tr>
+<tr>
+<td>CA del client (ca.key, offline a Optimus)</td>
+<td>stdout del model de cada client</td>
+</tr>
+</tbody>
+</table>
+<h2>Blocs coneguts (quan facis staging)</h2>
+<ul>
+<li><strong><code>hermes-client</code></strong> NO és una imatge Docker: és el <strong>perfil Hermes</strong> del tenant
+  (<code>spai-build-pack/tenant-images/hermes-client/</code>), que s'injecta com a configuració al
+  runtime Hermes — no com a contenidor propi.</li>
+<li><strong><code>business-os servei</code></strong> ja el construïm (frontera deny-by-default portada a servei, a
+  <code>spai-build-pack/tenant-images/business-os/</code>); els 3 workers one-shot
+  (runtime-sync/deploy-worker/license-sync) es posen en timer/cron, o s'empaqueten com a
+  dimonis.</li>
+<li>L'ordre d'onboarding és <strong>aprovació humana obligatòria</strong> → ningú desplega sense OP.</li>
+<li>Rotació i HSM (= multi-firma) queden per alta producció; no bloquegen staging.</li>
+</ul>
+<p><em>Fi. Aquest runbook no autoritza cap desplegament de producció — és per staging/prova.</em></p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

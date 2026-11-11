@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><title>rollback-runbook.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Rollback runbook</h1>
+<ol>
+<li>Identify the completed deployment that introduced the problematic version.</li>
+<li>Confirm an active signed release manifest exists for its <code>from_version</code>.</li>
+<li>Call <code>POST /deployments/{deployment_id}/rollback</code> with the requesting operator.</li>
+<li>Review the generated deployment. It must be <code>pending_approval</code>.</li>
+<li>A human/admin approves the rollback deployment.</li>
+<li>The client worker claims and executes it through the same signed pull channel.</li>
+<li>Confirm tenant health and component version after completion.</li>
+</ol>
+<p>A rollback is deliberately not an emergency shell command. For infrastructure emergencies that require direct VPS access, use a separate break-glass operational process outside the AI/Control Plane path.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

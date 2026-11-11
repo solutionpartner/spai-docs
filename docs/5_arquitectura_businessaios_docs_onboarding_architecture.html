@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><title>onboarding-architecture.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Fase 10 — Arquitectura d'onboarding</h1>
+<pre><code class="language-text">SolutionPartner operator
+        |
+        v
+Onboarding Template Registry
+        |
+        v
+Preview / prerequisite checks
+        |
+        v
+Onboarding request --(RBAC approval)--&gt; provisioning
+        |                                  |
+        |                                  +--&gt; Tenant + one-time machine credential
+        |                                  +--&gt; Secret references (no values)
+        |                                  +--&gt; Base component inventory
+        |                                  +--&gt; Initial signed deployments (pending approval)
+        |                                  +--&gt; Bootstrap metadata
+        v
+   waiting_client
+        |
+        +--&gt; client VPS stores credential
+        +--&gt; client generates private key + CSR locally
+        +--&gt; certificate is enrolled by Security Admin
+        +--&gt; external secret values are populated in the tenant secret backend
+        +--&gt; deployment worker executes approved releases
+        +--&gt; agent reports healthy heartbeat
+        |
+        v
+   readiness gate
+        |
+        v
+      READY
+</code></pre>
+<h2>Límit de confiança</h2>
+<p>El Control Plane automatitza l'orquestració i l'inventari. No conté la CA privada, claus privades de client, valors de secrets ERP/CRM ni accés SSH/root als VPS.</p>
+<h2>Idempotència</h2>
+<p>Els passos queden persistits a <code>onboarding_steps</code>. Si el procés s'interromp, <code>execute</code> pot reprendre els passos ja completats sense crear un segon tenant ni tornar a revelar una credencial antiga.</p>
+<h2>Desplegaments inicials</h2>
+<p>Els manifests signats indicats a la plantilla generen deployments de Fase 8 en estat <code>pending_approval</code>. L'aprovació de l'onboarding no elimina l'aprovació de release/deployment: són dos controls independents.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

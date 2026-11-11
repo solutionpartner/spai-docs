@@ -1,0 +1,262 @@
+<!doctype html><html><head><meta charset="utf-8"><title>PROCEDIMENT_AUDITORIA_GLOBAL_CLAUDE.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>CLAUDE.md — Sistema d'Auditoria i Informes d'Empresa (replicable)</h1>
+<p>Aquest és un sistema <strong>replicable</strong> per generar informes complets d'empreses
+(DAFO/SWOT, PESTLE, benchmarking, pla de millora) i vendre'ls com a consultoria.</p>
+<p><strong>Principi clau:</strong> no escriguis l'informe directament. Segueix el pipeline de
+5 fases. Cada fase és un fitxer intermedi que pots inspeccionar abans de
+continuar. Res no es lliura sense passar l'auto-auditoria (fase 4).</p>
+<hr />
+<h2>Arquitectura del sistema (flux complet)</h2>
+<pre><code>QÜESTIONARI (client)  →  FASE 0 CAPTURA  →  FASE 1 RECERCA  →  FASE 2 ANÀLISI  →  FASE 3 REDACCIÓ  →  FASE 4 AUTO-AUDITORIA  →  FASE 5 ENTREGA (PDF/Excel) + FASE 5b WEB
+</code></pre>
+<p>Cada fase escriu al seu fitxer. No saltes fases. Si una fase no té prou dades,
+ho marques com a <code>TODO</code> i ho afegeixes a la llista de pendents — no t'inventis
+dades com a fetes.</p>
+<hr />
+<h2>FASE 0 — Captura d'entrada (abans de començar)</h2>
+<p><strong>Interfaces d'entrada acceptades:</strong>
+- Transcripció d'una trucada/entrevista (fitxer <code>.txt</code> o <code>.md</code>)
+- Notes soltes del client (qualsevol text)
+- URL de la web del client
+- Dades numèriques (CSV, full de càlcul exportat a CSV)</p>
+<p><strong>Prompt d'extracció</strong> — passa-ho al model quan tinguis el text brut:</p>
+<pre><code class="language-text">Extraeix de l'entrada següent, de forma estructurada i sense inventar res:
+1. EMPRESA: nom, sector, mida (empleats), ubicació, anys d'operació
+2. QUÈ VENEN: productes/serveis principals (1 línia cadascun)
+3. CLIENTS: qui són els seus clients ideals, quins problemes resolen
+4. PROCESSOS: quines operacions/àrees tenen (ventes, suport, facturació, logística, producció, estocs, compres...). Per a CADA procés detectat, extrau per separat:
+   - NOM del procés
+   - FLUX PAS A PAS (els passos, encadenats: &quot;1. rep comanda → 2. comprova existències → 3. ...&quot;)
+   - QUÈ ES FA A MÀ / MANUAL (quins passos requereixen una persona escrivint, cridant, movent paper)
+   - EINES USADES (quines serveixes fan servir en aquest procés)
+   - VOLUM (freqüència: quantes vegades al dia/setmana es fa, si s'esmenta)
+   - QUI HO FA (rol i quantes hores setmanals, si s'esmenta)
+   - HORES que fa perdre (si s'esmenta &quot;passo X hores fent&quot;)
+5. PUNTS DE DOLOR: què els fa perdre temps o diners (textual del client)
+6. EINES ACTUALS: quines eines/software fan servir globalment (si es mencionen)
+7. MANUALS: quins passos encara fan a mà (resum global)
+8. OBJECTIUS: què volen aconseguir (creixement, costos, temps...)
+9. DADES NUMÈRIQUES: qualsevol xifra esmentada (ingressos, costos, temps, volum)
+10. CHECKLIST DE PROCESSOS: marca amb SÍ/NO cada procés següent segons si l'empresa el té o n'ha parlat
+    - Comandes / vendes / comandes de compra
+    - Facturació i cobraments
+    - Compres a proveïdors (PCR)
+    - Producció / prestació del servei / elaboració
+    - Gestió d'estocs / magatzem / inventari
+    - Logística / entrega / enviament
+    - Atenció al client / suport / reclamacions
+    - Màrqueting / captures de leads / xarxes socials
+    - Recursos humans / contractació (si escau)
+    - Comptabilitat / tresoreria
+    - Informes / reports periòdics / gestió de dades
+    - Altres (especificar)
+    Per a cadascun marcat SÍ, apunta el flux pas a pas i si es fa a mà (com al punt 4).
+
+Formata la sortida com a llistes clares sota cada capçalera.
+Si una dada no apareix, escriu &quot;NO_PROVIDED&quot; — no la dedueixis.
+</code></pre>
+<p>Desa el resultat a <code>input/[client]-extracted.md</code>.</p>
+<hr />
+<h2>FASE 1 — Research (recerca de context)</h2>
+<p>Objectiu: entendre el sector i els competidors abans d'analitzar res.</p>
+<ol>
+<li>Llegeix <code>input/[client]-extracted.md</code>.</li>
+<li>Cerca informació del sector i competidors:</li>
+<li><code>web_search</code> amb el nom de l'empresa i el sector</li>
+<li><code>web_extract</code> de la web del client i 2-4 competidors</li>
+<li>Skill <code>agent-reach</code> (si disponible) per fonts socials/públiques</li>
+<li>Escriu <code>research/[client]-sector.md</code> amb:</li>
+<li>Descripció del sector (tendències, mida, creixement)</li>
+<li>Competidors principals (nom, què fan, com es diferencien)</li>
+<li>Fonts consultades (URLs) — cada dada que entri a l'informe necessitarà cita</li>
+<li><code>TODO</code> qualsevol buit (p. ex. "mancar dades de preus del competidor X").</li>
+</ol>
+<p><strong>Regla de dades:</strong> separa SEMPRE "fet verificable" (amb font) de "judici
+estratègic" (opinió). A l'informe final, marca la diferència.</p>
+<hr />
+<h2>FASE 2 — Anàlisi (DAFO + PESTLE + benchmarking)</h2>
+<p>Objectiu: convertir la recerca en anàlisi estructurada.</p>
+<ol>
+<li>Llegeix <code>research/[client]-sector.md</code> + <code>input/[client]-extracted.md</code>.</li>
+<li>Genera:</li>
+</ol>
+<p><strong>DAFO (4 quadrants):</strong>
+- <strong>Fortaleses (S):</strong> què fa l'empresa millor que els competidors (intern)
+- <strong>Debilitats (W):</strong> què fa pitjor o què li falta (intern)
+- <strong>Oportunitats (O):</strong> tendències externes que pot aprofitar
+- <strong>Amenaces (T):</strong> riscos externs (competidors, regulació, mercat)</p>
+<p><strong>PESTLE (6 dimensions, només si hi ha prou context):</strong>
+- Política, Econòmica, Social, Tecnològica, Legal, Ambiental</p>
+<p><strong>Benchmarking (si tens dades numèriques):</strong>
+- Compara l'empresa amb 2-4 competidors en: preus, temps d'entrega, canals, presència digital, automatització</p>
+<ol>
+<li>Escriu <code>analysis/[client]-analysis.md</code> amb les 3 seccions.</li>
+<li>Cada punt DAFO ha de tenir: <strong>afirmació + evidència</strong> (d'on surt).</li>
+</ol>
+<p><strong>Regla:</strong> si el DAFO té menys de 3 punts per quadrant, fes més recerca o
+marca-ho com "anàlisi preliminar" — no inflis amb punts genèrics.</p>
+<hr />
+<h2>FASE 3 — Redacció (informe complet)</h2>
+<p>Objectiu: convertir l'anàlisi en un informe executable i professional.</p>
+<ol>
+<li>Llegeix <code>analysis/[client]-analysis.md</code>.</li>
+<li>Genera <code>reports/[client]-report.md</code> amb aquesta estructura:</li>
+</ol>
+<pre><code class="language-markdown"># Informe de Millora — [Nom empresa]
+**Data:** [data] · **Preparat per:** [nom client] · **Per:** [el teu nom/agència]
+
+## 1. Resum executiu (1 pàgina)
+- Què ets bones, què et falta, 3 accions prioritàries
+
+## 2. Anàlisi DAFO (taula 2x2 o 4 quadrants)
+
+## 3. PESTLE (si escau)
+
+## 4. Benchmarking (si escau, taula comparativa)
+
+## 5. Pla de millora prioritzat
+| Prioritat | Àrea | Problema | Acció proposada | Impacte | Esforç |
+|-----------|------|----------|-----------------|---------|--------|
+
+## 6. Automatitzacions recomanades (si apliquen)
+- Quins processos poden automatitzar-se, amb quina eina, quin estalvi
+
+## 7. KPIs de seguiment
+- Mètriques concretes per mesurar la millora
+
+## 8. Properes passes (llista numerada)
+</code></pre>
+<ol>
+<li><strong>Escriu en segona persona</strong> ("la seva empresa", "vostè") i to professional.</li>
+<li><strong>No utilitzis</strong>:</li>
+<li>Em-dash (—) — substituïu per ", " o ": "</li>
+<li>Emojis als títols/body</li>
+<li>Frases amb "not-X-but-Y", triades forçades, o clímax d'una línia</li>
+<li>Paraules buides ("streamline", "optimize", "cutting-edge", "innovador")</li>
+</ol>
+<p><strong>Eines opcionals per a qualitat:</strong>
+- Skill <code>humanizer</code> (si disponible): neteja els trets d'IA del text
+- Skill <code>copywriting</code> (si disponible): millora la persuasió del resum executiu</p>
+<hr />
+<h2>FASE 4 — Auto-auditoria (self-audit pass) — OBLIGATÒRIA</h2>
+<p>Abans d'entregar, revisa l'informe amb ulls crítics:</p>
+<ol>
+<li><strong>Verificació de dades:</strong></li>
+<li>Cada dada numèrica té font? Si no, marca-la "estimació" o treu-la.</li>
+<li>Cada punt DAFO té evidència real? Si no, marca'l "judici".</li>
+<li>
+<p>Hi ha alguna dada inventada/redona? Corrigeix o elimina.</p>
+</li>
+<li>
+<p><strong>Verificació de coherència:</strong></p>
+</li>
+<li>El resum executiu coincideix amb el pla de millora?</li>
+<li>
+<p>Les accions prioritàries apareixen desenvolupades a la secció 5?</p>
+</li>
+<li>
+<p><strong>Neteja d'AI-tells:</strong></p>
+</li>
+<li>Cerca: em-dash (—), emojis, "not-X-but-Y", triades de 3, clímax d'una línia</li>
+<li>Cerca paraules buides: "streamline, optimize, cutting-edge, innovative, leverage"</li>
+<li>
+<p>Reescriu qualsevol frase que soni "genèricament IA"</p>
+</li>
+<li>
+<p><strong>Qualitat d'acció:</strong></p>
+</li>
+<li>Cada acció del pla té un "qui, què, quan" clar?</li>
+<li>Els KPIs són mesurables (número + període)?</li>
+</ol>
+<p><strong>Output:</strong> <code>reports/[client]-report-audited.md</code> (versió final neta).
+Escriu a <code>audit-log.md</code> què has corregit (1 línia per correcció).</p>
+<p><strong>La regla absoluta:</strong> l'informe NO es lliura mai sense passar aquesta fase.</p>
+<hr />
+<h2>FASE 5 — Entrega (formats)</h2>
+<p>Genera els formats d'entrega segons el client:</p>
+<ol>
+<li><strong>Markdown</strong> (sempre): <code>reports/[client]-report-audited.md</code></li>
+<li><strong>Excel</strong> (si hi ha benchmarking/KPIs): fitxer <code>.xlsx</code> amb:</li>
+<li>Full "DAFO" (4 quadrants)</li>
+<li>Full "Benchmark" (taula comparativa)</li>
+<li>Full "Pla" (accions prioritzades amb impacte/esforç)</li>
+<li>Full "KPIs" (mètriques de seguiment)</li>
+<li><strong>PDF</strong> (si ho demana el client): converteix el .md net a PDF</li>
+</ol>
+<p><strong>Eines per a formats:</strong>
+- Excel/PDF: skill <code>pdf</code> (scripts <code>pdf_create.py</code>, <code>pdf_stamp.py</code>) i <code>xlsx</code>
+- Pàgina de presentació: skill <code>docx</code> o <code>powerpoint</code> si cal</p>
+<p><strong>Organització de fitxers:</strong></p>
+<pre><code>audit-system/
+├── input/[client]-extracted.md
+├── research/[client]-sector.md
+├── analysis/[client]-analysis.md
+├── reports/[client]-report.md
+├── reports/[client]-report-audited.md   ← FINAL (aquest s'entrega)
+├── deliverables/[client].xlsx
+├── deliverables/[client].pdf
+└── audit-log.md
+</code></pre>
+<hr />
+<h2>Pautes de vendes (recordatori)</h2>
+<ul>
+<li><strong>Oferta d'entrada:</strong> trucada de 45 min de mapeig de processos + informe en 24h
+  a preu baix (~$500-999). Això genera confiança abans de vendre l'auditoria gran.</li>
+<li><strong>Projecte complet:</strong> $3.000-7.000 (DAFO + benchmarking + PESTLE + pla + KPIs).</li>
+<li><strong>Retenció mensual:</strong> $500-1.500/mes (dashboard KPIs + seguiment).</li>
+<li><strong>Primers clients:</strong> 20 missatges/dia a LinkedIn a ops managers, CMOs i
+  fundadors de 10-50 persones que fan servir "IA" però no tenen auditoria.</li>
+</ul>
+<hr />
+<h2>Models recomanats (segons fase)</h2>
+<table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Tasca</th>
+<th>Model recomanat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recerca</td>
+<td>web_search, web_extract</td>
+<td>qualsevol (no cal gaire raonament)</td>
+</tr>
+<tr>
+<td>Anàlisi (DAFO)</td>
+<td>raonament estructurat</td>
+<td>model "reasoning"/gran (ex: claude-sonnet-4+, gpt-4o, deepseek-v4)</td>
+</tr>
+<tr>
+<td>Redacció</td>
+<td>escriptura + copy</td>
+<td>model bo en llenguatge (claude-sonnet-4+)</td>
+</tr>
+<tr>
+<td>Auto-auditoria</td>
+<td>revisió crítica</td>
+<td>model gran o diferent a l'escriptor (crida moment)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Consell de fluïdesa:</strong> per a tasques de recerca/extracció (fases 0-1) un model
+ràpid i barat va bé (estalvia tokens). Per anàlisi + redacció + auditoria
+(fases 2-4) usa un model més capaç. No cal canviar-ho per a tot el pipeline;
+canvia segons la fase si el teu entorn ho permet.
+```</p>
+<hr />
+<h2>Convencions tècniques</h2>
+<ul>
+<li>Tots els fitxers en <strong>clar</strong> i <strong>català</strong> (o l'idioma del client).</li>
+<li>Noms de fitxer: <code>[client]-[tipus].ext</code> (sense espais, sense accents).</li>
+<li>Desa els fitxers intermedis SEMPRE (mai a memòria): el sistema és replicable
+  perquè cada fase es pot reexecutar des del seu input.</li>
+<li>Si una fase falla o no té dades, escriu el fitxer igualment amb <code>TODO</code> i
+  segueix — es poden emplenar després.</li>
+</ul>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>

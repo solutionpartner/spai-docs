@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><title>backup-policy.md · SolutionPartner</title>
+<style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}
+code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}
+h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head>
+<body><div style="background:#0B1D32;padding:10px 20px;margin-bottom:18px"><a href="../index.html" style="color:#E7C47D;text-decoration:none;font-weight:bold">← Índex de documents</a></div><h1>Backup policy baseline</h1>
+<p>Production policy should define RPO/RTO per plan. A safe initial baseline is:
+- Control Plane DB: encrypted backup at least daily plus transaction/volume snapshots as supported by the production DB.
+- Tenant critical DB/data: encrypted daily backup; higher frequency for higher-SLA plans.
+- Git tenant snapshot: on every approved configuration/workflow/deployment change and at least daily reconciliation.
+- Release artifacts: immutable object storage with checksums and retention independent from GitHub.
+- Secrets: provider-native replication/versioning; never export secret values to Git backups.</p>
+<p>Backups are not considered healthy until restore tests are performed. Schedule periodic restore drills into an isolated environment and record evidence/results.</p>
+<div style="margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px">SolutionPartner.AI · AI Strategy &amp; Automation</div>
+</body></html>
