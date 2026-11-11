@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset='utf-8'><title>security-architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Phase 9 security architecture</h1>
+<h2>Trust boundaries</h2>
+<ol>
+<li><strong>SolutionPartner operator boundary</strong> — humans, CI and SP Supervisor authenticate using scoped Service Accounts.</li>
+<li><strong>Control Plane boundary</strong> — deterministic API; no private release/break-glass keys; no ERP/CRM secrets.</li>
+<li><strong>TLS edge boundary</strong> — public ingress; tenant hostname requires a verified client certificate.</li>
+<li><strong>Tenant boundary</strong> — each Business OS has its own rotating client credential and private key.</li>
+<li><strong>External systems boundary</strong> — ERP/CRM secrets stay at the tenant runtime/secret backend.</li>
+</ol>
+<h2>Machine identity</h2>
+<p>Tenant requests should require both factors in production:</p>
+<ul>
+<li>possession of a rotating application credential;</li>
+<li>possession of the private key matching an enrolled mTLS certificate.</li>
+</ul>
+<p>Compromise of only one does not satisfy <code>key+mtls</code>.</p>
+<h2>Administrator identity</h2>
+<p>Service Account tokens contain a public credential identifier plus a random secret. The secret is never stored; only a salted scrypt derivation is persisted.</p>
+<p>Authorization is scope-based. The server obtains the actor from the authenticated Principal and does not trust actor names submitted in mutable JSON bodies.</p>
+<h2>Secrets</h2>
+<p><code>secret_refs</code> are inventory/policy metadata. A record may say where a secret exists and which component may use it, but cannot contain the value itself.</p>
+<h2>Emergency access</h2>
+<p>Break-glass uses a separate offline Ed25519 trust root. The Control Plane has the public key only. Tokens are short-lived, reason-bound, limited-use and audited.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

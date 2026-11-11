@@ -1,0 +1,69 @@
+<!doctype html><html><head><meta charset='utf-8'><title>ai-finops-model-routing.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Phase 19 — AI FinOps &amp; Model Router</h1>
+<h2>Goal</h2>
+<p>Control AI spend per tenant without turning every request into a premium-model call. The router is deterministic and provider-neutral. It chooses an eligible model from a registry based on privacy, capabilities, complexity, tenant routing policy, and current budget band.</p>
+<h2>Model classes</h2>
+<ul>
+<li><code>local</code>: self-hosted via Local AI Runtime. API marginal token cost is recorded as 0; hardware/electricity are separate infrastructure costs.</li>
+<li><code>free_tier</code>: a cloud allowance that is actually free only while the provider allowance/credits remain available. The registry must be updated when that allowance is exhausted.</li>
+<li><code>low_cost</code>: paid cloud models optimized for cost/throughput.</li>
+<li><code>premium</code>: higher-cost models reserved for tasks where quality/complexity justify it.</li>
+</ul>
+<p>Do not label a paid API as <code>free_tier</code>. DeepSeek's API, for example, is token-billed; it can be registered as <code>low_cost</code>, while an approved self-hosted open-weight model can be <code>local</code>.</p>
+<h2>Default routing</h2>
+<p><code>economy_first</code> is the recommended default for SMEs:</p>
+<ol>
+<li>simple work -&gt; local/free tier first;</li>
+<li>standard work -&gt; cheapest eligible model according to policy;</li>
+<li>complex work -&gt; still starts from the configured economy policy unless a task override asks for <code>balanced</code> or <code>quality_first</code>;</li>
+<li><code>strict_local</code> -&gt; local models only, regardless of quality score;</li>
+<li>soft budget band -&gt; force <code>economy_first</code>;</li>
+<li>hard budget band -&gt; policy chooses <code>local_only</code>, <code>block_nonessential</code>, or <code>block_all</code>.</li>
+</ol>
+<p>A tenant can override selected task types, e.g. executive strategic analysis can use <code>quality_first</code> while email classification stays <code>economy_first</code>.</p>
+<h2>Cost model</h2>
+<p>Usage events contain only:</p>
+<ul>
+<li>tenant;</li>
+<li>model/provider/class;</li>
+<li>agent/workflow/task type;</li>
+<li>input, cached-input and output tokens;</li>
+<li>server-computed estimated EUR cost;</li>
+<li>timestamp/request id.</li>
+</ul>
+<p>No prompt, retrieved RAG chunk, model response, API key or secret is accepted by the usage schema.</p>
+<p>The cost is computed from the registry price snapshot. Pricing is mutable metadata and must be refreshed when providers change prices. <code>pricing_source</code> and <code>pricing_as_of</code> make that update auditable.</p>
+<h2>Budget bands</h2>
+<p>A budget policy defines:</p>
+<ul>
+<li>monthly EUR budget;</li>
+<li>soft threshold (default 80%);</li>
+<li>hard threshold (default 100%);</li>
+<li>hard action.</li>
+</ul>
+<p>Recommended behavior:</p>
+<ul>
+<li>normal: configured routing mode;</li>
+<li>soft: economy-first plus alert;</li>
+<li>hard/local_only: only local inference;</li>
+<li>hard/block_nonessential: deny optional AI tasks but keep essential ones routable;</li>
+<li>hard/block_all: no new model calls until policy/budget changes.</li>
+</ul>
+<p>This is independent from billing entitlement. A tenant in Billing <code>restricted/suspended</code> is denied AI before budget routing.</p>
+<h2>Provider strategy</h2>
+<p>The registry is intentionally provider-neutral. Typical classes can include:</p>
+<ul>
+<li>Ollama / llama.cpp local models -&gt; <code>local</code>;</li>
+<li>genuine provider free allowance -&gt; <code>free_tier</code> while available;</li>
+<li>DeepSeek API or other inexpensive paid APIs -&gt; <code>low_cost</code> when their current rates justify it;</li>
+<li>frontier/premium APIs -&gt; <code>premium</code>.</li>
+</ul>
+<p>Never hard-code a provider as permanently free or cheap. Prices, free allowances, model names and rate limits change.</p>
+<h2>Supervisor</h2>
+<p>Hermes/SP Supervisor gets read-only tools:</p>
+<ul>
+<li><code>tenant_ai_usage(tenant_id)</code>;</li>
+<li><code>fleet_ai_usage()</code>.</li>
+</ul>
+<p>It can diagnose high spend or anomalous usage. It cannot alter usage records, provider pricing or budgets through MCP in this phase.</p>
+<h2>Production follow-up</h2>
+<p>The next production step is an execution gateway/provider adapter layer that consumes the selected route and invokes the provider using secret references. Provider adapters should report actual token usage back to <code>/client/{tenant}/ai/usage</code>, and circuit-break/fallback on 429/5xx errors without bypassing privacy/budget policy.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

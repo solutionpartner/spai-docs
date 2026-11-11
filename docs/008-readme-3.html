@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset='utf-8'><title>README.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>SalesPower · Fluxos n8n (notificacions + resum)</h1>
+<p>Fluxos que reben el payload del <strong>dashboard SalesPower</strong> (<code>salespower-dashboard.html</code>)
+i el connecten amb el món real (email), seguint el contracte definit al dashboard:</p>
+<ul>
+<li>Webhook d'n8n configurable a <strong>Configuració → Notificacions</strong>.</li>
+<li>Payload: <code>{ subject, html, to, type, tenant }</code> (POST).</li>
+<li>Dashboard tolerant: sense webhook configurat no envia res i no trenca.</li>
+</ul>
+<h2>Fluxos</h2>
+<h3>1. <code>salespower-buzon-alertas.json</code> — rep el payload i envia email</h3>
+<ul>
+<li><strong>Webhook</strong> (POST, <code>responseMode: onReceived</code> + <code>respondToWebhook</code> per respondre OK al dashboard).</li>
+<li><strong>Code node</strong> (<code>Extreure payload</code>): normalitza <code>body</code>/<code>bodyString</code> → <code>{subject, html, to, type, tenant}</code>.</li>
+<li><strong>Send Email (SMTP)</strong>: envia l'HTML amb <code>fromName = SalesPower · &lt;tenant&gt;</code>.</li>
+<li><strong>Respond to Webhook</strong>: torna <code>{ok:true}</code> perquè el dashboard sàpiga que ha anat bé.</li>
+</ul>
+<p><strong>Configuració:</strong>
+- Credencial SMTP al node <code>Enviar email</code> (fer servir el correu de marca <code>salespower@solutionpartner.ai</code>).
+- <strong>Header Auth</strong> al webhook (només el dashboard — que ja guarda el token del tenant — ha de poder cridar-lo).
+- Variable d'entorn <code>SALESPOWER_TENANT</code> (slug del tenant) per al path: <code>/salespower/&lt;tenant&gt;</code>.</p>
+<h3>2. <code>salespower-resumen-semanal.json</code> — resum setmanal automàtic</h3>
+<ul>
+<li><strong>Schedule Trigger</strong> (cada dilluns 08:00).</li>
+<li><strong>HTTP Request</strong> x2 → <code>GET /api/v2/invoices</code> i <code>GET /api/deals</code> (Business Pulse, Bearer token).</li>
+<li><strong>Merge</strong> (mode append) → <strong>Code node</strong> (<code>Calcular resumen</code>): calcula facturació, pendent i pipeline obert.</li>
+<li><strong>Send Email (SMTP)</strong>: envia el resum amb els KPI principals.</li>
+</ul>
+<p><strong>Variables d'entorn requerides:</strong>
+- <code>SALESPOWER_API_HOST</code> — host del tenant (ex. <code>tenant.solutionpartner.ai</code>).
+- <code>BUSINESS_PULSE_TOKEN</code> — token del connector del tenant.
+- <code>SALESPOWER_REPORT_TO</code> — destinatari del resum.</p>
+<blockquote>
+<p>Nota: el node <code>Calcular resumen</code> normalitza el <code>response.items</code> segons el contracte
+real (<code>{items, has_more, cursor}</code>). Verificar el format al primer test amb dades
+reals; si el connector respon <code>{body:{items}}</code> cal afinjar el Code node.</p>
+</blockquote>
+<h2>Com desplegar</h2>
+<ol>
+<li>Importar cada <code>.json</code> a n8n (Import from File).</li>
+<li>Configurar credencials i variables d'entorn.</li>
+<li>Activar el workflow.</li>
+<li>Al dashboard: Configuració → Notificacions → posar la URL del webhook (<code>/salespower/&lt;tenant&gt;</code>)</li>
+<li>destinatari.</li>
+</ol><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

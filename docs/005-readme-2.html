@@ -1,0 +1,370 @@
+<!doctype html><html><head><meta charset='utf-8'><title>README.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Encaix · Kit d'oferta SPAI ➜ Business AI OS (deploy governat)</h1>
+<p><strong>ID document:</strong> SPAI-KP-DEPLOY-001 · <strong>Versió:</strong> 1.0 · <strong>Data:</strong> 2026-10-16
+<strong>Autor:</strong> SolutionPartner.AI · <strong>Estat:</strong> proposta d'encaix (no acredita desplegament)
+<strong>Fonts:</strong> <code>spai-build-pack/SPAI_Hermes_Build_Pack_v1_1/</code> (Build Pack v1.1) + fases 1–21 a <code>spai-fases-historic/</code> + kit <code>deliverables/kits/</code> (kit01 + kit02).</p>
+<blockquote>
+<p><strong>Grau d'evidència.</strong> Aquest mapa connecta dues coses que existeixen per separat:
+el <strong>kit d'oferta</strong> (producció real, provat) i el <strong>Build Pack</strong> (paquet documental de
+construcció, <em>no una release desplegada</em>). El "pont" (secció 3) és <strong>a construir</strong>.</p>
+</blockquote>
+<hr />
+<h2>1. Resum en una frase</h2>
+<p>El kit produeix <strong>el model del tenant</strong> (què automatitzar i com). El Build Pack descriu
+<strong>com es desplega un tenant</strong>. Falta el <strong>pont</strong> que faci que el model del kit alimenti
+l'onboarding del tenant de manera guiada/automàtica.</p>
+<hr />
+<h2>2. Les 5 capes (veure diagrama <code>mapa-encaix-kit-buildpack.svg</code>)</h2>
+<h3>Capa 1 · Cicle comercial (FET — kit01 + kit02)</h3>
+<ul>
+<li><strong>kit01</strong> → diagnòstic BPMN (radiografia / <code>auditoria-procesos-bpmn-&lt;client&gt;</code>).</li>
+<li><strong>kit02</strong> → oferta comercial (client) + <strong>dossier intern</strong> (SPAI).</li>
+</ul>
+<h3>Capa 2 · Model del tenant (FET — sortida del kit)</h3>
+<p>El dossier intern porta, per client:
+- <code>implementacion.json</code> — el model complet.
+- <strong>Automatismes → Skills de l'Hermes</strong> del client (threads d'execució).
+- <strong>MCPs</strong> cap als sistemes del client (Programa de gestión, correu, WhatsApp…).
+- <strong>JSON n8n nets</strong> (importables) a <code>modelo/implementacio/</code>.
+- <strong>Prompt "Implementa això"</strong> + <strong>ordre de desplegament + checklist</strong>.</p>
+<h3>Capa 3 · Pont (FET 2026-10-16 · eina <code>onboarding.mjs</code>) · VALIDAT CONTRA EL CODI REAL</h3>
+<ul>
+<li><strong><code>herramientas/onboarding.mjs &lt;cliente&gt;</code></strong> llegeix <code>implementacion.json</code> i genera 3 fitxers a
+  <code>modelo/</code>: <code>onboarding-manifest.json</code> (document intern), <strong><code>onboarding-template.json</code></strong> i
+  <strong><code>onboarding-request.json</code></strong> (format exacte del Control Plane).</li>
+<li><strong>Validat contra la baseline real</strong> (<code>Business_AI_OS_Production_Milestone_1</code>, desempaquetada a
+  <code>/opt/data/spai-baseline-milestone/</code>):</li>
+<li><code>onboarding-template.json</code> → <strong>REGISTRATION_OK</strong> (27 components: 10 workflow n8n, 9 skill
+    Hermes, 4 runtime, 2 agent, 2 connector).</li>
+<li>El <strong>flux e2e</strong> (registrar components → template → <code>preview</code> → <code>request</code>) →
+    <strong>PREVIEW_OK eligible=True</strong> + <strong>REQUEST_OK</strong> (job <code>pending_approval</code>).</li>
+<li><strong>Confirma els punts clau del codi real</strong>: <code>COMPONENT_TYPES={agent,skill,connector,runtime,
+    workflow}</code> (exactament els que el kit genera) i tots els <code>secret_ref_name</code> han de tenir un
+    <code>secret_requirements</code> parell (validació que només es veu executant, no llegint la doc).</li>
+</ul>
+<h3>Capa 4 · SPAI central (DISSENYAT — Control Plane)</h3>
+<ul>
+<li><strong>OPTIMUS</strong> — governa, ordena canvis i actualitzacions als clients.</li>
+<li><strong>Signer (Ed25519)</strong> — releases signades (build immutable + manifest signat).</li>
+<li><strong>Action Gateway</strong> — única frontera de mutació model-facing; denegació per defecte.</li>
+<li><strong>Aprovació humana</strong> — obligatòria segons política, independent de l'onboarding.</li>
+</ul>
+<h3>Capa 5 · Tenant del client (DISSENYAT — aïllat per client)</h3>
+<ul>
+<li><strong>Hermes del client (Argon)</strong> — raonament + operació governada; les seves <strong>skills són
+  els automatismes</strong> del client.</li>
+<li><strong>n8n</strong> — fluxos importats.</li>
+<li><strong>Business OS</strong> — runtime + Approval Engine.</li>
+<li><strong>runtime-sync · heartbeat</strong> — estat i senyal de vida.</li>
+<li><strong>deploy worker</strong> — fa pull del que està aprovat i aplica via handler local.</li>
+</ul>
+<hr />
+<h2>3. Flux de desplegament (el que ja està dissenyat al Build Pack)</h2>
+<pre><code>CI construeix → signer signa (Ed25519) → Control Plane registra
+→ aprovador humà autoritza → deploy worker del tenant fa pull i valida
+→ handler local aplica → health + estat &quot;applied&quot; verificats
+</code></pre>
+<ul>
+<li><strong>Rollback:</strong> <code>POST /deployments/{id}/rollback</code> (validar esquema de l'API instal·lada).</li>
+<li><strong>Backup/restore:</strong> RPO/RTO per client; un rollback de codi NO desfà un efecte extern
+  (una factura enviada), això és anàlisi separada.</li>
+<li><strong>Govern:</strong> Optimus ↔ Hermes per <strong>MCP</strong> amb compte <code>supervisor_operator</code> limitat.
+  Mutacions via <code>propose_action</code> → aprovació → <code>execute_approved_action</code>. Mai root/SSH.</li>
+</ul>
+<hr />
+<h2>4. Decisions preses (no re-obrir sense motiu)</h2>
+<table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Decisió</th>
+<th>Font</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Orquestració de contenidors</td>
+<td><strong>Docker Compose. NO Kubernetes.</strong></td>
+<td>Build Pack 03</td>
+</tr>
+<tr>
+<td>Autoritat de seguretat</td>
+<td>Hermes <strong>no</strong> és l'autoritat ni té root</td>
+<td>Phase 14</td>
+</tr>
+<tr>
+<td>Credencial ERP/CRM</td>
+<td>Al domini del <strong>tenant</strong>, només <code>secret_ref</code> central</td>
+<td>Build Pack 03</td>
+</tr>
+<tr>
+<td>Accés a producció</td>
+<td><code>SP_CLIENT_AUTH_MODE=key+mtls</code> després d'enrolament</td>
+<td>Runbook 04</td>
+</tr>
+<tr>
+<td>Topologia (host únic vs separat)</td>
+<td><strong>A confirmar</strong> — no canviar-la en silenci</td>
+<td>Build Pack 03</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>5. Què falta per tenir desplegament automàtic (llista honesta)</h2>
+<ol>
+<li>✅ <strong>Pont kit → onboarding</strong> <strong>FET i VALIDAT contra el codi real</strong> (<code>onboarding.mjs</code> +
+   <code>onboarding-template.json</code>/<code>request.json</code>; <code>REGISTRATION_OK</code> + <code>PREVIEW_OK</code> +
+   <code>REQUEST_OK</code>).</li>
+<li>✅ <strong>Artefactes reproduïbles</strong> — a <code>spai-build-pack/tenant-images/</code>: <strong>5 imatges</strong> del
+   tenant (base, <strong>business-os servei</strong> (feta ara, provada e2e), runtime-sync,
+   deploy-worker, license-sync) + <strong>perfil Hermes del client</strong> (<code>hermes-client/</code>, l'«Argon»
+   del tenant). <code>n8n</code> = oficial <code>n8nio/n8n</code>. Falta run <code>build.sh</code> al VPS (aquest host no té
+   daemon de Docker).</li>
+<li>✅ <strong>Claus i CA generades (custòdia = OPTIMUS, decisió 2026-10-17)</strong> — veure secció 8:
+   release, license, break-glass, installation a <code>secrets/</code> (privades 0600) + CA i cert
+   mTLS del tenant de prova a <code>secrets/pki/</code>. Falta: decidir rotació/HSM opcional i
+   distribuir només les públiques als components.</li>
+<li><strong>Staging</strong>: aixecar-ho en entorn net i provar reinici, persistència i absència de
+   secrets a imatges/logs. <strong>Requereix daemon Docker</strong> (no disponible en aquest host).</li>
+<li><strong>Primer tenant real</strong> (Fase de <code>05_RUNBOOK_TENANT_DEPLOY</code>): enrolament mTLS,
+   desplegament de components signats, secrets locals, health i prova read-only amb ERP.</li>
+</ol>
+<blockquote>
+<p><strong>Validesa de la baseline (2026-10-17):</strong> la suite sencera de tests del Control Plane
+passa — <strong>262/262 tests, 35/35 fitxers, 0 errors</strong> (inclou controls_plane, API 7-21,
+onboarding, catalog, releases/rollouts, billing/licensing, local agents, AI runtime,
+finops, contracts, governance, security, milestone). La baseline és <strong>funcional i
+estable</strong>.</p>
+</blockquote>
+<hr />
+<h2>8. Claus i CA — mapeig complet (resultat de revisar el codi real)</h2>
+<p>La baseline té <strong>5 sistemes de claus</strong> separats. Cada un té un script de generació (a
+<code>scripts/</code>) i una política de custòdia clara: <strong>la clau privada no entra mai al Control
+Plane ni als VPS dels clients</strong>, només les públiques/verificadors.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Sistema (script)</th>
+<th>Algoritme</th>
+<th>Ús</th>
+<th>On viu la clau privada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Release signing</strong> (<code>generate_release_keys.py</code> + <code>sign_release_manifest.py</code>)</td>
+<td>Ed25519</td>
+<td>Signa els manifests de release (digest <code>sha256:</code>). El Control Plane els verifica amb <strong>SP_RELEASE_PUBLIC_KEY_PEM/PATH</strong> abans d'acceptar.</td>
+<td>Offline / CI-secret-manager. Només la clau pública es munta al Control Plane i als clients.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>License leases</strong> (<code>generate_license_keys.py</code> + <code>license_signer_worker.py</code>)</td>
+<td>Ed25519</td>
+<td>Signa les llicències (<code>verify_lease</code>) — governa <code>package_allowed</code>, <code>allow_ai</code>, <code>allow_write</code>, <code>allow_deploy</code>.</td>
+<td>Fora del Control Plane; només la pública hi va i als <code>tenant_runtime</code>.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Break-glass</strong> (<code>generate_break_glass_keys.py</code> + <code>issue_break_glass.py</code>)</td>
+<td>Ed25519</td>
+<td>Accés d'emergència independent de l'onboarding.</td>
+<td><strong>Offline</strong>, custodiada; només pública muntada al Control Plane.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Client PKI / mTLS</strong> (<code>generate_client_pki.sh</code> + <code>cert_fingerprint.py</code>)</td>
+<td>ED25519 CA + client</td>
+<td>Identitat de cada <strong>tenant</strong> a l'edge (Caddy requereix mTLS a <code>clients.*</code>). La CA emet un cert per tenant; l'enrolament registra el sha-256 al Control Plane i activa <code>SP_CLIENT_AUTH_MODE=key+mtls</code>.</td>
+<td><strong><code>client-ca.key</code> offline</strong>; només <code>client-ca.pem</code> al gateway. Única clau <em>privada per tenant</em> al seu VPS (el seu cert).</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Installation identity</strong> (<code>generate_installation_identity.py</code>)</td>
+<td>Ed25519</td>
+<td>Anti-clone del tenant (bindings a <code>runtime</code>); recomanació: TPM/HSM per anti-clone fort.</td>
+<td>Al tenant, no exportable idealment.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Custòdia — DECISIÓ PRESA (2026-10-17): la clau privada viu a OPTIMUS</strong> (el central SPAI,
+<code>/opt/data/spai-build-pack/secrets/</code>). Els scripts s'han executat de veritat i les claus
+reals són a:
+- <code>secrets/offline/</code> — <code>release-private.pem</code>, <code>license-private.pem</code>,
+  <code>break-glass-private.pem</code>, <code>installation-master-private.pem</code> (<strong>0600</strong>).
+- <code>secrets/</code> — les públiques parelles (<strong>0644</strong>): <code>release-public.pem</code>, <code>license-public.pem</code>,
+  <code>break-glass-public.pem</code>, <code>installation-master-public.pem</code>.
+- <code>secrets/pki/</code> — CA del client + cert mTLS del tenant de prova Vertex Mantenimientos:
+  <code>client-ca.key</code> (<strong>0600</strong>, offline), <code>client-ca.pem</code> (edge), <code>vertex-mantenimientos.key</code>/
+  <code>.pem</code> (tenant), <code>client-ca.srl</code>, <code>.csr</code>. Fingerprint sha-256 del cert de Vertex:
+  <code>b5ca6219eb8a9771fef3facb16febc0625c8add8cd602b3909909035c3f27a9b</code>.</p>
+<p><strong>Política en aquesta decisió</strong>: la clau privada <strong>no es copia mai</strong> al Control Plane ni als
+VPS dels clients — només les públiques/verificadors es munten als components (com diu cada
+runbook). Rotació/HSM i multi-firma per a alta producció segueixen <strong>pendents</strong> (opcionals).</p>
+<p><strong>Prova feta</strong>: els scripts de generació s'han revisat contra el codi (<code>control_plane.releases.
+generate_ed25519_keypair</code>, <code>licensing.generate_keypair</code>, <code>x509</code>/<code>ed25519</code> de cryptography).
+No s'han <strong>generat claus reals</strong> en aquest entorn (és una acció sensible de custòdia — cal
+decidir on es generen i qui les guarda abans de fer-ho).</p>
+<p><strong>Prova descartable de signatura (feta 2026-10-17, sense custòdia compromesa):</strong>
+- <code>generate_release_keys.py</code> → genera clau Ed25519 <strong>0600</strong>. OK.
+- <code>sign_release_manifest.py</code> → signa el manifest real de l'exemple; genera <code>manifest_id</code> +
+  <code>signature</code>. OK.
+- <code>control_plane.releases.verify_manifest</code> → <strong>VERIFY_OK</strong> amb la clau pública.
+- Contra-prova (manifest alterat a v9.9.9) → <strong>VERIFY_FAILED</strong> (rebuja correctament):
+  la signatura va unida al contingut canònic, no només present.
+- <strong>Resum:</strong> el mecanisme de releases signades <em>funciona realment</em> contra el codi del
+  Control Plane. Totes les claus temporals s'han <strong>esborrat</strong> (cap resta <code>rel-*.pem</code>).
+- Decisió pendent (no codificable): on viu la custòdia definitiva (signing node/HSM/CI).</p>
+<hr />
+<h2>6. Fitxers d'aquest paquet</h2>
+<table>
+<thead>
+<tr>
+<th>Fitxer</th>
+<th>Què és</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mapa-encaix-kit-buildpack.d2</code></td>
+<td>Font editable del diagrama (D2, layout ELK).</td>
+</tr>
+<tr>
+<td><code>mapa-encaix-kit-buildpack.svg</code></td>
+<td>Diagrama vectorial.</td>
+</tr>
+<tr>
+<td><code>mapa-encaix.png</code></td>
+<td>Captura PNG (per veure'l ràpid).</td>
+</tr>
+<tr>
+<td><code>docker-compose.tenant.esbós.yml</code></td>
+<td>Esbós del Compose del tenant (7 serveis: business-os, n8n, hermes-client, runtime-sync, heartbeat, deploy-worker, licensing). Basat en estructures reals de la baseline. Punt de partida, no desplegat.</td>
+</tr>
+<tr>
+<td><code>tenant-images/</code></td>
+<td><strong>Build Pack del tenant</strong>: 5 Dockerfiles (base, <strong>business-os servei</strong>, runtime-sync, deploy-worker, license-sync) + <code>build.sh</code> + <code>requirements-tenant.txt</code> + <strong>perfil Hermes del client</strong> (<code>hermes-client/</code>). Business-os provat e2e contra la baseline; la resta contrastat. Per construir al VPS destí.</td>
+</tr>
+<tr>
+<td><code>secrets/</code></td>
+<td><strong>Custòdia de claus d'SPAI (Optimus)</strong> — decision 2026-10-17. <code>offline/</code> (privades 0600: release/license/break-glass/installation), públiques (0644), <code>pki/</code> (CA + cert mTLS tenant de prova). Mai es copien privades als components.</td>
+</tr>
+<tr>
+<td><code>validate_tpl.py</code> / <code>e2e_onboarding.py</code></td>
+<td>Scripts de prova que validen el template del kit contra el Control Plane real (<code>REGISTRATION_OK</code> / <code>PREVIEW_OK</code>+<code>REQUEST_OK</code>).</td>
+</tr>
+<tr>
+<td><code>RUNBOOK-staging.md</code></td>
+<td>Runbook d'una pàgina <strong>genèric</strong> (parametritzat per <code>&lt;TENANT&gt;</code>) per aixecar el staging: Control Plane (un cop) + onboarding/release/tenant en VPS per a qualsevol client. Executar al VPS amb Docker.</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>Aquest document.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regenerar el diagrama:</strong></p>
+<pre><code class="language-bash">/opt/data/tools/d2/bin/d2 --layout elk --pad 24 --theme 0 \
+  --font-regular &lt;kit&gt;/assets/fonts/Roboto-Regular.ttf \
+  --font-bold    &lt;kit&gt;/assets/fonts/Roboto-Bold.ttf \
+  mapa-encaix-kit-buildpack.d2 mapa-encaix-kit-buildpack.svg
+</code></pre>
+<hr />
+<h2>7. Creuament amb el Build Pack (on encaixa cada peça)</h2>
+<table>
+<thead>
+<tr>
+<th>Peça del kit</th>
+<th>Paper al Build Pack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>implementacion.json</code> (automatismes, skills, MCPs)</td>
+<td>Contingut del <strong>tenant</strong>: defineix què executa el Business OS i l'n8n del client.</td>
+</tr>
+<tr>
+<td>Skills de l'Hermes (per automatisme)</td>
+<td><strong>Hermes del client (Argon)</strong> — skills d'operació del tenant.</td>
+</tr>
+<tr>
+<td>MCPs</td>
+<td><strong>Connectors</strong> del tenant cap als sistemes (egress explícit).</td>
+</tr>
+<tr>
+<td>JSON n8n nets</td>
+<td><strong>n8n</strong> del tenant (import directe).</td>
+</tr>
+<tr>
+<td>Ordre + checklist del dossier</td>
+<td>Base del <strong>runbook d'onboarding</strong> (<code>05_RUNBOOK_TENANT_DEPLOY</code>).</td>
+</tr>
+<tr>
+<td>Optimus (central)</td>
+<td><strong>Control Plane</strong> — govern, releases signades, Action Gateway.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Catàleg de mòduls del producte (venda i instal·lació governada)</h2>
+<blockquote>
+<p><strong>Decisió (2026-10-17).</strong> SalesPower/BusinessPower es ven <strong>per separat del</strong> Business AI OS
++ automatitzacions IA. Els mòduls no s'implementen tots de cop (no construeixis tot Odoo):
+s'activen <strong>a la carta</strong>, des de la Configuració del dashboard, i el desplegament és governat.</p>
+</blockquote>
+<h3>Flux (activació en un clic)</h3>
+<ol>
+<li><strong>Dashboard (Configuració → Mòduls)</strong> llista el catàleg: cada mòdul té <code>id</code>, <code>àrea</code> (CRM/ERP/IA),
+   <code>inclòs</code> (a la llicència bàsica) o <code>preu</code> (extensió de pagament).</li>
+<li>L'usuari fa clic a <strong>Activa</strong>:</li>
+<li>si el mòdul és <strong>de pagament</strong> i el tenant no el té → es mostra el <strong>pagament</strong>.</li>
+<li>en tot cas s'encarrega l'<strong>Argon</strong> (l'Hermes del tenant).</li>
+<li><strong>Argon</strong> demana a <strong>Optimus</strong> (orquestrador central) per API.</li>
+<li><strong>Optimus</strong> retorna el <strong>codi desplegable</strong> (manifests, imatges/artifacts, workflows n8n,
+   skills, MCPs, secrets refs) <strong>+ rails/instruccions</strong> d'implementació.</li>
+<li><strong>Argon ho instal·la</strong> al tenant (pull, model governat — mai pujar des del central).</li>
+</ol>
+<h3>Regles</h3>
+<ul>
+<li><strong><code>inclòs</code></strong>: mòdul que ve amb la subscripció bàsica del tenant (activació immediata).</li>
+<li><strong><code>preu</code></strong>: extensió addicional; l'activació requereix pagament si no està coberta.</li>
+<li>Un mòdul GUIAT per l'operació es registra com a component (<code>agent|skill|connector|runtime|workflow</code>)
+  al template d'onboarding — el mateix mecanisme que el kit ja genera.</li>
+<li><strong>Argon mai s'autoaprovacà</strong> un mòdul de pagament: la facturació i l'aprovació passen per Optimus.</li>
+<li>El codi desplegable viatja signat; el handler local valida digest/URI (model pull establert).</li>
+</ul>
+<h3>Enllaç amb les capes anteriors</h3>
+<table>
+<thead>
+<tr>
+<th>Peça</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Catàleg (<code>MODULES</code>)</td>
+<td>Backing del dashboard (Configuració → Mòduls)</td>
+</tr>
+<tr>
+<td><code>inclòs</code>/<code>preu</code></td>
+<td>Decisió comercial abans del deploy</td>
+</tr>
+<tr>
+<td>Argon</td>
+<td>Executor de la instal·lació al tenant</td>
+</tr>
+<tr>
+<td>Optimus</td>
+<td>Orquestrador central: retorna codi + rails, aprova</td>
+</tr>
+<tr>
+<td>Control Plane</td>
+<td>Registra components i releases signades</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Aquest document no autoritza cap desplegament ni acció a producció. És un mapa de
+referència per a la construcció del pont kit → tenant.</em></p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

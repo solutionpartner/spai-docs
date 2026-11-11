@@ -1,0 +1,379 @@
+<!doctype html><html><head><meta charset='utf-8'><title>PROCEDIMENT_CLIENT_NOU_SPAI.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>PROCEDIMENT SPAI — Client nou de cap a cap</h1>
+<h2>De l'auditoria global a l'oferta d'automatitzacions (guia pas a pas)</h2>
+<p><strong>Versió:</strong> 1.0 · 26/10/2026 · Provat amb CL-MAT-001 (Mataró, real) i CL-PROVA-001
+(Forneria del Barri, prova). Aquest document és la guia operativa; el detall tècnic
+fons viu a les skills d'Hermes (<code>diagnostic-processos-pipeline</code>,
+<code>diagnostic-processos-a-oferta</code>, <code>auditoria-empreses</code>).</p>
+<hr />
+<h2>0. Visió general (els 4 entregables i 3 circuits)</h2>
+<p>Per a cada client es generen <strong>4 entregables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Entregable</th>
+<th>Circuit</th>
+<th>On es genera</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>PDF Auditoria Global</strong> (47 pàg, DAFO+findings+roadmap)</td>
+<td>A · Auditoria global</td>
+<td><code>audit-system/audita.py --tot</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Web Auditoria Global</strong> (25 seccions, autocontinguda)</td>
+<td>A · Auditoria global</td>
+<td><code>audit-system/</code> + <code>empaquetar.py</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>PDF Radiografia BPMN</strong> (processos amb diagrames bpmn-js)</td>
+<td>B · Processos BPMN</td>
+<td><code>deliverables/kits/</code> (kit01)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>PDF Oferta Automatitzacions</strong> (resultat kit02)</td>
+<td>C · Oferta</td>
+<td><code>02-kit-oferta-soluciones/</code> (kit02)</td>
+</tr>
+</tbody>
+</table>
+<p>Ordre recomanat: <strong>A → B → C</strong> (l'auditoria global dona el perfil; el BPMN dona
+els processos; l'oferta es construeix sobre els dos).</p>
+<p><strong>Regla transversal:</strong> dades REALS, mai inventades. Els preus surten «pendiente»
+fins que <code>config/tarifas.json</code> i <code>config/prestador.json</code> tinguin valors (decidits
+per Josep, no pel sistema).</p>
+<hr />
+<h2>1. Requisits previs (una sola vegada)</h2>
+<p>Entorn operatiu (host Linux, <code>/opt/data</code>):</p>
+<pre><code class="language-bash"># Motor d'auditoria global
+cd /opt/data/.claude/audit-system
+.venv/bin/python --version        # venv amb tots els paquets (pypdfium2, PIL...)
+
+# Kit 01: diagrames BPMN + radiografia (necessita chrome-headless del kit)
+cd /opt/data/deliverables/kits
+node genera-diagramas.mjs --help  # Node, bpmn-js del kit
+
+# Kit 02: oferta
+cd /opt/data/deliverables/kits/02-kit-oferta-soluciones
+node herramientas/importar.mjs --help
+
+# Chromium headless (PLAYWRIGHT_BROWSERS_PATH) per imprimir PDFs
+ls /opt/data/tools/.pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+</code></pre>
+<p>Verificació ràpida que tot funciona: generar un client de PROVA (sector qualsevol,
+3-4 processos) seguint els passos d'aquesta guia — si surt amb 0 contradiccions i
+<code>✓ Análisis coherente</code>, l'entorn està bé.</p>
+<hr />
+<h2>2. CIRCUIT A — Auditoria global (PDF + Web)</h2>
+<h3>A.1. Crear el JSON bàsic del client</h3>
+<p>Fitxer: <code>templates/&lt;acronim&gt;.json</code> (ex. <code>forneria_barri.json</code>, <code>perruqueria_mataro.json</code>).</p>
+<p>Contingut mínim (dades reals del client):
+- <code>client</code>: <code>nom</code>, <code>acronim</code>, <code>sector_kb</code> (ha d'existir a <code>sector_kb.db</code>), <code>pais</code>,
+  <code>sector_desc</code>, <code>adreca</code>, <code>empleats</code>, <code>facturacio_any</code>, <code>marge</code>, <code>volum</code>,
+  <code>pressupost</code>, <code>diferencial</code>, <code>subtitle</code>
+- <code>dolors</code> (llista de frases reals), <code>objectius</code>, <code>eines</code>, <code>competidors</code>
+  (tuples de 4: nom, descripció, presència digital, puntuació 1-10)</p>
+<p>Si el sector no està a <code>sector_kb.db</code>, afegir-lo amb
+<code>sector_kb.save_sector(sector, kpis, art=..., fonts=..., pais='es')</code>.</p>
+<h3>A.2. Completar amb el judici (el JSON final)</h3>
+<p>Fitxer: <code>templates/&lt;acronim&gt;_complet.json</code> — còpia del bàsic + les 36 claus
+d'anàlisi (dafo, findings, matriu_prioritzacio, roadmap, xifres, beneficis,
+nomes_beneficis, maduresa_d1d6, maduresa_sector, opcions, kpis_seguiment,
+dashboards, riscos, impacte_arees, resum_final, estat_art, gartner_lead,
+ranking_lead, digital, governanca, impacte_social, governanca_corporativa,
+proximes_passes, annex_c_arees, recomanacio_annex_e, faq...).</p>
+<blockquote>
+<p>⚠️ <strong>FORMATS EXACTES OBLIGATORIS</strong> (el motor PETA silenciosament si no hi són):
+- <code>maduresa_d1d6</code> → <strong>tuples de 3</strong>: <code>["D1 Estratègia i lideratge", 1, "desc"]</code>
+- <code>opcions</code> → <strong>tuples de 5</strong>: <code>["A", "Títol", "cost", "desc", "pro/con"]</code>
+- <code>proximes_passes</code> → <strong>tuples de 3</strong>: <code>["Acció", "Responsable", "criteri"]</code>
+- <code>nomes_beneficis</code> → <strong>tuples de 3</strong>: <code>["8.000 €/any", "Benefici", "Cost actual"]</code>
+- <code>dashboards</code> → <strong>dict</strong>: <code>{"avui": [...], "demà": [...]}</code>
+- <code>annex_c_arees</code> → <strong>dict</strong> àrea → <code>[text_abans, text_després]</code>
+- <code>impacte_arees</code> → <strong>tuples de 3</strong>: <code>["Àrea", "Acció", "Impacte"]</code>
+- <code>kpis_seguiment</code> → <strong>tuples de 3</strong>: <code>["KPI", valor_num, "augmentar|reduir"]</code>
+- <code>gartner_lead</code> i <code>ranking_lead</code> → <strong>strings</strong> (paràgrafs), NO nombres
+- <code>findings</code> → <strong>8 elements</strong>: <code>[id, títol, TIPUS, et1, et2, et3, desc, termini]</code>
+- <code>matriu_prioritzacio</code> → <strong>5 elements</strong>; <code>riscos</code> → <strong>2</strong>; <code>roadmap</code> → <strong>4</strong>;
+  <code>competidors</code> → <strong>4</strong></p>
+<p>Patró de referència que VALIDA: <code>templates/perruqueria_mataro_complet.json</code>.
+Error típic: <code>ValueError: too many values to unpack</code> → un camp és una llista de
+tuples amb un nombre d'elements diferent del que espera el motor.</p>
+</blockquote>
+<p>La generació del judici es pot fer amb l'agent expert (skill <code>auditoria-empreses</code>):
+<code>templates/expert_judici_prompt.md</code> + <code>brief.py</code>. Per a una prova, el judici es pot
+derivar directament dels dolors/objectius/eines (judici mecànic).</p>
+<h3>A.3. Generar els 4 entregables analítics + web + PDF</h3>
+<pre><code class="language-bash">cd /opt/data/.claude/audit-system
+./.venv/bin/python audita.py --from templates/&lt;acronim&gt;_complet.json --tot --lang ca
+</code></pre>
+<p>Sortida esperada:
+- <code>deliverables/&lt;acronim&gt;.xlsx</code> (7 fulles) i <code>deliverables/&lt;acronim&gt;-impacto.xlsx</code>
+- <code>deliverables/&lt;acronim&gt;-informe.html</code> (web 25 seccions)
+- <code>deliverables/&lt;acronim&gt;-informe.pdf</code> (PDF, ~47 pàg quan el JSON és complet)</p>
+<blockquote>
+<p>El camí OFICIAL és <code>audita.py --from ... --tot</code>, que usa <code>gen_web_full</code> (25
+seccions). NO usar <code>gen_informe2.py</code> directe.</p>
+</blockquote>
+<h3>A.4. (Opcional, premium) Imatges de secció + logo + gràfics rics</h3>
+<pre><code class="language-bash">cd /opt/data/.claude/audit-system
+./.venv/bin/python gen_images.py &quot;&lt;Nom Empresa&gt;&quot; &quot;&lt;sector&gt;&quot;   # imatges d'IA per secció
+./.venv/bin/python stamp_logo.py                               # logo SolutionPartner
+./.venv/bin/python gen_gartner_chart.py
+./.venv/bin/python gen_kpis_chart.py templates/&lt;acronim&gt;_complet.json
+./.venv/bin/python post_html.py &lt;acronim&gt;
+</code></pre>
+<p>(cadascun idempotent; si ja les té, no es regeneren)</p>
+<h3>A.5. Empaquetar la versió AUTOCONTINGUDA (la que es lliura)</h3>
+<pre><code class="language-bash">./.venv/bin/python empaquetar.py &lt;acronim&gt; --web
+# → deliverables/paquets/&lt;acronim&gt;/informe-web-autocontingut.html (logo + imatges en base64)
+#   els altres entregables (pdf, xlsx...) dins la mateixa carpeta
+</code></pre>
+<p>La versió autocontinguda és la única que es veu bé en moure el fitxer (la relativa
+<code>informe-web.html</code> té paths a <code>charts/</code> que es trenquen).</p>
+<p><strong>Verificació:</strong> obrir l'HTML autocontingut → totes les imatges carreguen; el PDF
+s'imprimeix bé (render de portada i de 2-3 pàgines interiors).</p>
+<hr />
+<h2>3. CIRCUIT B — Radiografia BPMN (PDF de processos)</h2>
+<h3>B.1. Crear el JSON BPMN del client</h3>
+<p>Fitxer: <code>templates/&lt;acronim&gt;_bpmn.json</code> — format <code>processos_bpmn</code>:</p>
+<pre><code class="language-json">{
+  &quot;client_id&quot;: &quot;CL-XXXX-001&quot;,
+  &quot;client_nom&quot;: &quot;Nom del Client&quot;,
+  &quot;data_auditoria&quot;: &quot;26/10/2026&quot;,
+  &quot;processos_bpmn&quot;: [
+    {
+      &quot;id&quot;: &quot;PR-001&quot;,
+      &quot;nom&quot;: &quot;Nom del procés&quot;,
+      &quot;frecuencia&quot;: &quot;N cops/dia&quot;,
+      &quot;tiempo_ciclo&quot;: &quot;X min&quot;,
+      &quot;actors&quot;: [&quot;Rol intern&quot;, &quot;Client&quot;],
+      &quot;pasos&quot;: [
+        {&quot;num&quot;: 1, &quot;desc&quot;: &quot;Descripció del pas&quot;, &quot;tipo&quot;: &quot;manual&quot;, &quot;actor&quot;: &quot;Rol&quot;,
+         &quot;problema&quot;: &quot;Dolor/ineficiència en aquest pas (opcional)&quot;},
+        ...
+        {&quot;num&quot;: 5, &quot;desc&quot;: &quot;Fi del procés&quot;, &quot;tipo&quot;: &quot;fin&quot;}
+      ],
+      &quot;ineficiencias&quot;: [&quot;Resum de les ineficiències del procés&quot;]
+    }
+  ]
+}
+</code></pre>
+<p>Regles: cada pas té <code>tipo</code> (manual/decision/envio/rebre/fin + actor), i els passos
+amb <code>problema</code> generen els dolors (hallazgos) més endavant. Si cap pas és <code>fin</code>,
+l'adaptador hi afegeix un automàticament.</p>
+<h3>B.2. Generar el config del client (la part intel·lectual)</h3>
+<p>Fitxer: <code>02-kit-oferta-soluciones/configs-clientes/&lt;id&gt;.json</code> (ex. <code>cl-mat-001.json</code>,
+<code>cl-prova-forneria.json</code> — patrons de referència).</p>
+<p>Conté (TOTA la part que és judici de consultor):
+- <code>client_nom</code>, <code>activitat</code>, <code>sector</code>, <code>equipo</code> (rols+persones), <code>herramientas</code>
+- <code>area_de</code>: mapa <code>PR-### → àrea</code> (ventas/administracion/fulfillment/marketing)
+- <code>categoria_hallazgo</code>: per procés (enum vàlid: transcripcion, duplicados,
+  notificaciones, conciliacion, seguimiento, dependencia_persona...)
+- <code>area_negoci</code>: per procés → <code>{"primary": "VEN|OPE|CLI|FAC|...", "related": [...], "just": "..."}</code>
+- <code>automatitzaciones</code> (o <code>automatizaciones</code> — accepta les dues claus): llista d'AUT
+  amb <code>id</code>, <code>procs</code>, <code>prio</code> (1-5), <code>fase</code>, <code>pattern</code>, <code>systems</code>, <code>incluida</code>,
+  <code>title</code>, <code>benefit</code>, <code>desc</code>, <code>team</code>, <code>crit</code>, <code>journey</code>
+- <code>aut_per_proces</code>: <code>{"VEN-01": "AUT-RES-01", ...}</code>
+- <code>despres_per_node</code>: per procés → <code>{"p2": "Nom del pas al TO BE", ...}</code>
+- <code>escandallo</code>: per AUT → <code>{"horas": {...}, "contingencia_pct", "justificacion_contingencia"}</code>
+- <code>oferta</code>: <code>titulo</code>, <code>referencia</code>, <code>resumen_ejecutivo</code> (objectius+propuesta),
+  <code>fases</code>, <code>responsabilidades_cliente</code>, <code>requisitos_cliente</code>, <code>limites_servicio</code></p>
+<blockquote>
+<p>El config es crea UNA vegada per client. És la peça que canvia entre clients.</p>
+</blockquote>
+<h3>B.3. Adaptar el JSON BPMN a fitxes + generar diagrames + radiografia</h3>
+<pre><code class="language-bash">cd /opt/data/deliverables/kits/02-kit-oferta-soluciones
+
+# PAS 1 — fitxes ficha-proceso/1 + diagnostico-fase1.json (a una carpeta temporal)
+/opt/data/.claude/audit-system/.venv/bin/python genera-diagnostic-oferta.py \
+  --client &lt;id&gt; --bpmn /opt/data/.claude/audit-system/templates/&lt;acronim&gt;_bpmn.json \
+  --config configs-clientes/&lt;id&gt;.json --kit01-dir /tmp/&lt;acronim&gt;_kit01
+
+# Diagrames BPMN amb el MOTOR del kit (bpmn-js) — MAI a mà
+cd /opt/data/deliverables/kits
+node genera-diagramas.mjs /tmp/&lt;acronim&gt;_kit01
+# esperat: &quot;N fichas válidas → dibujando con bpmn-js… ✓ &lt;CODI&gt;.bpmn + &lt;CODI&gt;.svg&quot; per CADA procés
+
+# Radiografia HTML (incrusta els SVG)
+/opt/data/.claude/audit-system/.venv/bin/python genera-radiografia-v2.py \
+  /tmp/&lt;acronim&gt;_kit01 --sortida /tmp/&lt;acronim&gt;_kit01/radiografia-procesos.html
+
+# PDF de la radiografia (impressió headless)
+export PLAYWRIGHT_BROWSERS_PATH=/opt/data/tools/.pw-browsers
+/opt/data/tools/scrapling-env/bin/python genera-radiografia-pdf.py \
+  /tmp/&lt;acronim&gt;_kit01/radiografia-procesos.html --sortida &lt;ENTREGA&gt;/..._Processos_BPMN.pdf
+</code></pre>
+<p><strong>Pitfalls coneguts (tots documentats a la skill <code>diagnostic-processos-pipeline</code>):</strong>
+- Si <code>genera-diagramas.mjs</code> diu «3 fichas válidas» quan n'hi ha 7 → falta l'event
+  <code>fin</code> en alguns processos (comprovar amb <code>comprobarFicha</code>).
+- <code>equipo</code> i <code>herramientas</code> (arrel) al diagnostico han de ser LLISTES DE DICTS
+  (no strings) — l'adaptador ja ho fa.
+- Mai entregar diagrames fets amb Mermaid/weasyprint: el client vol bpmn-js.</p>
+<p><strong>Verificació:</strong> el PDF de la radiografia té 1 làmina per procés amb el diagrama
+BPMN (es veuen pages de 50-100 dibuixos vectorials per làmina amb PyMuPDF).</p>
+<hr />
+<h2>4. CIRCUIT C — Oferta d'automatitzacions (kit02)</h2>
+<h3>C.1. Importar l'expedient al kit02</h3>
+<pre><code class="language-bash">cd /opt/data/deliverables/kits/02-kit-oferta-soluciones
+node herramientas/importar.mjs /tmp/&lt;acronim&gt;_kit01 --cliente &lt;id&gt; --nombre &quot;Nom del Client&quot;
+# esperat: &quot;N processos ✓ completa · Pendientes: 0 · Contradicciones abiertas: 0&quot;
+# (els svg/*.svg es bloquegen per DOCTYPE — normal, els diagrames es regeneren)
+</code></pre>
+<h3>C.2. Generar l'anàlisi (hallazgos, areas, AUT, to-be, escandallo, oferta)</h3>
+<pre><code class="language-bash"># PAS 2-5 (SENSE --kit01-dir: treballa sobre l'expedient importat)
+/opt/data/.claude/audit-system/.venv/bin/python genera-diagnostic-oferta.py \
+  --client &lt;id&gt; --bpmn templates/&lt;acronim&gt;_bpmn.json --config configs-clientes/&lt;id&gt;.json
+# esperat: hallazgos.json (N) · areas.json (N) · automatizaciones.json (N AUT)
+#          to-be/ generats · escandallo.json + oferta.json
+</code></pre>
+<h3>C.3. Validar</h3>
+<pre><code class="language-bash">node herramientas/validar.mjs &lt;id&gt;
+# esperat: &quot;✓ Análisis coherente&quot; (els avisos &quot;!&quot; d'estil NO bloquegen)
+</code></pre>
+<p>Si hi ha errors ✗, revisar (els més freqüents):
+- <code>AUT apunta al proceso X, que no existe</code> → el config i l'<code>area_de</code> no quadren
+  (els codis de procés del config han de coincidir amb els generats a B.2)
+- <code>cita AUT-XXX, que no existe</code> → to-be antics (neteges a C.2) o <code>aut_per_proces</code>
+  apuntant a una AUT que no està a <code>automatitzacions</code>
+- <code>evidencia fuente: SRC-XXX no sigue el formato</code> → usar sempre <code>SRC-###</code> numèric</p>
+<h3>C.4. 🛑 PAUSA OBLIGATÒRIA — la cartera</h3>
+<p><strong>Mostrar a Josep la cartera d'automatitzacions</strong> (taula: ID, títol, processos que
+resol, prioritat) i <strong>preguntar què entra</strong> a l'oferta (<code>incluidas</code>) i què queda per
+a més endavant (<code>futuras</code>). És decisió d'SPAI, no del sistema. Editar si cal:
+<code>configs-clientes/&lt;id&gt;.json</code> → <code>"incluida": true/false</code> a cada AUT + les fases de
+l'oferta, i reexecutar C.2-C.3.</p>
+<h3>C.5. Implementació + càlcul + generació</h3>
+<pre><code class="language-bash"># PRIMER implementacion (generar.mjs NO el regenera)
+node herramientas/genera-implementacion.mjs &lt;id&gt;
+# després càlcul i generació
+node herramientas/calcular.mjs &lt;id&gt;
+node herramientas/generar.mjs &lt;id&gt;
+</code></pre>
+<p>Sortida esperada:
+- <code>workspace/clientes/&lt;id&gt;/comercial/oferta-&lt;id&gt;-vN.pdf</code> ← <strong>oferta comercial</strong>
+- <code>workspace/clientes/&lt;id&gt;/interno/dossier-interno-&lt;id&gt;-vN.pdf</code> ← <strong>dossier intern (no surt de SPAI)</strong></p>
+<p><strong>Estats per disseny:</strong>
+- <code>BORRADOR NO VINCULANTE</code> + tots els imports «pendiente» → correcte fins que
+  <code>config/tarifas.json</code> (precios) i <code>config/prestador.json</code> (raó social+NIF)
+  tinguin valors. Són decisions de Josep; el sistema no inventa preus.
+- <code>calcular.mjs</code> diu «sin coste/hora configurado» → esperat, fins a les tarifes.</p>
+<p><strong>Verificació:</strong> el PDF té ~30-60 pàgines, cada procés amb el diagrama AS IS (vermell)
++ TO BE (blau) + descripcions; el dossier porta la guia tècnica amb JSON n8n i els
+diagrames de flux.</p>
+<hr />
+<h2>5. Convenció de noms dels entregables (OBLIGATÒRIA)</h2>
+<pre><code>&lt;CLIENT_ID&gt;_&lt;NomClient_Sense_Accents_i_Espais_Amb_CamelCase&gt;_&lt;TipusDocument&gt;.&lt;ext&gt;
+</code></pre>
+<p>Exemples reals:
+- <code>CL-MAT-001_Salo_Estetica_i_Perruqueria_L_Arc_de_Mataro_Auditoria_Global.pdf</code>
+- <code>CL-MAT-001_Salo_Estetica_i_Perruqueria_L_Arc_de_Mataro_Auditoria_Global_Web.html</code>
+- <code>CL-MAT-001_Salo_Estetica_i_Perruqueria_L_Arc_de_Mataro_Processos_BPMN.pdf</code>
+- <code>CL-MAT-001_Salo_Estetica_i_Perruqueria_L_Arc_de_Mataro_Oferta_Automatitzacions.pdf</code></p>
+<p>S'aplica a TOTS els documents (<code>client_documents_manager.py</code> ja el força per les
+funcions <code>guardar_*</code>). Quan una comanda surt amb el nom intern del kit
+(ex. <code>oferta-cl-mat-001-v1.pdf</code>), copiar-la a la carpeta d'entrega amb el nom correcte.</p>
+<p><strong>Estructura d'entrega final</strong> (per client):</p>
+<pre><code>/opt/data/clients/CL-XXXX-&lt;nom&gt;/
+├── auditoria/report-pdf/CL-XXXX_..._Auditoria_Global.pdf
+├── auditoria/report-web/CL-XXXX_..._Auditoria_Global_Web.html
+├── kit02-optimizacio/sindicaciones-procesos/*.md        (sindicacions dels processos)
+├── kit02-optimizacio/bpmn-radiografia/                   (fitxes + radiografia + svg)
+├── implementacio/automatismes-ofertats/*.md             (automatismes proposats)
+└── deliverables/pdfs/CL-XXXX_..._{Processos_BPMN,Oferta_Automatitzacions}.pdf
+</code></pre>
+<hr />
+<h2>6. Llista de verificació final (abans de lliurar)</h2>
+<ul>
+<li>[ ] Els 4 entregables existeixen i tenen el nom de la convenció</li>
+<li>[ ] PDF Auditoria Global: portada 1 pàgina, badge d'idioma a dalt-dreta, TOC gran,
+      capítols en pàgina nova, caixes didàctiques a les seccions curtes</li>
+<li>[ ] Web Auditoria Global: versió AUTOCONTINGUDA (base64), 25 seccions, sense
+      <code>loading="lazy"</code>, container max-width 960px</li>
+<li>[ ] PDF Processos BPMN: diagrames bpmn-js amb pools/carrils (NO Mermaid/weasyprint)</li>
+<li>[ ] PDF Oferta: <code>✓ Análisis coherente</code>, 0 contradiccions, imports «pendiente»
+      si les tarifes no estan aprovades (així ha de ser)</li>
+<li>[ ] Dades reals: cap xifra inventada; les estimacions marcades com a tals</li>
+<li>[ ] El client de prova s'ha netejat de les bases i el workspace (si era prova)</li>
+</ul>
+<hr />
+<h2>7. Solució de problemes (errades freqüents i el seu fix)</h2>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Causa</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ValueError: too many values to unpack</code> (auditoria global)</td>
+<td>El JSON complet té un camp amb el nombre d'elements erroni</td>
+<td>Veure §A.2 (formats) — comparar amb <code>perruqueria_mataro_complet.json</code></td>
+</tr>
+<tr>
+<td><code>AREA no existe</code> / client no importat</td>
+<td>S'ha generat abans de <code>importar.mjs</code></td>
+<td>Orden correcte: PAS 1 → importar → PAS 2-5</td>
+</tr>
+<tr>
+<td><code>3 fichas válidas</code> quan n'hi ha 7</td>
+<td>Falta event <code>fin</code> en alguns processos</td>
+<td>Mirar §B.3 (PAS 1 afegeix <code>fin</code> automàtic si no hi és; si encara falla, comprovar amb <code>comprobarFicha</code>)</td>
+</tr>
+<tr>
+<td><code>AUT apunta al proceso X, que no existe</code></td>
+<td>Config i <code>area_de</code> desalineats</td>
+<td>Revisar <code>automatitzaciones[].procs</code> vs codis generats; reexecutar net</td>
+</tr>
+<tr>
+<td><code>TO BE ... cita AUT-XXX, que no existe</code></td>
+<td>to-be antics d'un config anterior</td>
+<td>C.2 neteja <code>to-be/</code> automàticament; si persisteix, borrar <code>modelo/to-be/</code> a mà i reexecutar</td>
+</tr>
+<tr>
+<td><code>AttributeError: 'str' object has no attribute 'get'</code> (radiografia)</td>
+<td><code>equipo</code>/<code>herramientas</code> com a strings</td>
+<td>L'adaptador ja els fa dicts; si es toca a mà, fer-los llistes de dicts</td>
+</tr>
+<tr>
+<td>PDF oferta surt «BORRADOR NO VINCULANTE» amb preus pendent</td>
+<td><code>config/tarifas.json</code> / <code>prestador.json</code> buits</td>
+<td>NO és un error: és el comportament correcte fins que Josep hi posa tarifes i dades legals</td>
+</tr>
+<tr>
+<td>Els SVG de la importació es bloquegen</td>
+<td>DOCTYPE/ENTITY (protecció del kit)</td>
+<td>Normal: els diagrames es regeneren des del <code>.bpmn</code></td>
+</tr>
+<tr>
+<td>Imatges de la web trencades en moure el fitxer</td>
+<td>S'ha lliurat la versió relativa</td>
+<td>Lliurar sempre la versió AUTOCONTINGUDA (<code>empaquetar.py --web</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Prova de circuit ràpida (client de prova)</h2>
+<p>Per validar que tot l'entorn funciona (com la Forneria del Barri):</p>
+<ol>
+<li>Crear <code>templates/prova_&lt;sector&gt;_bpmn.json</code> amb 3-4 processos reals (sector diferent
+   dels clients anteriors per detectar hardcoded)</li>
+<li>Crear <code>configs-clientes/cl-prova-&lt;sector&gt;.json</code> (patró: <code>cl-prova-forneria.json</code>)</li>
+<li>Executar B.3 (fitxes + diagrames + radiografia)</li>
+<li>Executar C.1-C.3 (importar + anàlisi + validar) → esperar <code>✓ Análisis coherente</code></li>
+<li>Executar C.5 (implementacion + calcular + generar) → PDF oferta</li>
+<li><strong>Esborrar l'expedient de prova</strong> al final:
+   <code>rm -rf workspace/clientes/cl-prova-*</code> i la carpeta kit01 temporal</li>
+</ol>
+<blockquote>
+<p>Regla: per a una prova NET, esborrar l'expedient anterior del kit02 i la carpeta
+kit01 abans de reimportar (els fitxers vells no es sobreescriuen sols).</p>
+</blockquote><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

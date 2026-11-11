@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset='utf-8'><title>release-signing.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Release signing runbook</h1>
+<h2>1. Generate keys once</h2>
+<pre><code class="language-bash">python scripts/generate_release_keys.py \
+  --private /secure/offline/release-private.pem \
+  --public ./secrets/release-public.pem
+</code></pre>
+<p>Keep the private key in a CI secret manager or offline signing environment. Distribute only the public key to the Control Plane and client VPSs.</p>
+<h2>2. Build and hash the artifact</h2>
+<p>The artifact must be immutable. Store the digest as <code>sha256:&lt;64 hex&gt;</code> in the manifest. For OCI/Docker artifacts, prefer immutable digests in the actual release pipeline.</p>
+<h2>3. Sign offline</h2>
+<pre><code class="language-bash">python scripts/sign_release_manifest.py examples/release-manifest.json \
+  --private-key /secure/offline/release-private.pem \
+  --output /tmp/signed-release.json
+</code></pre>
+<h2>4. Register</h2>
+<p>POST the envelope to <code>/releases/manifests</code> using the SolutionPartner admin credential. The Control Plane verifies the signature with <code>SP_RELEASE_PUBLIC_KEY_PATH</code> or <code>SP_RELEASE_PUBLIC_KEY_PEM</code> before accepting it.</p>
+<h2>5. Revoke when necessary</h2>
+<p><code>POST /releases/manifests/{manifest_id}/revoke</code> blocks the corresponding component version for new assignments/rollouts. Existing running software is not forcibly removed; remediation/rollback remains an explicit controlled action.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset='utf-8'><title>architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>SolutionPartner Control Plane — Architecture after Phase 7</h1>
+<pre><code class="language-text">                      SOLUTIONPARTNER.AI
+                             │
+                    ┌────────▼────────┐
+                    │  SP Supervisor  │
+                    │ future LLM/UI   │
+                    └────────┬────────┘
+                             │ safe APIs only
+              ┌──────────────▼──────────────┐
+              │       CONTROL PLANE         │
+              │ Tenant Registry             │
+              │ Component Registry          │
+              │ Deployment Registry         │
+              │ Health + Metric Store       │
+              │ Incident Engine             │
+              │ Observability API           │
+              │ Dashboard                   │
+              └──────────────┬──────────────┘
+                             │
+       ┌─────────────────────┼─────────────────────┐
+       ▼                     ▼                     ▼
+  Client A VPS          Client B VPS          Client C VPS
+  Business OS           Business OS           Business OS
+  heartbeat push        heartbeat push        heartbeat push
+</code></pre>
+<h2>Trust boundary</h2>
+<p>El Control Plane no rep credencials d'ERP/CRM del client. Cada tenant conserva els seus secrets al seu entorn. La client key només autentica heartbeat/telemetria cap al Control Plane.</p>
+<h2>Future supervisor</h2>
+<p>Hermes/OpenAI/altres agents poden consumir <code>/observability/*</code>, <code>/tenants/*</code>, <code>/registry/*</code> i <code>/deployments/*</code> com a tools. No necessiten accés SSH root als VPS dels clients.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

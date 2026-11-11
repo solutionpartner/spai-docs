@@ -1,0 +1,145 @@
+<!doctype html><html><head><meta charset='utf-8'><title>README.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>SolutionPartner Business AI OS v1.0</h1>
+<h2>Production Milestone 1 — First Real Tenant Acceptance</h2>
+<p>This package preserves the Phase 21 architecture and adds a <strong>read-only production acceptance gate</strong> for the first real tenant. It does not create a new architectural phase or bypass any existing governance.</p>
+<p>The gate validates evidence for governed onboarding, commercial entitlement, licensing/mTLS, Business Pulse, n8n, ERP runtime access, runtime sync, health, approved deployment, AI Service Management/SLO coverage, backup, recovery point, restore rehearsal, rollback rehearsal and critical-incident clearance.</p>
+<h3>Milestone files</h3>
+<ul>
+<li><code>control_plane/production_acceptance.py</code> — read-only acceptance evaluator.</li>
+<li><code>scripts/production_acceptance.py</code> — CLI with PASS/FAIL exit code.</li>
+<li><code>config/production-acceptance.first-tenant.example.json</code> — strict first-tenant profile.</li>
+<li><code>contracts/production-acceptance-report.schema.json</code> — report contract.</li>
+<li><code>docs/production-milestone-1-first-real-tenant.md</code> — operational runbook and acceptance model.</li>
+<li><code>tests/test_production_milestone1.py</code> — 7 milestone tests.</li>
+</ul>
+<p>Run:</p>
+<pre><code class="language-bash">python scripts/production_acceptance.py TENANT_ID \
+  --db data/control_plane.db \
+  --profile config/production-acceptance.first-tenant.example.json \
+  --out acceptance-TENANT_ID.json
+</code></pre>
+<p>Current full regression: <strong>244 / 244 passed</strong>.</p>
+<hr />
+<h2>Architecture history — Phase 20</h2>
+<h3>Contract &amp; Legal Lifecycle / Trust Provider Gateway</h3>
+<p>Phase 20 extends the Phase 19 Business AI OS with a governed contract lifecycle that can block billing/onboarding/deployment until the required legal documents are configured and signed.</p>
+<p>The design is intentionally <strong>not</strong> a home-built qualified trust service. SolutionPartner owns the portal, contracts workflow, hashes, evidence registry and legal gate; a selected external eIDAS trust/signature provider performs the signature/trust service required by the use case.</p>
+<h2>What this phase adds</h2>
+<ul>
+<li>Versioned, immutable contract-template registry.</li>
+<li>Contract envelopes with exact document SHA-256 and signer set.</li>
+<li>Legal requirements by customer/tenant and document type.</li>
+<li><code>Legal Gate</code> with fail-closed semantics: no configured requirements = not READY.</li>
+<li>Trust-provider dispatch contract and provider transaction binding.</li>
+<li>Authenticated HMAC webhook reference implementation.</li>
+<li>Idempotent provider event ingestion.</li>
+<li>Append-only chained-hash signature/audit events.</li>
+<li>Evidence manifest with its own SHA-256.</li>
+<li>Evidence verification endpoint.</li>
+<li>RBAC scope family <code>contracts.*</code> and dedicated <code>legal_admin</code> role.</li>
+<li>Optional strict integration with Phase 10 onboarding via <code>SP_REQUIRE_LEGAL_GATE=1</code>.</li>
+<li>Review-required legal drafting skeletons for MSA, DPA, AI Schedule, SLA and connector authorisation.</li>
+</ul>
+<h2>Architecture</h2>
+<pre><code class="language-text">CRM / Proposal
+     |
+     v
+Contract templates + Legal Requirement Matrix
+     |
+     v
+Rendered immutable PDF + SHA-256
+     |
+     v
+SolutionPartner Contract Envelope
+     |
+     v
+Trust Provider Gateway / Adapter
+     |
+     v
+External eIDAS signature/trust provider
+     |
+     v
+Authenticated provider webhook
+     |
+     +--&gt; signed artifact / provider evidence reference
+     +--&gt; chained event log
+     +--&gt; evidence manifest + SHA-256
+     |
+     v
+LEGAL GATE = READY
+     |
+     +--&gt; Billing / licensing
+     +--&gt; Automated onboarding
+     +--&gt; Tenant deployment
+</code></pre>
+<h2>Core API</h2>
+<h3>Templates and requirements</h3>
+<ul>
+<li><code>GET /contracts/templates</code></li>
+<li><code>POST /contracts/templates</code></li>
+<li><code>POST /contracts/requirements</code></li>
+<li><code>GET /contracts/customers/{customer_ref}/gate</code></li>
+</ul>
+<h3>Contract lifecycle</h3>
+<ul>
+<li><code>GET /contracts</code></li>
+<li><code>POST /contracts</code></li>
+<li><code>GET /contracts/{contract_id}</code></li>
+<li><code>POST /contracts/{contract_id}/dispatch</code></li>
+<li><code>POST /contracts/{contract_id}/provider-bind</code></li>
+<li><code>GET /contracts/{contract_id}/events</code></li>
+<li><code>GET /contracts/{contract_id}/evidence</code></li>
+</ul>
+<h3>Trust-provider callback</h3>
+<ul>
+<li><code>POST /trust/webhooks/{provider}</code> with <code>X-SP-Trust-Signature: sha256=&lt;hmac&gt;</code> reference authentication.</li>
+</ul>
+<p>The actual provider adapter must follow the selected provider's strongest callback/authentication scheme; HMAC is the included generic reference mechanism.</p>
+<h2>Production legal boundary</h2>
+<p>This package does not certify that any particular signature method is adequate for a specific contract. Counsel must choose the signature level/formality and approve the contract wording. Where a qualified service is required or marketed, verify the <strong>provider and the specific service</strong> in the EU/national Trusted List.</p>
+<p>The system is designed around:</p>
+<ul>
+<li>Spanish LSSI electronic contracting rules;</li>
+<li>eIDAS legal effects and advanced/qualified signature framework;</li>
+<li>Spain Law 6/2020 on trust services;</li>
+<li>GDPR data minimisation/security for signer and evidence data;</li>
+<li>AI Act obligations only where applicable to the actual role/use case.</li>
+</ul>
+<p>See <code>docs/contract-legal-lifecycle.md</code>.</p>
+<h2>Configuration</h2>
+<pre><code class="language-env">SP_REQUIRE_LEGAL_GATE=1
+SP_TRUST_WEBHOOK_SECRET=&lt;secret-store injected value&gt;
+SP_TRUST_PROVIDER=&lt;selected adapter&gt;
+</code></pre>
+<p>Provider API credentials belong in Vault/Secret Manager, never in templates, payloads, logs or the Control Plane database.</p>
+<h2>Main files</h2>
+<ul>
+<li><code>control_plane/contracts_lifecycle.py</code> — templates, envelopes, requirements, state transitions, event chain, evidence.</li>
+<li><code>control_plane/db.py</code> — additive <code>PHASE20_SCHEMA</code>.</li>
+<li><code>control_plane/app.py</code> — REST API and onboarding gate.</li>
+<li><code>control_plane/rbac.py</code> — <code>contracts.*</code> scopes and <code>legal_admin</code>.</li>
+<li><code>handlers/trust_provider_adapter_template.py</code> — adapter interface skeleton.</li>
+<li><code>contracts/contract-*.schema.json</code> — JSON contracts.</li>
+<li><code>legal-templates/*</code> — counsel-review drafting skeletons.</li>
+<li><code>docs/phase20-production-acceptance.md</code> — PAT.</li>
+<li><code>tests/test_phase20_contracts.py</code> and <code>tests/test_api_phase20.py</code> — new automated tests.</li>
+</ul>
+<h2>Tests</h2>
+<pre><code class="language-bash">python -m pytest -q
+</code></pre>
+<p>Current Phase 20 package result: <strong>229 passed</strong> (220 inherited regression tests + 9 Phase 20 tests).</p>
+<h2>Deployment sequence</h2>
+<ol>
+<li>Deploy with <code>SP_REQUIRE_LEGAL_GATE=0</code>.</li>
+<li>Select and security-review the trust/signature provider.</li>
+<li>Implement provider adapter and secret refs.</li>
+<li>Register counsel-approved immutable template versions.</li>
+<li>Configure legal requirements for staging customer.</li>
+<li>Complete an end-to-end signature and evidence verification.</li>
+<li>Run Phase 20 PAT.</li>
+<li>Enable <code>SP_REQUIRE_LEGAL_GATE=1</code> in production.</li>
+</ol>
+<p>Phase 20 is additive and preserves the existing Phase 6–19 API/health version contracts.</p>
+<h2>Phase 21 - AI Service Management &amp; service governance</h2>
+<p>Phase 21 introduces a lightweight, auditable service-management layer for SolutionPartner and tenant Business AI OS instances. It is designed around recognised service-management practices and is <strong>not</strong> a claim of ITIL, PeopleCert or ISO certification.</p>
+<p>Key API prefix: <code>/service-management/*</code>.</p>
+<p>See <code>docs/ai-service-management-governance.md</code> and <code>docs/phase21-production-acceptance.md</code>.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

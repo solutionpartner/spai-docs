@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset='utf-8'><title>phase9-to-phase10-migration.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Migració Fase 9 → Fase 10</h1>
+<p>La Fase 10 és additiva. <code>Database</code> crea automàticament tres taules noves:</p>
+<ul>
+<li><code>onboarding_templates</code></li>
+<li><code>onboarding_jobs</code></li>
+<li><code>onboarding_steps</code></li>
+</ul>
+<p>No modifica ni elimina tenants, releases, deployments, incidents, service accounts, certificats o secret refs existents.</p>
+<p>Els rols mantenen els permisos previs. S'afegeix <code>onboarding.read</code> als rols de lectura i <code>onboarding.*</code> a <code>platform_admin</code>; <code>owner</code> continua heretant <code>*</code>.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

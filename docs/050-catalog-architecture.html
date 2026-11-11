@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset='utf-8'><title>catalog-architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Phase 11 — Agent &amp; Skill Catalog architecture</h1>
+<p>The catalog adds a commercial/product layer above the existing Component Registry and signed Release Registry.</p>
+<pre><code class="language-text">SolutionPartner Control Plane
+        |
+        +-- Component Registry      low-level installed component identities
+        +-- Release Registry        signed deployable artifacts
+        +-- Package Catalog         customer-facing products/modules
+        +-- Commercial Plans        entitlements by tenant
+        +-- Activation Lifecycle    approval + deployment coordination
+                |
+                v
+          Phase 8 Deployments
+                |
+                v
+          Tenant Business OS
+</code></pre>
+<h2>Separation of concerns</h2>
+<ul>
+<li><strong>Component Registry</strong>: technical identity (<code>skill/business-pulse@1.1.0</code>).</li>
+<li><strong>Release Manifest</strong>: signed artifact and compatibility envelope.</li>
+<li><strong>Catalog Package</strong>: product identity, description, category and commercial/internal classification.</li>
+<li><strong>Package Version</strong>: immutable version metadata, dependencies and mapping to a component/release.</li>
+<li><strong>Commercial Plan</strong>: immutable plan version containing package entitlements.</li>
+<li><strong>Activation</strong>: tenant-specific request to enable, suspend or deactivate a package.</li>
+</ul>
+<p>The AI supervisor can propose catalog actions, but cannot bypass RBAC, plan entitlement, activation approval or deployment approval.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset='utf-8'><title>formulari-web-patro.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Formulari web de diagnòstic: patró reutilitzable (diagnostic-processos v2)</h1>
+<p>Publicat a https://solutionpartner.github.io/diagnostic-processos/ (repo <code>solutionpartner/diagnostic-processos</code>, fitxer únic <code>index.html</code>). Aquest patró serveix per a QUALSEVOL formulari web de captura de l'agència (el següent client que necessiti un formulari): estil 1B, Web3Forms, taules dinàmiques.</p>
+<h2>Components del patró (tots en un sol HTML, sense dependències)</h2>
+<ul>
+<li><strong>Estil casa</strong>: header degradat blau nit + daurat, barres de progrés sticky, targetes per secció, àrees A-E numerades (<code>.area-num</code>). Paleta: #0b1d32/#e7c47d/#14243a.</li>
+<li><strong>Enviamient</strong>: Web3Forms (clau pública al JS) → contact@solutionpartner.ai. El JSON complet de respostes va dins el camp <code>datos</code> del FormData (subject = tipus + nom empresa). Així arriben dades ESTRUCTUREDES al correu, no text pla.</li>
+<li><strong>Autoguardat</strong>: tots els inputs (estàtics i dinàmics) fan <code>saveLS()</code> a <code>localStorage</code> (clau amb versió, p. ex. <code>spai-diag-processos-v2</code>); <code>restaurar()</code> reconstrueix rols/eines/processos amb passos en carregar. Esborrar a l'enviar amb èxit.</li>
+<li><strong>Taules dinàmiques</strong> (el cor): contenidor <code>#XDyn</code> + botons <code>dyn-add</code> que criden <code>addRol()/addTool()/addProc()</code>; cada fila té botó treure; els passos dins de cada procés són <code>addPaso(pasosList)</code> amb renumeració.</li>
+<li><strong>Datalists creuats</strong>: rols de la secció B i eines de C alimenten <code>&lt;datalist&gt;</code> (id <code>dlRols</code>/<code>dlEines</code>) que els inputs de passos referencien amb <code>list=</code> → autocompletat coherent.</li>
+<li><strong>Camps condicionals per tipus de pas</strong>: selector <code>tipo</code> que mostra/oculta camps amb <code>data-if="eina,enviar,..."</code> (eina→herramienta; enviar/rebre→externo; decidir→pregunta+SÍ/NO). Tag de color visible del tipus a cada pas (vermell=a mà, lila=decisió...).</li>
+<li><strong>Validació</strong>: camps obligatoris marcats amb <code>.missing</code> (border vermell + hint), progrés = comptador d'obligatoris omplerts, missatges toast.</li>
+</ul>
+<h2>Traps apresos</h2>
+<ol>
+<li><code>renum()</code> després d'esborrar un pas (els números de pas han de seguir consecutius).</li>
+<li>El JSON de sortida (<code>recollir()</code>) ha de coincidir EXACTAMENT amb el que espera el consumidor (generador/kit) — definir el format abans de programar el formulari, no després.</li>
+<li>La mateixa clau pública Web3Forms per a tots els formularis de l'org funciona (és per destinaciari, no per formulari); es distingeixen per <code>subject</code>.</li>
+<li>Un botó CTA a la web de venta (taronja #FF9900 estil Amazon) just sota la secció d'exemples de processos enllaça al formulari — el punt de conversió va DESPRÉS de mostrar exemples, no abans.</li>
+</ol><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset='utf-8'><title>runtime-sync-architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Fase 12 — Tenant Runtime Sync &amp; Agent Orchestrator</h1>
+<h2>Objectiu</h2>
+<p>Connectar el <strong>desired state</strong> del Control Plane amb el runtime real de cada tenant. El Business OS local no descobreix agents o tools de manera oberta: només carrega allò que el Control Plane ha reconciliat a partir del Catalog, activacions i polítiques.</p>
+<pre><code class="language-text">Control Plane
+  Catalog + active activations + tenant inventory + runtime policy
+                         |
+                         v
+              Runtime Desired State (revision N)
+                         |
+                    TLS + mTLS/key
+                         v
+Tenant VPS      runtime_sync_worker -&gt; atomic state store
+                         |
+                         v
+               Router / RuntimeOrchestrator
+                 |                  |
+                 v                  v
+            active routes      granted tools
+                                 |
+                          write -&gt; Approval Engine
+</code></pre>
+<h2>Principis</h2>
+<ol>
+<li><strong>Deny-by-default</strong>: el que no apareix a desired state no existeix per al Router.</li>
+<li><strong>No secrets</strong>: només <code>config_ref</code> i metadades no sensibles.</li>
+<li><strong>No write-on-read</strong>: el client GET no reconcilia automàticament. Si el Catalog ha canviat, el Control Plane respon <code>stale; reconcile required</code>.</li>
+<li><strong>Atomic apply</strong>: el client valida el hash abans de substituir l'estat local i conserva <code>last_good</code>.</li>
+<li><strong>No arbitrary code</strong>: el desired state referencia handlers locals allowlisted; no conté Python, shell ni URLs executables arbitràries.</li>
+<li><strong>Writes require Approval Engine</strong>: una tool <code>mode=write</code> retorna una proposta, no una execució directa.</li>
+</ol>
+<h2>Font de veritat</h2>
+<p>El desired state es deriva de:</p>
+<ul>
+<li><code>tenant_package_activations</code> en estat <code>active</code>;</li>
+<li>la versió publicada del Package Catalog;</li>
+<li>el component realment instal·lat i <code>enabled=true</code> al tenant inventory;</li>
+<li><code>metadata.runtime</code> de la package version;</li>
+<li><code>tenant_runtime_policy</code>.</li>
+</ul>
+<p>Una activació comercial que encara no s'ha desplegat no entra al runtime.</p>
+<h2>Revisions i stale detection</h2>
+<p>Cada reconciliació que modifica la font genera una nova <code>revision</code>. Si no canvia res, reconciliar és idempotent i conserva la revisió. El GET de client compara el <code>source_hash</code> actual amb el de la darrera revisió; si divergeixen, bloqueja la sincronització fins que un operador/scheduler reconcilia.</p>
+<p><code>state_hash</code> garanteix consistència del payload. La seva autenticitat depèn del canal HTTPS i, en producció, del mTLS definit a Fase 9; el hash no substitueix TLS/mTLS.</p>
+<h2>Orchestrator</h2>
+<p><code>tenant_runtime.RuntimeOrchestrator</code> és una frontera determinista que pot ser usada per Hermes, OpenAI Agents o qualsevol altre agent. L'agent no rep accés directe a handlers del sistema: demana executar un intent o una tool i l'Orchestrator comprova desired state i policy.</p>
+<p>No és un framework LLM. És el <strong>policy enforcement point</strong> del Business OS local.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

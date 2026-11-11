@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset='utf-8'><title>generador-format.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Generador: format exacte de sortida (genera-diagnostico.py)</h1>
+<h2>Estructura de la carpeta d'entrada</h2>
+<pre><code>&lt;carpeta&gt;/
+├── diagnostico-fase1.json        (resum: empresa, totales, procesos amb pasos/senales/huecos)
+├── respuestas-unificadas.json    (còpia de les respostes originals)
+├── bpmn/&lt;CODI&gt;-&lt;slug&gt;.bpmn       (un per procés)
+├── sops/&lt;CODI&gt;-&lt;slug&gt;.md         (un per procés)
+└── modelo/&lt;CODI&gt;-&lt;slug&gt;.json     (fitxes ficha-proceso/1 — CLAU per cobertura &quot;completa&quot;)
+</code></pre>
+<h2>Fitxa ficha-proceso/1 (caminals)</h2>
+<p><code>formato, codigo, area, nombre, id_formulario, organizacion, objetivo, propietario, disparador, frecuencia{veces,periodo,texto}, duracion, documentado, estado, carriles[{id,nombre,personas}], participantes[{id,nombre}], nodos[], flujos[{id,de,a}], mensajes[{id,de,a,nombre}], siguientes, huecos, fuente</code></p>
+<ul>
+<li><code>nodos</code>: inicio (tipo:inicio), tasques (tipo:tarea, subtipo: manual|usuario|envio|recepcion), decisions (tipo:decision, amb objecte decision{pregunta,si,no}), fin (tipo:fin). Cada node: id, nombre, carril (l1..lN per rol), opcional: herramientas[], tiempo_min, dolor.</li>
+<li>L'importador compta NOMÉS <code>tipo in ('tarea','subproceso')</code> com a activitats.</li>
+</ul>
+<h2>BPMN generat</h2>
+<ul>
+<li>Carrils per rol (<code>Carril_1..N</code>), la y de cada node segons el carril del seu rol.</li>
+<li>Decisions → <code>&lt;bpmn:exclusiveGateway&gt;</code> amb dues sortides (sí→seguent, no→fin).</li>
+<li>Externs → <code>&lt;bpmn:participant&gt;</code> + <code>&lt;bpmn:messageFlow&gt;</code> (enviar: cap a l'extern; rebre: de l'extern).</li>
+<li>Colors bioc: vermell <code>#b42318/#fde2e1</code> per a passos a mà; lila <code>#7c3aed/#ede9fe</code> per a decisions.</li>
+<li>Tipus de tasca: mano→manualTask, eina→userTask, enviar→sendTask, rebre→receiveTask.</li>
+</ul>
+<h2>Traps d'equivalència (causen contradiccions si no es respecten)</h2>
+<ol>
+<li>Resum <code>pasos</code> ha de tenir el MATEIX nombre que nodes <code>tarea</code> de la fitxa (decisions EXCLOSES del resum).</li>
+<li>Tasques del BPMN (match regex de l'importador) ha de ser igual als nodes <code>tarea</code> de la fitxa → els gateways no compten (el regex no inclou exclusiveGateway).</li>
+<li><code>nombre</code>, <code>frecuencia.veces/periodo</code>, <code>propietario</code> idèntics entre fitxa i resum (l'importador els compara).</li>
+</ol>
+<h2>SOP generat (seccions)</h2>
+<p>Capçalera amb taula (Área/Empresa/Responsable/Versión/Estado/¿Estaba escrito?) → 1 Para qué sirve → 2 Alcance → 3 Disparador y frecuencia → 4 Quién interviene (taula rol→números de pas) → 5 Herramientas → 6 Procedimiento paso a pas (amb ⚠ dolors citats textualment, decisions amb SÍ/NO, externs).</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

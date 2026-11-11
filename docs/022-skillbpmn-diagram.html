@@ -1,0 +1,113 @@
+<!doctype html><html><head><meta charset='utf-8'><title>skill_bpmn-diagram.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><hr />
+<p>name: bpmn-diagram
+description: "Diagrames BPMN de processos amb Mermaid i paleta de marca."
+metadata:
+  hermes:
+    tags: [bpmn, processos, mermaid, diagrama, auditoria, automatitzacio]
+    related_skills: [auditoria-empreses, report-website-generation]</p>
+<hr />
+<h1>BPMN Diagram — diagrames de processos de negoci (Mermaid)</h1>
+<p>Genera diagrames <strong>BPMN</strong> (Business Process Model and Notation) dels processos d'una
+empresa auditada, per documentar com funcionen i on hi ha oportunitat de millora.
+S'usa principalment com a secció dels informes d'auditoria d'aquesta agència.</p>
+<p>Fa servir <strong>Mermaid</strong> (sintaxi <code>flowchart</code>) perquè és local, gratuït i no depèn de cap
+API de tercers. Es pot renderitzar: en un HTML senzill amb el CDN de Mermaid, o com a
+SVG/PNG via l'CLI de Mermaid (<code>mmdc</code>) si està instal·lat.</p>
+<p><strong>Paleta de marca (obligatòria):</strong> blau nit <code>#0B1D32</code>, daurat <code>#E7C47D</code>, tinta <code>#14243A</code>,
+cream <code>#F7F4EC</code>. NO usar la paleta dark-cyan del skill <code>architecture-diagram</code>.</p>
+<h2>When to Use</h2>
+<ul>
+<li>Una auditoria ha d'incloure el(l)s processos del client amb diagrama.</li>
+<li>S'ha d'explicar visualment com funciona un procés i quins passos es fan a mà.</li>
+<li>Es volen marcar els punts <strong>no automatitzats / ineficients</strong> per proposar millores.</li>
+<li>S'ha d'extreure la captura de processos (formulari o entrevista) cap a un diagrama net.</li>
+</ul>
+<h2>Com deduïr els processos (psicologia inversa)</h2>
+<p>Si no tens els processos descrits encara, extreu-los amb preguntes indirectes (el client
+no sap descriure el seu procés, però sí respondre a això):</p>
+<ul>
+<li>Què et fa perdre més temps a la setmana? → procés amb més dolor/feina</li>
+<li>Què reps o repeats cada dia que sembla que mai s'acaba? → flux amb volum</li>
+<li>On comes errors o torres a repetir feina? → punts manuals / ineficients</li>
+<li>Qui ho fa i quantes hores setmanals? → cost i oportunitat d'automatitzar</li>
+<li>Quines eines serves i estan connectades? → on encaixa n8n/IA</li>
+</ul>
+<p>Cada resposta revela un procés (o un pas d'un procés) sense preguntar mai «explica'm
+el teu procés» directament.</p>
+<h2>Sintaxi Mermaid (BPMN amb estil)</h2>
+<pre><code class="language-mermaid">flowchart LR
+  A[&quot;Inici: rep petició&quot;] --&gt; B[&quot;Entra les dades a mà&quot;]
+  B --&gt; C{&quot;Correcte?&quot;}
+  C -- sí --&gt; D[&quot;Genera document&quot;]
+  C -- no --&gt; E[&quot;Torna a repetir&quot;]
+  E -.-&gt; B
+  D --&gt; F[&quot;Envia per email&quot;]
+  style B fill:#c0392b,color:#fff
+  style E fill:#c0392b,color:#fff
+</code></pre>
+<ul>
+<li><strong>Nodis normals:</strong> <code>A["text"]</code> — fons neutre (blau nit pàl·lid o blanc).</li>
+<li><strong>Punts vermells (ineficients / manuals / a millorar):</strong> <code>style X fill:#c0392b,color:#fff</code>.</li>
+<li><strong>Decisions:</strong> <code>C{"text"}</code> — rombe.</li>
+<li><strong>Fletxes amb retorn (re-treball):</strong> <code>E -.-&gt; B</code> (línia discontínua) per remarcar bucles manuals.</li>
+<li>Per posar paleta de tema global a tot el diagrama:
+  <code>%%{init:{'theme':'base','themeVariables':{'primaryColor':'#0B1D32','lineColor':'#E7C47D','textColor':'#14243A','primaryBorderColor':'#E7C47D'}}}%%</code></li>
+</ul>
+<h2>Renderitzar</h2>
+<h3>Opció 1 — HTML amb CDN (més fàcil, sense instal·lar res)</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;mermaid.initialize({startOnLoad:true});&lt;/script&gt;&lt;/head&gt;&lt;body&gt;
+&lt;pre class=&quot;mermaid&quot;&gt;
+flowchart LR
+  A[&quot;Inici&quot;] --&gt; B[&quot;Executa&quot;]
+&lt;/pre&gt;
+&lt;/body&gt;&lt;/html&gt;
+</code></pre>
+<p>Obre l'HTML en un navegador; Mermaid renderitza el diagrama. Per posar-lo a un PDF
+(com a l'auditoria), obre'l i captura la imatge, o usa l'CLI.</p>
+<h3>Opció 2 — CLI <code>mmdc</code> (SVG/PNG per al PDF de l'auditoria)</h3>
+<p>El CLI de Mermaid (<code>@mermaid-js/mermaid-cli</code>) necessita <strong>Chrome</strong> per renderitzar.
+A l'ordinador del client/server (on hi hagi Chrome o es pugui instal·lar):</p>
+<pre><code class="language-bash">npm install --no-save @mermaid-js/mermaid-cli
+npx mmdc -i diagrama.mmd -o diagrama.svg -b white --size 1200
+npx mmdc -i diagrama.mmd -o diagrama.png -b white -s 2
+# si Chrome no està al PATH, apunta'l:
+export PUPPETEER_EXECUTABLE_PATH=&quot;/cami/al/chrome&quot;
+</code></pre>
+<blockquote>
+<p>⚠️ En un contenidor SENSE Chrome (com el servidor d'aquesta agència), <code>mmdc</code> FALLA.
+Llavors usa l'Opció 1 (HTML + CDN) i renderitza des del navegador de l'usuari, o
+genera el SVG a l'ordinador del client on sí que hi ha Chrome/navegador.</p>
+</blockquote>
+<h2>Procedure per a una auditoria</h2>
+<ol>
+<li><strong>Recull processos</strong> (formulari o entrevista — psicologia inversa).</li>
+<li><strong>Selecciona els processos més rellevants</strong> (els de més dolor/volum primer).</li>
+<li><strong>Per a cada procés</strong>, descriu el flux pas a pas en Mermaid i marca en vermell:</li>
+<li>passes manuals / que s'escriuen a mà</li>
+<li>passes amb retreballs o errors</li>
+<li>passes que depenen d'una persona
+   (aquests són els candidats a automatitzar)</li>
+<li><strong>Rendering</strong> (HTML/CDN per revisió, CLI per al PDF).</li>
+<li>Al report d'auditoria, posa cada diagrama sota la seva secció de processos,
+   amb una llista dels punts vermells i què es pot automatitzar amb n8n/IA.</li>
+</ol>
+<h2>Pitfalls</h2>
+<ul>
+<li><strong>Paleta</strong>: NO usar dark-cyan de <code>architecture-diagram</code>. Sempre blau nit + daurat.</li>
+<li><strong>Mermaid v9 vs v10</strong> canvien lleugerament <code>%%{init}%%</code>; provar la sintaxi abans de lliurar.</li>
+<li><strong>CDN al PDF</strong>: en obrir l'HTML necessites connexió per renderitzar; per a entrega final
+  sense depència d'internet, fes servir <code>mmdc</code> per generar SVG/PNG i inclou-los.</li>
+<li><strong>Nodis vermells</strong>: no sobrecarreguis; vermell = acció de millora clara. Si tot el procés
+  és vermell, el diagrama no comunica — agrupa els punts.</li>
+<li><strong>No documentis processos inventats</strong>: dedueix només del que ha dit el client; si un
+  procés no està confirmat, indica-ho.</li>
+</ul>
+<h2>Verification</h2>
+<ul>
+<li>[ ] El diagrama es renderitza sense errors (Mermaid no marca error de sintaxi).</li>
+<li>[ ] S'usa la paleta de marca (blau nit #0B1D32 / daurat #E7C47D).</li>
+<li>[ ] Punts a millorar en vermell, amb una llista al costat del diagrama.</li>
+<li>[ ] Els processos reflecteixen el que ha dit el client (res inventat).</li>
+<li>[ ] El diagrama es pot posar al PDF de l'auditoria (SVG/PNG generat).</li>
+</ul><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

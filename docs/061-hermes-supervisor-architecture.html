@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset='utf-8'><title>hermes-supervisor-architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Phase 14 — SP Supervisor / Hermes architecture</h1>
+<p>Hermes is the operator-facing reasoning/orchestration layer. It is <strong>not</strong> the security authority and it does not receive root infrastructure access.</p>
+<h2>Context layers</h2>
+<ul>
+<li><code>SOUL.md</code>: stable identity and governance behavior.</li>
+<li><code>.hermes.md</code>: SolutionPartner project rules and authority workflow.</li>
+<li><code>knowledge/</code>: architecture, phases, glossary and authority model.</li>
+<li><code>skills/</code>: on-demand operating procedures.</li>
+<li>MCP: live Control Plane state and the governed Action Gateway.</li>
+</ul>
+<h2>Tool surface</h2>
+<p>Read-only tools expose fleet, tenant, incident, deployment, runtime and catalog state.</p>
+<p>Phase 14 additionally exposes:</p>
+<ul>
+<li><code>action_policies</code></li>
+<li><code>propose_action</code></li>
+<li><code>action_status</code></li>
+<li><code>execute_approved_action</code></li>
+</ul>
+<p>No approval tool is exposed to Hermes.</p>
+<h2>Authority path</h2>
+<pre><code class="language-text">Hermes service account: supervisor_operator
+   |
+   +-- READ --------------------------&gt; live state
+   +-- AUTO --------------------------&gt; bounded deterministic adapter
+   +-- APPROVAL -&gt; pending ----------&gt; human owner/platform_admin approval
+   |                                      |
+   |                                      +-&gt; Hermes execute-approved
+   +-- FORBIDDEN ---------------------&gt; denied
+</code></pre>
+<p>The Action Gateway is the only model-facing mutation boundary in this phase. Unknown actions are denied by default. Payloads are hash-bound and approval windows expire.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

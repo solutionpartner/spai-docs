@@ -1,0 +1,92 @@
+<!doctype html><html><head><meta charset='utf-8'><title>encaix-kit-desplegament.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Encaix kit → Business AI OS (desplegament governat)</h1>
+<p>Còpia condensada de SPAI-KP-DEPLOY-001 (orig a <code>/opt/data/spai-knowledge/kit-deploy-encaix/</code>).</p>
+<h2>Les 5 capes (diagrama mapa-encaix-kit-buildpack.svg)</h2>
+<ol>
+<li><strong>Cicle comercial</strong> (fet) — kit01 (auditoria BPMN) → kit02 (oferta + dossier intern).</li>
+<li><strong>Model del tenant</strong> (fet, sortida del kit) — <code>implementacion.json</code>, skills de l'Hermes, MCPs,
+   JSON n8n nets, prompt "Implementa això", ordre de desplegament.</li>
+<li><strong>Pont</strong> (A CONSTRUIR) — onboarding del tenant alimentat pel model del kit.</li>
+<li><strong>SPAI central</strong> (dissenyat) — OPTIMUS governa, Signer Ed25519, Action Gateway, aprovació humana.</li>
+<li><strong>Tenant del client</strong> (dissenyat) — Hermes del client (Argon), n8n, Business OS, runtime-sync,
+   heartbeat, deploy worker.</li>
+</ol>
+<h2>Decisions preses (no re-obrir sense motiu)</h2>
+<table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Decisió</th>
+<th>Font</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Orquestració</td>
+<td><strong>Docker Compose. NO Kubernetes</strong></td>
+<td>Build Pack 03</td>
+</tr>
+<tr>
+<td>Autoritat de seguretat</td>
+<td>Hermes NO és autoritat ni té root</td>
+<td>Phase 14</td>
+</tr>
+<tr>
+<td>Credencials ERP/CRM</td>
+<td>Al domini del <strong>tenant</strong>, només secret_ref central</td>
+<td>Build Pack 03</td>
+</tr>
+<tr>
+<td>Accés producció</td>
+<td><code>SP_CLIENT_AUTH_MODE=key+mtls</code> després d'enrolament</td>
+<td>Runbook 04</td>
+</tr>
+<tr>
+<td>Topologia</td>
+<td><strong>A confirmar</strong> — no canviar en silenci</td>
+<td>Build Pack 03</td>
+</tr>
+</tbody>
+</table>
+<h2>Flux de deploy governat</h2>
+<pre><code>CI construeix → signer signa (Ed25519) → Control Plane registra
+→ aprovador humà autoritza → deploy worker del tenant fa pull i valida
+→ handler local aplica → health + stat &quot;applied&quot; verificats
+</code></pre>
+<p>Mutacions via <code>propose_action</code> → aprovació → <code>execute_approved_action</code>. Rollback:
+<code>POST /deployments/{id}/rollback</code>. Un rollback de codi NO desfà un efecte extern.</p>
+<h2>Ubicacions</h2>
+<ul>
+<li>Mapa: <code>/opt/data/spai-knowledge/kit-deploy-encaix/</code> (README + d2 + svg + png), ID SPAI-KP-DEPLOY-001.</li>
+<li>Disseny canònic: <code>/opt/data/spai-build-pack/SPAI_Hermes_Build_Pack_v1_1/</code> (runbooks 00-08 +
+  <code>referencia_baseline/docs/</code>).</li>
+<li>Fases: <code>/opt/data/spai-fases-historic/</code> (1-21, zips).</li>
+<li>Deploy n8n self-hosted: <code>/opt/data/recursos/n8n-deploy/</code> (get-n8n.sh + compose oficial).</li>
+</ul>
+<h2>PONT FET (2026-10-16) — <code>onboarding.mjs</code></h2>
+<p><code>herramientas/onboarding.mjs &lt;cliente&gt;</code> llegeix <code>implementacion.json</code> i genera a <code>modelo/</code>:
+- <code>onboarding-manifest.json</code> — document intern (components, workflows, MCPs, secret_refs, ordre).
+- <code>onboarding-template.json</code> — ✅ VÀLID contra <code>onboarding-template.schema.json</code> real: <code>spec.base_components[]</code> amb
+  <code>component_type</code> (agent/skill/connector/runtime/workflow), <code>secret_requirements[]</code>, <code>require_mtls</code>, <code>approval_policy</code>.
+- <code>onboarding-request.json</code> — payload 1:1 amb l'exemple oficial (<code>tenant_id</code>, <code>tenant_name</code>, <code>template_id</code>,
+  <code>template_version</code>, <code>environment</code>, <code>base_url</code>) per a <code>POST /onboarding/preview</code> i <code>/onboarding/jobs</code>.</p>
+<p><strong>Validació contra el Control Plane REAL</strong> (no només la doc): desempaquetat a
+<code>/opt/data/spai-baseline-milestone/business_ai_os_production_milestone_1/</code> (control_plane/, tenant_runtime/,
+contracts/ ×58, scripts/, handlers/, supervisor_mcp/, docker-compose). Els contracts es validen amb jsonschema
+<code>Draft202012Validator</code>. <code>client_deploy_worker.py</code> és pull + handler local amb <code>secret_refs</code> (MAI valor al Control Plane).
+Els JSON n8n nets del kit passen la <code>n8n-dev-policy</code> (nodes únics, type present, sense secrets incrustats,
+sense <code>executeCommand</code>/<code>ssh</code>). El template d'onboarding mapeja: skill→<code>skill</code>, automatisme→<code>workflow</code>, MCP→<code>connector</code>,
+Argon→<code>agent</code>, runtime→<code>runtime</code>.</p>
+<h2>Què falta per desplegament automàtic</h2>
+<ol>
+<li>✅ ~~Pont kit→onboarding~~ FET (<code>onboarding.mjs</code> + validat contra contracts reals).</li>
+<li>Artefactes reproduïbles (imatges central/tenant, Compose amb health/egress explícit).</li>
+<li>Claus i CA amb custòdia separada.</li>
+<li>Provar en staging (<code>docker compose</code> + <code>seed_onboarding_template.py</code> amb el nostre template).</li>
+<li>Primer tenant real: enrolament mTLS, components signats, secrets locals, health + read-only ERP.</li>
+</ol>
+<h2>Regenerar el diagrama</h2>
+<pre><code class="language-bash">/opt/data/tools/d2/bin/d2 --layout elk --pad 24 --theme 0 \
+  --font-regular &lt;kit&gt;/assets/fonts/Roboto-Regular.ttf \
+  --font-bold    &lt;kit&gt;/assets/fonts/Roboto-Bold.ttf \
+  mapa-encaix-kit-buildpack.d2 mapa-encaix-kit-buildpack.svg
+</code></pre><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

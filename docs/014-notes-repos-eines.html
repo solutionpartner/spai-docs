@@ -1,0 +1,340 @@
+<!doctype html><html><head><meta charset='utf-8'><title>notes-repos-eines.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Eines i repos revisats (notes de Josep)</h1>
+<p>Actualitzat: 2026-10-10</p>
+<h2>SOS REPOS SERVEIS DE NEGOCI — clonats a /opt/data/tools-src/</h2>
+<ul>
+<li><strong>Docuseal</strong> (docusealco/docuseal) — alternativa open source a DocuSign:
+  crea/emplena/signa documents PDF en línia, self-host (Docker), API/webhooks.
+  <strong>Servei: signatura de documents/contractes/propostes per a clients</strong> sense
+  DocuSign de pagament. Llicència AGPL+termes → verificar abans d'ús comercial.</li>
+<li><strong>Twenty</strong> (twentyhq/twenty) — el CRM open source "pensat per a la IA"
+  (alternativa a Salesforce, self-host, TypeScript/NestJS/Postgres), extensible
+  "com a codi" i amb <strong>skills oficials per a agents</strong>. <strong>Servei: CRM base per al
+  Business AI OS / clients</strong> (no substitueix el nostre erpsp; candidat quan un client
+  necessiti CRM). AGPL.</li>
+<li><strong>Metabase</strong> (metabase/metabase) — BI/analítica open source: preguntar a les dades
+  i dashboards sense SQL (+ IA Metabot), self-host. <strong>Servei: quadre de comandament/
+  dashboards de KPIs per a clients</strong> del Business AI OS. AGPL (open) + edició comercial.</li>
+</ul>
+<h2>CANDIDAT PRIORITARI: every-app/open-seo (per a auditoria SEO + AEO)</h2>
+<ul>
+<li>Alternativa open source (MIT) a Semrush/Ahrefs; self-host amb Docker o Cloudflare (recomanat).</li>
+<li>Workflows: keyword research, rank tracking, competitor insights, backlinks, site audits (SEO), i AI Visibility (AEO — prompts, competidors i citacions a Claude i Perplexity; encara en "prototype").</li>
+<li>MCP server + Agent Skills → connectable amb Hermes (ho diu el mateix README).</li>
+<li><strong>Cost</strong>: OpenSEO gratis, però necessita API key de <strong>DataForSEO</strong> (de pagament, per ús). Hosted $10/mes.</li>
+<li>Rol: afegir a l'oferta una <strong>auditoria SEO + AEO</strong> que ara no tenim. Decidir cost DataForSEO i self-host abans d'instal·lar.</li>
+<li><strong>AEO</strong> = Answer Engine Optimization / <strong>GEO</strong> = Generative Engine Optimization (el mateix). AIEO no és estàndard.</li>
+</ul>
+<h2>Claude Code Kit — skills pel CLAUDE DE PROGRAMACIÓ (per passar-li)</h2>
+<ul>
+<li>Directori: <code>/opt/data/claude-code-kit/</code> — README amb el propòsit de cadascuna.</li>
+<li>10 skills: repomix (empaqueta repos en 1 fitxer), karpathy-skills (evita errors), beads (tracking entre sessions), graphify (graf codi+docs+SQL), archon (workflow repetible), awesome-claude-skills (directori comunitat), multica (assigna issues a agents), ECC (harness skills+memòria+checks), claude-code-router (enruta models), rtk (retalla sortida → estalvi tokens).</li>
+<li>Són per al CLAUDE DE PROGRAMACIÓ (no Hermes). <strong>Escanejar seguretat per skill abans d'usar en projecte real</strong> (regla de la casa).</li>
+<li>Font: newsletter Charlie Hills. Si el preguntem, recordar que existeix aquest kit.</li>
+</ul>
+<h2>Eines RESERVADES (per al futur — enumerades aquí, l'estatus viu al fitxer)</h2>
+<ul>
+<li><strong>impeccable</strong> (pbakaus/impeccable, Apache 2.0, 78.9k★))— design language
+  per audit de qualitat anti-slop de webs (23 comandaments: audit, critique, polish,
+  distill, animate...; 46-59 regles deteccores deterministes). <strong>PAS OBLIGATORI
+  PRE-LLIURADA de webs</strong>: la propera vegada que fem una web, instal·lar i usar
+  (<code>npx impeccable install</code>, <code>/impeccable init</code> → <code>audit</code>), abans de lliurar[(complement)
+  de ui-ux-pro-max: aquest dissenya, impeccable audita i poleix.).
+  <strong>ESTAT 2026-10-29: INSTAL·LADA i verificada</strong> (v0.1.18 a .claude/skills/impeccable/</li>
+<li>agents i hooks a .claude/; escaneig seguretat NET — només endpoints oficials
+  github releases + impeccable.style; llegeix ANTHROPIC/OPENAI API key per al model).
+  Ús: <code>/impeccable init</code> (una vegada) + <code>/impeccable audit</code> abans de lliurar.</li>
+<li><strong>Dify</strong> (langgenius/dify) — plataforma open source d'apps LLM (RAG, chatbots,
+  agents, workflows). <strong>Servei: chatbots amb embed a les webs dels clients</strong> (widget
+  flotant sobre les seves dades). Docker Compose, self-host (VPS client o nostre),
+  dashboard GUI. Llicència "Dify Open Source License" (base Apache 2.0 amb condicions
+  addicionals) → <strong>verificar termes abans de cada desplegament comercial</strong>. No urgent;
+  instal·lar quan un client demani un chatbot web.</li>
+<li><strong>Duix-Avatar</strong> (duixcom/duix-avatar) — toolkit open-source d'avatars digitals /
+  digital humans: vídeo d'una persona que parla amb veu clonada, offline, amb API oberta.
+  <strong>Servei: "vídeo amb avatar digital" per a clients</strong> (presentador virtual, testimoni,
+  agent). Requereix <strong>GPU NVIDIA potent (RTX 4070, 32GB)</strong> + Docker; NO és lleuger per
+  VPS. Complementari a Remotion (aquest = vídeo per codi; Duix = persona digital que parla).
+  No urgent; activar quan decidim oferir vídeos amb avatars (GPU pròpia o RunPod).</li>
+<li><strong>Presenton</strong> (presenton/presenton, Apache 2.0, 11k★) — generador de presentacions
+  AI open-source, alternativa a Gamma/Canva/Beautiful. App web + <strong>API REST self-hosted</strong>:
+  POST amb <code>slides_markdown</code> → <code>.pptx</code>/<code>.pdf</code> amb templates visuals. Enfoc "templates
+  bonics" ràpid. <strong>Reservat/complementari</strong>: ja tenim <strong>ppt-master</strong> (millor per a deks
+  nadius editables de client). Presenton val la pena si volem presentacions estil-Gamma
+  ràpides o una API de generació per a una app del Business AI OS.</li>
+<li><strong>Meetily</strong> (Zackriya-Solutions/meetily, MIT, 31.5k★) — assistent de reunions
+  AI <strong>privacy-first</strong>: transcripció en temps real (parla→text, Whisper/Parakeet) +
+  resums amb IA, <strong>tot local</strong> (dades no surten de la màquina). App d'escriptori
+  (Tauri, Rust+Next.js), mac/Win/Linux, AVX2 (no cal GPU), proveïdors d'IA: Ollama local,
+  Claude, Groq, OpenRouter. <strong>SERVEI PER A CLIENTS: "app de transcripció de reunions i
+  trucades"</strong> — instal·l-la a l'equip del client, les seves reunions transcrites i
+  resumides localment (privadesa) → vendible com a servei. També útil per a ús INTERN
+  nostre (resumir reunions amb client sense enviar dades al núvol). PRO (pagament) =
+  funcions d'equip (self-hosted, speaker ID, GDPR). No urgent; activar quan el venguem
+  o el facin servir internament.</li>
+<li><strong>OpenCode</strong> (anomalyco/opencode, MIT, 212k★) — agent de codi IA open source  (terminal TUI + app d'escriptori), competidor obert de Claude Code/Codex. Lectura/
+  escriptura de codi, execució, subagents, git. Suporta molts proveïdors. <strong>Eina
+  OPERATIVA INTERNA (no servei a client)</strong>: és el nostre agent de codi. Avantatge clau:
+  es pot autenticar amb <strong>OpenRouter</strong> (que tenim) → ens desbloqueja conduir tasques de
+  codi (ppt-master, cloner de webs) sense pagar Claude. Ja tenim la skill <code>opencode</code>.
+  Activar-lo connectat a OpenRouter quan necessitem un agent de codi.</li>
+<li><strong>AppFlowy</strong> (AppFlowy-IO/AppFlowy, AGPL-3.0) — l'alternativa open source a Notion,
+  workspace col·laboratiu (docs + bases de dades/kanban/taules + wikis + equip) amb IA
+  integrada, self-hostable (control de dades). <strong>Ús INTERN nostre</strong>: el nostre workspace
+  col·laboratiu self-hosted per gestionar projectes de clients i wikis de coneixement.
+  Com a servei a client: potencial ("Notion privat al teu VPS") però <strong>AGPL-3.0</strong> — s'ha de
+  verificar abans si és un servei al qual els clients accedeixin al nostre servidor.
+  No urgent; activar com a workspace intern quan convingui.</li>
+<li><strong>Dograh</strong> (dograh-hq/dograh) — plataforma de voice AI self-hosted (agents de veu,
+  alternativa a proveïdors de pagament). <strong>Servei potencial: assistents de veu per a
+  clients</strong> (atenció telefònica). Reservat; avaluar requisits (normalment GPU) abans.</li>
+<li><strong>gstack</strong> (garrytan/gstack) — setup de 23 eines de Garry Tan (YC) per a Claude Code.
+  Per al CLAUDE DE PROGRAMACIÓ (ja al claude-code-kit/gstack). No servei de client.</li>
+<li><strong>codex-plugin-cc</strong> (openai/codex-plugin-cc) — usar Codex des de Claude Code per
+  revisar/delegar (2 agents col·laboren). Per al CLAUDE DE PROGRAMACIÓ. Anotat, no cal
+  instal·lar si no volem Codex actiu.</li>
+<li><strong>claude-hud</strong> (jarrodwatts/claude-hud) — HUD de sessió (context/tools/agents en viu)
+  per a Claude Code. Ús intern: monitoritzar el Claude mentre treballa. Al kit/al opcional.</li>
+<li><strong>Cal.diy / Caldiy</strong> (calcom/cal.diy, <strong>MIT</strong>) — fork comunitari de Cal.com:
+  infraestructura de <strong>reserves/agendes ("scheduling")</strong> open source. Els clients PIME
+  que necessiten "reserva cita/trucada directa" a l'agenda (sense Calendly/Cal.com de
+  pagament). <strong>SERVEI PRIORITARI per a clients</strong>: agenda de reserves en línia pròpia i de
+  marca, self-host (Docker + PostgreSQL, VPS client o nostre), integrable amb la web
+  (web-kit backend tipo reserva) i n8n (recordatoris). MIT = sense restriccions EE/AGPL
+  (a diferència de Cal.com). Desplegament gran (Next.js+Postgres). No inclou funcions
+  Enterprise (SSO/orgs) — no cal per a PIME. Instal·lar quan un client necessiti
+  reserves/cites.</li>
+<li><strong>Coolify</strong> (coollabsio/coolify) — PaaS open source self-hostable (alt. Vercel/
+  Heroku/Netlify): desplega i gestiona apps, bases de dades i 280+ serveis d'1 clic
+  al teu VPS (HTTPS automàtic, dominis, reverse proxy, backups, multi-servidor). <strong>Eina
+  OPERATIVA PRIORITàRIA</strong>: la nostra capa de desplegament per gestionar tots els
+  serveis de clients des d'un dashboard (web-kit, Cal.diy, Dify, n8n, bases de dades).
+  <strong>Repo clonat a /opt/data/coolify-src</strong> (escaneig de seguretat NET: URLs oficials
+  docker/coollabs, cap credencial real, cap eval). Instal·lador: scripts/install.sh
+  (curl|bash a get.docker.com, coollabs CDN). Instal·lació real: quan toquem el
+  desplegament multi-servei, al nostre VPS i replicable als de clients. free forever
+  (auto-manteniment).</li>
+<li><strong>i-have-adhd</strong> (ayghri/i-have-adhd, MIT, 56k★) — skill d'estil de RESPOSTA dels
+  agents: acció primer, passos numerats, sense farciment ("no Hope this helps"),
+  estàtercaç i una acció concreta al final. <strong>Principi per als nostres agents</strong> (Hermes,
+  n8n) i com a <strong>guia d'estil de sortida</strong> per als chatbots/agents que muntem per a
+  clients (directes, accionables, sense soroll. Instal·lada com a skill d'Hermes
+  (productivity/i-have-adhd). Escaneig de seguretat NET (text de regles).</li>
+<li><strong>OmniRoute</strong> (diegosouzapw/OmniRoute, MIT, 74.6k★) — AI gateway unificat: un endpoint,
+  359+ providers. <strong>UTIL NOMÉS configurat amb MODELS OFICIALMENT GRATUÏTS</strong> (GLM-4.5 de
+  Zhipu, Gemini free tier, Qwen, DeepSeek...) amb les NOSTRES claus. Mode "models de
+  pagament gratis" (Claude/GPT "free") = ÀREA GRISA/frau → mai per a dades de clients.
+  ⚠️ <strong>REVISAR ABANS D'USAR</strong>: verificar quina part del llistat "gratis" és oficial;
+  configurar només amb models oficialment gratuïts; NO per a dades sensibles de clients
+  (models de tercers, privadesa/retenció no garantida). Repo clonat a /opt/data/
+  omniroute-src (910MB, escaneig NET: els os.system que surten son l'eina de seguretat
+  del propi repo, no codi maliciós). No substituir OpenRouter per a tasques de qualitat/
+  dades sensibles; complement per a tasques de baix cost (GLM/Gemini free) i estalvi.</li>
+<li><strong>Insidr.ai</strong> (insidr.ai, WEB — no repo) — REFERÈNCIA COMERCIAL (no eina): plataforma  de formació/coaching en IA ("ajudem PIMEs a començar, automatitzar i escalar amb IA")
+  amb programes de pagament, comunitat i un llistat de 500+ eines IA en 78 categories.
+  <strong>Ús: scrapejar-la per extreure idees de què oferir als clients</strong> i com estructuren la
+  seva oferta/venda (posicionament ~ al nostre: AI Strategy &amp; Automation per PIMEs).
+  Benchmark comercial per a la nostra carta de serveis i web de màrqueting. No aporta cap
+  capacitat tècnica que no tinguem.
+  ⭐ <strong>AQUEST I LES ALTRES EINES = CATÀLEG DE SERVEIS POTENCIALS PER A CLIENTS</strong> (llista
+  completa al cap i al peu del fitxer: vídeo, chatbots, SEO+AEO, scraping, monitors, webs,
+  decks, OCR, etc.).</li>
+<li><strong>Aceternity UI</strong> (ui.aceternity.com — <strong>WEB, NO repo de GitHub</strong>) — biblioteca de
+  <strong>components web animats</strong> (React+Tailwind+Motion) per a landing pages de qualitat.
+  116+ components gratuïts (backgrounds, cards, text effects, 3D, carousels) + 180+ blocks/
+  17 templates de pagament. Instal·lació: <code>npx shadcn@latest add https://ui.aceternity.com/registry/&lt;component&gt;.json</code>
+  o copiar-enganxar. Té <strong>MCP server</strong> (perquè un agent d'IA cerqui i usi els components).
+  <strong>Font de components per a webs de clients</strong> (complementa ui-ux-pro-max/motion-design/
+  theme-factory). No es clona al kit (no hi ha repo); anotar com a font web, no com a repo.
+  Free = els 116 components; blocks/templates = pagament. Ús comercial dels components:
+  verificar llicència per component abans de lliurar a client.</li>
+<li><strong>transitions.dev</strong> (Jakubantalik/transitions.dev, ★4.925, llicència pròpia: ús lliure personal
+  i comercial, NO redistribuir la biblioteca com a producte) — 35 transicions CSS de producció
+  (dropdown, modal, reveal, shimmer, hover tilt 3D, toast, skeleton, counters, accordion...). Ja
+  <strong>integrat a Hermes</strong> com 3 skills <code>creative/</code>: transitions-dev (catàleg 35 + tokens motion +
+  4 comandaments reveal/review/apply/refine), transitions-polish (puleix motion existent), i
+  transitions-ui-generation (efecte "l'agent està generant la UI"). Escaneig NET. NOTA: té part
+  "Pro" de pagament que NO s'ha tocat — només els snippets free del repo (els 35 del skill).
+  ✓ <strong>PROVA REALE (2026-10-11)</strong>: reconstruït a mà (CSS+JS pur, adaptat a la marca blau nit+daurat)
+  un efecte "aurora + particles" al hero de la web auditoria → publicat a solutionpartner.github.io/
+  auditoria/ (commit 393b4dc). Patró: aurora rotativa (conic-gradient, blur clamp responsive) +
+  espurnes flotants (canvas, ~30-70 punts) + shimmer a la paraula serif + spotlight de ratolí.
+  Funciona en mòbil. Reversible (blocs marcats SP-AURORA/SP-PARTICLES).</li>
+<li><strong>Strix pentesting</strong> (usestrix/strix, <strong>Apache-2.0</strong>, 67.9k★) — agents d'IA autònoms de
+  <strong>pentesting / hacking ètic</strong>: recon → explotació → validació amb <strong>PoC reals</strong> (no falsos
+  positius), multi-agent, auto-fix i reports de compliance. <strong>SERVEI: proves de seguretat amb IA
+  per a clients</strong> ("auditem les vulnerabilitats del teu codi/app/web"). 2 maneres de córrer:
+  (a) CLI self-hosted → <code>curl -sSL https://strix.ai/install | bash</code>, requereix <strong>Docker + API LLM</strong>
+  (BYO key, ex. <code>STRIX_LLM="openrouter/z-ai/glm-5.3"</code>), escaneja local/GitHub/URL black-box;
+  (b) núvol gestionat app.strix.ai → sense Docker/LLM, panells+reports PDF/DOCX, de pagament.
+  ⚠️ El nostre host NO pot córrer Docker → usar-lo al VPS pare o PC de Josep (com Docuseal).
+  <strong>Escaneig NET</strong> (el curl és l'instal·lador oficial; els api_key/password són paràmetres de
+  funció d'adaptadors de LLM, no credencials; només escanejar allò que està autoritzat a provar).
+  Descarregat a claude-code-kit/strix-pentest (15 MB). Complementa l'índex intern cybersecurity-skills.</li>
+</ul>
+<h2>Kit 02 · OFERTA DE SOLUCIONES (desat 2026-10-12)</h2>
+<ul>
+<li><strong>Què és</strong>: segona peça de la sèrie SPAI — rep el <strong>diagnòstic BPMN d'un client</strong> (sortida del kit 01)
+  i genera <strong>l'oferta per al client</strong> (PDF+HTML per àrees de negoci, mateixa marca i visor que el
+  diagnòstic: com es treballa avui, problemes al pas exacte, solucions, economia) + <strong>el dossier
+  tècnic intern</strong> (fonts amb huella, escandallo i marges, pla d'implantació, riscos).</li>
+<li><strong>On és</strong>: <code>/opt/data/deliverables/kits/02-kit-oferta-soluciones/</code> (1.5 MB, escaneig NET:
+  els "secrets" són fixtures de prova posats a propòsit; child_process = spawn local de Node/Chrome
+  per als PDFs; cap exfiltració).</li>
+<li><strong>Com va</strong>: Claude Code (VS Code, compte Pro) + Node ≥22.5 + Edge/Chrome. Comandaments <code>/setup
+  /importar /oferta /estado /revisar</code> + skill oferta-solucions. "prepara la oferta de <client>".</li>
+<li><strong>Coses bones</strong>: preus mai inventats (tot "pendiente" fins aprovar <code>tarifas.json</code> → "borrador no
+  vinculante"); escàner de termes prohibits a l'oferta (cap jerga tècnica al client); "Business AI OS"
+  com a base comuna; gestió d'estats completa (borrador→aprovada→enviada→negociació→signada) amb
+  historial; BD SQLite local per client amb traçabilitat; exportació/restauració amb huella;
+  35 tests (24 OK, 11 pendents de Fase B/C); parche opcional per igualar tinta amb kit 01.</li>
+<li><strong>PENDENT</strong>: fer <code>/setup</code> al PC amb compte Claude i provar l'exemple de pràctica (Clima Moncayo).</li>
+<li><strong>Servei que habilita</strong>: <strong>ofertes d'automatització generades directament del diagBPMN del client</strong>
+  → el nostre motor comercial de sortida. Fase B = sync CRM; Fase C = implantació/facturació.</li>
+</ul>
+<h2>Formulari web DIAGNÒSTIC DE PROCESSOS + generador (2026-10-12) — FLUX COMPLET MUNTAT</h2>
+<ul>
+<li><strong>Web</strong>: https://solutionpartner.github.io/diagnostic-processos/ (repo solutionpartner/diagnostic-processos).
+  Estil 1B, mateixa clau Web3Forms → contact@solutionpartner.ai. Seccions: A empresa/contacte,
+  B rols (dinàmic), C eines (dinàmic), <strong>D processos amb PASSOS dinàmics</strong> (nom/temps/a mà?/dolor),
+  E seguretat/IA. Autoguardat localStorage. Genera <code>respuestas-unificadas/1</code> (format kit 01).</li>
+<li><strong>Botó a l'auditoria</strong>: taronja estil Amazon, sota els exemples de mapres (commit 2288afa).</li>
+<li><strong>Generador</strong>: <code>/opt/data/deliverables/kits/genera-diagnostico.py</code> (v2, GRAU COMPLET) — respostes
+  JSON → carpeta entrada kit 02: diagnostico-fase1.json + BPMN (carrils per rol, gateways de decisions
+  sí/no, message flows d'externs, colors: vermell=a mà, lila=decisió) + SOPs + <strong>fitxes
+  ficha-proceso/1 a modelo/</strong> (nodes/flujos/mensajes — el que el kit vol per cobertura COMPLETA).
+  Passos amb TIPUS (mano/eina/enviar/rebre/decidir), rol i eina per pas. PROVA FINAL: kit02 importa
+  la sortida <strong>✓ COMPLET × 2 processos, 0 contradiccions</strong> (Fusta i Metall S.L. fictici, a _proves/).</li>
+<li><strong>RADIOGRAFIA</strong> (entregable per vendre) — <strong>CORREGIT 12/10</strong>: el diagrama el dibuixa el MOTOR
+  del kit, no dibuix a mà. Pipeline: <code>genera-diagnostico.py</code> (només fitxes vàlides <code>ficha-proceso/1</code>,
+  àrees kit ventas/fulfillment) → <code>genera-diagramas.mjs</code> (colocar+generarXML → BPMN correcte →
+  SVG vectorial via bpmn-js) → <code>genera-radiografia-v2.py</code> (HTML amb SVG incrustats) →
+  <code>genera-radiografia-pdf.py</code> (PDF imprimeix l'HTML amb Playwright headless). Fitxa corregida:
+  subtipo <code>ninguno</code>, decisió = <code>exclusiva</code> bifurcada Sí/No, participants únics, missatges
+  node↔participant. PROVAT: CL-0001, 2 processos, PDF 4 pàgines amb 80-89 dibuixos vectorials/làmina.</li>
+<li><strong>REGISTRE CENTRAL DE CLIENTS</strong>: <code>clients-bd.py</code> + <code>clients.db</code> (SQLite, SQL estàndard → fàcil
+  de migrar a MySQL a la Fase B). Taules: <code>clients</code> (id CL-0001, nom, contacte, activitat, sector,
+  estat) + <code>diagnostics</code> (processos, passos, a mà, hores/mes, rutes). Ordres: <code>nou &lt;respostes.json&gt;</code>
+  (crea ID + carpeta + genera diagnòstic + radiografia + registra), <code>llista</code>, <code>mostra &lt;id&gt;</code>,
+  <code>estat &lt;id&gt; &lt;estat&gt; [--nota]</code> (rebut|radiografia_feta|ofertat|client|descartat).
+  Carpeta per client: <code>clients/&lt;CL-XXXX&gt;-&lt;slug&gt;/</code> amb respostes.json + diagnostic/ + radiografia.html.
+  PROVAT: CL-0001 Fusta i Metall (2 processos, 81,2 h/mes, estat radiografia_feta).</li>
+<li><strong>FLUX COMERCIAL COMPLET</strong>: client ompla formulari → ens arriba per Web3Forms → genera-diagnostico.py
+  → <strong>genera-radiografia.py (entregable al client)</strong> → entrada kit 02 → "prepara la oferta de <client>"
+  → oferta PDF + dossier intern. Proves a <code>_proves/entrada-test-v2</code> (Fusta i Metall S.L. fictici).</li>
+</ul>
+<h2>FONTS D'INSPIRACIÓ DE WEBS (galeries curades — WEB, no repos)</h2>
+<p>Per al servei de webs: quan un client descriu l'estil que vol, consultar aquestes abans de dissenyar.
+- <strong>land-book.com</strong> — inspiració de <strong>pàgina sencera</strong> (landing, portfolio, ecommerce, pricing, about),
+  curada i actualitzada diàriament. Per definir l'estil global que vol el client.
+- <strong>navbar.gallery</strong> — els millors <strong>menús de navegació</strong> (dropdowns, megamenu, sidebars, tabs,
+  search, fullscreen). Quan el client diu "el menú el vull així".
+- <strong>cta.gallery</strong> — els millors <strong>call-to-action</strong> (botons/CTAs conversió), filtrable per indústria.
+  Per dissenyar el CTA "demana-ho".
+- <strong>footer.design</strong> — la galeria de <strong>footers</strong> per excel·lència ("Editor's Choice").
+Ús: treure PATRONS (no copiar codi aliena — copyright); alimenta design-dna / popular-web-designs /
+web-kit + Aceternity per implementar. Cap s'instal·la: són webs de consulta.</p>
+<h2>Eines INSTAL·LADES I VERIFICADES (2026-10-09)</h2>
+<ul>
+<li><strong>UI/UX Pro Max</strong> — skill d'intel·ligència de disseny (de nextlevelbuilder, MIT, escaneig de seguretat NET). Base de dades de estils/paletes/tipografia/UX + <strong>Design System Generator</strong>(genera sistema de disseny complet per a qualsevol projecte. Provat OK (genera sistema per a clínica dental amb patró, estil, paleta i tokens CSS). <strong>Usar-la abans de construir qualsevol web de client</strong> (o landing pròpia). Comandes: <code>python3 search.py "&lt;query&gt;" --domain &lt;estil|color|tipografia|chart|ux|product&gt;</code> i <code>python3 design_system.py "&lt;projecte&gt;"</code>, des del directori <code>skills/creative/ui-ux-pro-max/scripts/</code>.</li>
+<li><strong>ppt-master</strong> — <code>/opt/data/ppt-master</code> (MIT v6.7.0, venv <code>tools/pptmaster-env</code>). Genera deks PPTX <strong>nadius editables</strong> (SVG → DrawingML): formes, taules/gràfics amb dades, transicions. Prova pilot OK (18 elements nadiu: 7 autoformes + 11 caixes de text). Flux: passar <code>attribution_guard.py</code> primer → <code>svg_quality_checker.py</code> → <code>svg_to_pptx.py</code>. Via "Quick" autònoma (la pot conduir Hermes). Amb Claude Code (no autenticat) es faria més disseny de qualitat. <strong>Prioritari</strong> per a deks de client.</li>
+<li><strong>Scrapling</strong> — venv <code>tools/scrapling-env</code> (v0.4.15, BSD-3). Scraping Python amb stealth; complementa Firecrawl (llibreria pròpia vs API). Requereix eslint: <code>curl_cffi</code>, <code>playwright</code>, <code>patchright</code>, i extras. Fetcher no-JS provat OK (Fetched 200); per a navegador cal <code>playwright install</code> (Chromium). És la base de la skill <code>web-scraping</code>.</li>
+<li><strong>PaddleOCR</strong> — venv <code>tools/paddleocr-env</code> (v3, models PP-OCRv6). OCR 100+ idiomes, PDFs escanejats → text per auditories i kit d'Oferta. Ús clau: <code>engine='onnxruntime'</code> (no cal el pesat paddlepaddle nadiu). Provat OK (llegí peu de correu). <strong>Millora</strong> el rapidocr que tenim a <code>/tmp/ocr_env</code>. Env per baixar models: <code>PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True</code>.</li>
+</ul>
+<h2>Eines web RESERVADES (no urgents, instal·lar quan toqui)</h2>
+<ul>
+<li><strong>Firecrawl</strong> — search/scrape→Markdown; AGPL (self-host o núvol); recerca de competidors/sector d'auditories + monitors. Quan calgui més pressa, valorar self-host vs núvol.</li>
+<li><strong>browser-use</strong> — agent que controla un navegador real (MIT); per a ACCIONS en portals de clients sense API (login, formularis, clics). Últim recurs quan no hi ha integració.</li>
+<li><strong>Remotion</strong> — vídeo per codi (React); llicència COMERCIAL (paga); només si oferim "vídeos automàtics" com a servei per a clients.</li>
+<li><strong>cobalt</strong> — baixar vídeo/àudio de URLs públiques; AGPL; per quan calgui un vídeo concret (no és part del sistema).</li>
+</ul>
+<h2>MarkItDown (INSTAL·LAT 2026-10-09)</h2>
+<ul>
+<li>Venv: /opt/data/tools/markitdown-env · llançador: markitdown.sh → ~/.local/bin/markitdown</li>
+<li>Converteix PDF/DOCX/office → Markdown. Usar <code>convert_local</code> (només fitxers locals, mai URIs).</li>
+<li>Rol: adaptador d'entrada del kit "Oferta de Soluciones" (PDF/DOCX → MD quan no hi ha fitxes JSON/BPMN).</li>
+</ul>
+<h2>trycompai/crm — REFERÈNCIA d'arquitectura (NO instal·lar)</h2>
+<ul>
+<li>CRM "agentic-first" (MIT), single-tenant per disseny (autorització "tothom ho veu tot") → no encaixa com a producte (nosaltres volem multi-tenant).</li>
+<li><strong>Idees a incorporar al nostre erpsp/crmsp:</strong></li>
+<li><strong>Ledger d'evidència</strong> — no confiar en el "confidence score" del model; separar fet observat / suggerència / decisió humana. "Un fet equivocat sobre un client és pitjor que un camp buit."</li>
+<li><strong>API sense intel·ligència + cua d'esdeveniments</strong> — l'agent lloga una fila de la cua i decideix què significa (observació ≠ acció). Trucar a una API d'enriquiment des del servei es considera un bug.</li>
+<li>Alineat amb la filosofia del nostre /operator (l'agent proposa, el supervisor aprova abans d'executar).</li>
+</ul>
+<h2>13/10 — Integracions noves a Hermes (del feed "For you" d'IA)</h2>
+<ul>
+<li><strong><code>book-to-skill</code></strong> (virgiliojr94, MIT, 34.6k★) → <strong>skill Hermes</strong> <code>research/book-to-skill</code> +
+  CLI instal·lat a <code>tools/book-to-skill-env</code>. Converteix llibre/PDF → skill de coneixement.
+  Proveït amb l'oferta de 54 pàgines (extreia 6.989 paraules). Path CLI:
+  <code>/opt/data/tools/book-to-skill-env/bin/book-to-skill</code>.</li>
+<li><strong><code>claude-ads</code></strong> (AgriciDaniel, MIT) → <strong>skill Hermes</strong> <code>marketing/claude-ads</code> (índex) + core
+  instal·lat a <code>tools/claude-ads-core-env</code> (claude-ads-core: validate/score/portfolio/status/
+  next/render/report/ingest-export). Sistema complet de paid media: 35 sub-skills de plataforma</li>
+<li>core determinista → SERVEI d'auditoria/gestió de paid media per a clients. Read-only per
+  defecte; canvis amb aprovació. Path CLI:
+  <code>/opt/data/tools/claude-ads-core-env/bin/claude-ads-core</code>.</li>
+<li>Els 6 repos del feed (AutoHedge, Vibe-Trading, FinceptTerminal, Open-Generative-AI,
+  book-to-skill, claude-ads) → <strong>cloned a <code>claude-code-kit/</code> pel Claude de programació</strong> (README
+  actualitzat, total 40). Escanejats NET (instal·ladors whitelistim targets, sense injecció).</li>
+</ul>
+<h2>13/10 — REFERÈNCIES DE FLUXES D'EXEMPLE n8n (per a implementació)</h2>
+<p>Fonts de plantilles/fluxos n8n reals per consultar quan construïm les automatitzacions d'un client:
+- <strong>https://n8nworkflow.net/es</strong> — directori de fluxos n8n amb botons d'importació i etiquetes (#manual/#complex, integracions, #gmailtrigger...). Útil per veure el PATRÓ VISUAL dels nodes n8n (nodes horitzontals amb ports d'entrada/sortida connectats pels punts — el format que hem adoptat als diagrames del dossier).
+- <strong>https://n8n.io/workflows/</strong> — 12.404 plantilles oficials de la comunitat n8n, amb <code>/llms.txt</code> per llegir-les màquina. Inclou casos rellevants per a clients SPAI: facturació electrònica (EN 16931 / Factur-X / XRechnung), RAG sobre documents (Google Drive + Gemini), gestió de leads dental (Apify Google Maps → HighLevel CRM), enquestes CSAT per WhatsApp/Gmail. Format URL: <code>/workflows/&lt;id&gt;-&lt;slug&gt;/</code>.
+- <em>Ús</em>: cercar una plantilla per part (ex. de facturació) abans de dissenyar un flux des de zero, i rescatar-ne el patró/orquestració. Les VENDREM com a disseny propi SPAI (mai copiades literalment).</p>
+<h2>13/10 — DISSENY D'IMPLEMENTACIÓ AL DOSSIER (el dossier passa a ser la GUIA TÈCNICA SUPREMA)</h2>
+<ul>
+<li><strong>Nou <code>02-kit-oferta-soluciones/herramientas/genera-implementacion.mjs</code></strong>: llegeix
+  <code>modelo/automatizaciones.json</code> → <code>modelo/implementacion.json</code> amb per automat: sistemes (tots
+  <code>pendente_confirmar</code>), <code>disseny_flux</code> (disparador→passos→resultat), i <code>json_n8n</code> (workflow n8n
+  exportable, format estàndard). Ús previ a generar: <code>node herramientas/genera-implementacion.mjs &lt;cliente&gt;</code>.</li>
+<li><strong><code>dossier.mjs</code></strong>: nova secció <strong>5bis</strong> al dossier intern → taula sistemes client + disseny flux +
+  JSON n8n incrustat (bloc <code>pre</code>; <code>@media print</code> per no tallar el JSON al PDF).</li>
+<li><strong><code>oferta-html.mjs</code> + <code>plantillas/oferta.html</code></strong>: cada solució inclosa ara mostra una cadena visual
+  <strong>«Cómo funcionará»</strong> en llenguatge de negoci (<code>PAS_NEGOCI</code>), des del <code>disseny_flux</code>. Pitfall: usar
+  <code>fs.readFileSync</code> (no <code>readFileSync</code> sol, que el catch silencia i torna null sempre).</li>
+<li><strong>Formulari <code>diagnostic-processos-web/index.html</code></strong> (publicat commit <code>0acd7f4</code>): secció C ara
+  pregunta pels SISTEMES — <code>sistema_principal</code> (ERP/CRM), <code>sistema_conexion</code>,
+  <code>sistema_facturacion</code> (Verifactu), <code>sistema_contacto</code> (WhatsApp/correu), <code>sistema_nota</code>; recollits a
+  <code>recollir()</code> dins <code>sistema</code>, amb datalist <code>dlSistemes</code>.</li>
+<li><strong>Versió actual clínica dental</strong>: oferta <strong>v8</strong> (54 p, 7 cadenes «Cómo funcionará», cap terme intern)</li>
+<li>dossier <strong>v8</strong> (57 p, 7 JSON n8n complets, 0 contradiccions).</li>
+</ul>
+<h2>Paperclip (paperclipai/paperclip) — AVALUAT I INSTAL·LAT 2026-10-23 (OPERATIVA INTERNA)</h2>
+<ul>
+<li><strong>Què és</strong>: orquestradora d'agents IA (server Node + UI React). "Si OpenClaw és un
+  empleat, Paperclip és l'empresa": assigna tasques, fa org chart d'agents humans+bots,
+  controla pressupostos i objectius, govern amb gates d'aprovació. Bring-your-own-agents
+  (OpenClaw/Claude Code/Codex/Cursor/Bash/HTTP).</li>
+<li><strong>Llicència</strong>: MIT (paperclipai/paperclip, ~5.4k commits, actiu 2026).</li>
+<li><strong>Per a què ens serveix</strong>: coordinar els NOSTRES agents (Hermes+Claude Code+Codex) en
+  projectes de clients amb control de costos → operativa interna, NO servei a client PIME
+  (els clients volen automatismes senzills, no 20 agents). Possible component del Business
+  AI OS per clients que si creixin en agents.</li>
+<li><strong>Seguretat</strong>: escaneig NET (0 credencials incrustades; executó de codi = regex String.exec
+  benignes). <strong>Telemetria opt-out per defecte → DESACTIVAR SEMPRE</strong>: <code>PAPERCLIP_TELEMETRY_DISABLED=1</code>
+  o <code>DO_NOT_TRACK=1</code> (packages/shared/src/telemetry/config.ts L71-76). Dades de clients només local.</li>
+<li><strong>Instal·lació provada OK al servidor (2026-10-23)</strong>: <code>npx paperclipai@latest run</code> (telemetria OFF),
+  mode <code>local_trusted</code>+<code>private</code> (no exposat), health OK (<code>localhost:3100/api/health</code>, v2026.1012.0),
+  UI 200. Onboarding complert: companyia "SolutionPartner", agent "Cap d'operacions", dashboard
+  <code>/api/companies/:id/dashboard</code> amb agents(active/running/paused/error), tasks(open/inProgress/blocked/done),
+  costs(monthSpendCents/monthBudgetCents/utilization), runActivity. LLM: demana clau (Conecta un modelo) —
+  treballa amb la nostra key OpenRouter com a model <code>openrouter/...</code>, posada a Configuració (no al codi).</li>
+<li><strong>Estat</strong>: RESERVADA (instal·lada i provada, sense configurar agent real → activar quan vulguem
+  orquestrar els nostres agents). Repo d'avaluació: /opt/data/cache/paperclip-eval. Servei de prova aturat.</li>
+</ul>
+<h2>NOU 2026-10-29: builder-crm (diegovasquez-ai/builder-crm) — RESERVAT per a servei de clients</h2>
+<ul>
+<li>CRM multicanal (WhatsApp + Instagram DM + Messenger en una bandeja) amb AGENT D'IA
+  (OpenRouter) que califica leads, mou pipeline, registra activitats i deriva a persona.
+  Una instància per client, adaptable amb l'arnés de Claude Code (spec → codi → deploy).</li>
+<li>Clonat a /opt/data/tools/builder-crm — PROVAT: mode local funcionant (Postgres embebit,
+  health ok, pipeline operatiu). Llicència MIT (lliure per cobrar). Escaneig seguretat NET
+  (sense telemetria, sense claus incrustades; crides només oficials: Zernio/Supabase).</li>
+<li>Per a instància real: Supabase (gratuït) + VPS/Coolify + Zernio (canals) + OpenRouter.</li>
+<li>PRODUCTE POTENCIAL (pendent de decidir): extreure l'agent de xat (WhatsApp + web) com a
+  producte independent = "agent IA que respon, captura dades i deriva" (nucli src/lib/agent
+  portable; cal buidar les tools del CRM i posar memòria lleugera).</li>
+<li>PENDENT quan hi tornem: (1) validar l'arnés amb una adaptació real (plantilla inmobiliària),
+  (2) decidir l'extracció de l'agent com a producte.</li>
+</ul><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

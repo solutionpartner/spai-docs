@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset='utf-8'><title>billing-licensing-architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Phase 16 — Billing, Licensing &amp; Entitlement Enforcement</h1>
+<h2>Objective</h2>
+<p>A tenant may run Business AI OS on its own VPS/PC, but commercial authorization is issued by SolutionPartner.ai. Runtime availability must not depend on a network round-trip for every user request.</p>
+<h2>Chain</h2>
+<pre><code class="language-text">Billing provider
+   ↓ provider webhook adapter (verifies provider signature)
+Normalized billing event
+   ↓
+Subscription state
+   ↓
+Entitlement state
+(active / grace / restricted / suspended)
+   ↓
+Unsigned license lease job
+   ↓ isolated Ed25519 signer
+Signed lease
+   ↓
+Tenant Business OS
+   ↓ local signature + expiry + installation check
+RuntimeOrchestrator enforcement
+</code></pre>
+<h2>Provider boundary</h2>
+<p>The Control Plane endpoint <code>/billing/events/normalized</code> intentionally does <strong>not</strong> accept raw Stripe/Adyen/etc. webhook secrets. A provider adapter verifies the vendor's signature and sends only normalized events using a <code>billing_adapter</code> service account.</p>
+<p>Raw payment-card data must never enter Business AI OS or the Control Plane.</p>
+<h2>State model</h2>
+<ul>
+<li><code>active</code>: normal service.</li>
+<li><code>grace</code>: payment issue, normal service continues with warning for a bounded period.</li>
+<li><code>restricted</code>: grace expired. Read/export remain available; AI execution, write actions, deployments and new automations are disabled.</li>
+<li><code>suspended</code>: cancelled/suspended/no authorized subscription. AI and mutations are disabled; data is not deleted.</li>
+</ul>
+<p>Repeated payment-failure events do not extend an existing grace window.</p>
+<h2>Lease model</h2>
+<p>A lease contains:
+- tenant ID;
+- installation ID;
+- installation public-key hash;
+- environment;
+- plan ID/version;
+- entitlement status and enforcement flags;
+- plan entitlements and currently active packages;
+- issued/not-before/expires timestamps.</p>
+<p>The lease is signed with Ed25519. The Control Plane stores only the public verification key. The private signing key belongs to a separate signer/HSM/secret-isolated worker.</p>
+<p>Default lease duration is 72h, capped at 7 days. Restricted/suspended leases are shorter.</p>
+<h2>Offline behavior</h2>
+<p>The runtime keeps the last valid signed lease and can operate until it expires. A Control Plane/network outage therefore does not immediately stop the company. Once the lease expires, the local runtime must deny licensed AI/mutation functions until a new valid lease is obtained.</p>
+<h2>Deployment enforcement</h2>
+<p>Phase 16 also blocks new deployments/package activations for tenants whose entitlement is <code>restricted</code> or <code>suspended</code>. Set <code>SP_REQUIRE_BILLING=1</code> in production if tenants with no billing record must also be blocked.</p>
+<h2>Installation binding caveat</h2>
+<p>The current installation binding prevents accidental reuse and binds the lease to an installation identifier + public-key hash. A file-based private key is <strong>not hardware attestation</strong>. For strict anti-clone guarantees, use a TPM/HSM/cloud instance identity with a non-exportable key and a proof-of-possession/attestation flow.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

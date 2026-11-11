@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset='utf-8'><title>production-milestone-1-first-real-tenant.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Production Milestone 1 — First Real Tenant</h1>
+<h2>Objective</h2>
+<p>Validate the existing Business AI OS v1.0 architecture against one real production tenant without creating a new architectural phase. The milestone is an operational acceptance gate: the system must prove that onboarding, commercial entitlement, runtime delivery, governed deployment, health, service governance, backup/recovery and rollback are all evidenced in the Control Plane.</p>
+<h2>Acceptance principle</h2>
+<p>The gate is <strong>read-only</strong>. It never fixes or mutates a tenant. A failed check produces a blocker and a remediation instruction. Human operators retain the decision and execute any required change through the existing governed paths.</p>
+<h2>Canonical acceptance path</h2>
+<ol>
+<li>Governed onboarding reaches <code>ready</code>.</li>
+<li>Tenant has an active commercial plan and billing entitlement.</li>
+<li>Production installation is registered, licensed and protected with mTLS.</li>
+<li>Business Pulse and the n8n base workflow are active.</li>
+<li>Runtime desired state exposes <code>business.pulse</code> and at least one governed ERP read tool.</li>
+<li>Client reports the current desired-state revision/hash as <code>applied</code>.</li>
+<li>Latest health snapshot is <code>healthy</code>.</li>
+<li>At least one completed deployment retains <code>approved_by</code> evidence.</li>
+<li>Managed service records exist and each high/critical service has an active SLO.</li>
+<li>An encrypted completed backup and a ready recovery point exist.</li>
+<li>A controlled restore rehearsal has completed successfully and is recorded as <code>dr.restore.rehearsal</code> / <code>success</code> in Security Audit.</li>
+<li>A controlled rollback rehearsal has completed successfully.</li>
+<li>No unresolved critical incident remains open.</li>
+</ol>
+<h2>Run</h2>
+<pre><code class="language-bash">python scripts/production_acceptance.py TENANT_ID \
+  --db data/control_plane.db \
+  --profile config/production-acceptance.first-tenant.example.json \
+  --out acceptance-TENANT_ID.json
+</code></pre>
+<p>Exit code <code>0</code> means the acceptance report passes. Exit code <code>2</code> means one or more production blockers remain.</p>
+<h2>Why rollback rehearsal is mandatory</h2>
+<p>A backup is not the same as recoverability and a signed release is not the same as rollback readiness. The first real tenant milestone therefore requires a ready recovery point, a successfully audited restore rehearsal, and evidence of one successfully completed rollback deployment referencing its original deployment through <code>rollback_of</code>.</p>
+<h2>Scope boundary</h2>
+<p>This milestone does not add a bypass, a new approver, a second deployment engine or autonomous repair. It only evaluates evidence already produced by onboarding, billing/licensing, runtime sync, deployments, observability, GitOps/DR and Service Governance.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

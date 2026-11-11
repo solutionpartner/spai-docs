@@ -1,0 +1,91 @@
+<!doctype html><html><head><meta charset='utf-8'><title>dashboards-per-modul.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Dashboards de producte per mòdul (BusinessPower / SalesPower)</h1>
+<p>Per a desplegar el dashboard correcte segons el que contracta cada tenant.</p>
+<h2>El servei dels dashboards (autodeployable)</h2>
+<p>Els dashboards són HTML <strong>standalone</strong> a <code>erpsp/public/</code>, servits directament per
+l'app (Next serveix <code>public/</code>). Cada un és una SPA sencera amb ECharts, RAG,
+alertes, temps real i recomanacions — no depèn de cap build ni import:</p>
+<ul>
+<li><strong><code>erpsp/public/salespower-dashboard.html</code></strong> — SalesPower = <strong>CRM</strong> (relacions comercials: vendes, pipeline, retenció).</li>
+<li><strong><code>erpsp/public/businesspower-dashboard.html</code></strong> — BusinessPower = <strong>ERP</strong> (operacions: estoc, facturació, compres, proveïdors, saldo operatiu).</li>
+</ul>
+<p>Com que el gate d'entitlement de l'ERP ja existeix als <strong>endpoints</strong> (<code>requireModul</code>),
+el dashboard només pot carregar dades dels mòduls que el tenant té. El dashboard
+és la capa de presentació; la seguretat es resolt al backend, no al fitxer.</p>
+<h3>Separació real de KPIs i NAV (Crm ≠ ERP, no es trepitgen)</h3>
+<p>Cada producte té els seus KPI del header i el seu NAV, amb objectius diferents:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>SalesPower (CRM)</strong></th>
+<th><strong>BusinessPower (ERP)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Objectiu</td>
+<td>vendre + retenir</td>
+<td>operació + estalvi</td>
+</tr>
+<tr>
+<td>KPI header</td>
+<td>Pipeline obert · Guanyat · Contactes · Tendència</td>
+<td>Pendent · Cobrat · Valor en estoc · Tendència</td>
+</tr>
+<tr>
+<td>NAV</td>
+<td>Dashboard · CRM&amp;Vendes · Facturació · Clients · Insights · Config</td>
+<td>Dashboard · Facturació · Stock · Clients · Proveïdors · Insights · Config</td>
+</tr>
+<tr>
+<td>Recomanacions</td>
+<td>vendre_mes / no_perdre / satisfaccio</td>
+<td>operativa (estoc / OC / cash / proveïdors)</td>
+</tr>
+</tbody>
+</table>
+<p>Els KPIs s'omplen per <code>id</code> (<code>kpiPipe/kpiWon/kpiCli</code> al CRM; <code>kpiPen/kpiCob/kpiStock</code>
+al ERP) des de la funció <code>cards()</code>. Valors reals validats: CRM pipeline 94.200€/guanyat
+43.900€; ERP pendent 44.866€/valor estoc 31.780€.</p>
+<h2>Com es lliga per mòdul</h2>
+<table>
+<thead>
+<tr>
+<th>Mòdul contractat</th>
+<th>Dashboard que li toca</th>
+<th>Endpoints que veu (per gate)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>crm</code> (SalesPower)</td>
+<td><code>salespower-dashboard.html</code></td>
+<td><code>/api/deals</code>, <code>/api/activities</code></td>
+</tr>
+<tr>
+<td><code>erp</code> (BusinessPower)</td>
+<td><code>businesspower-dashboard.html</code></td>
+<td><code>/api/invoices</code>, <code>/api/products</code></td>
+</tr>
+<tr>
+<td><code>crm,erp</code> (ambdós)</td>
+<td>els dos</td>
+<td>tots els del modul</td>
+</tr>
+<tr>
+<td><code>cap</code> (només baios)</td>
+<td>cap (només el menú <code>baios</code>)</td>
+<td>cap</td>
+</tr>
+</tbody>
+</table>
+<h2>Com es desplega automàticament</h2>
+<p>No cal cap pas: si <code>erpsp</code> està en marxa i té el tenant, el dashboard del mòdul
+ja s'hi serveix. La decisió de QUIN mòdul té cada client es pren al <strong>PAS 5b</strong>
+del desplegament guiat (<code>deploy-tenant-guia</code>), que escriu <code>Tenant.moduls</code> i
+<code>TenantRegistry.moduls</code>. El gate fa la resta.</p>
+<h2>Verificació de desplegament</h2>
+<ul>
+<li><code>http://&lt;erpsp&gt;/businesspower-dashboard.html</code> retorna la SPA (200).</li>
+<li>Amb un tenant <code>erp</code>, els endpoints <code>/api/invoices</code> i <code>/api/products</code> responen &gt;200; amb un tenant <code>cap</code>, responen 403 del gate.</li>
+</ul><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

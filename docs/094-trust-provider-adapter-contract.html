@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset='utf-8'><title>trust-provider-adapter-contract.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Trust Provider Adapter Contract</h1>
+<h2>Objective</h2>
+<p>Provider-specific network/API code is isolated from the Contract Lifecycle domain. Swapping provider must not change template hashes, legal requirements, evidence schema or onboarding policy.</p>
+<h2>Required adapter operations</h2>
+<h3>create_signature_request(dispatch)</h3>
+<p>Input: <code>contract_id</code>, title, immutable artifact URI, document SHA-256, requested signature level, signers, callback URL.</p>
+<p>Return at minimum: provider transaction ID, provider status, optional signing URLs or provider metadata. The adapter must then bind the provider transaction ID to the envelope.</p>
+<h3>cancel_signature_request(provider_transaction_id)</h3>
+<p>Cancels/voids a pending request when supported. Provider callback remains authoritative for final state.</p>
+<h3>fetch_evidence(provider_transaction_id)</h3>
+<p>Returns signed document reference, signed-document SHA-256 when available, evidence/certificate/audit reference and timestamps.</p>
+<h2>Security requirements</h2>
+<ul>
+<li>Credentials from Vault/secret refs only.</li>
+<li>TLS certificate validation enabled.</li>
+<li>Strict outbound allowlist to provider API domains.</li>
+<li>Idempotency key = SolutionPartner <code>contract_id</code> where provider supports it.</li>
+<li>Webhook authenticity must follow the provider's strongest supported mechanism (signature/HMAC/mTLS/JWS etc.).</li>
+<li>Validate provider event ID and transaction binding before state transition.</li>
+<li>Never trust webhook-supplied tenant/customer identity over the server-side envelope binding.</li>
+<li>Do not place access tokens, OTPs, private keys or full signature credentials in logs.</li>
+</ul>
+<h2>Qualified-service rule</h2>
+<p>If a workflow is sold/described as a qualified trust service, the chosen provider <strong>and the specific service</strong> must have qualified status in the applicable Trusted List at the time required. A vendor being present in a list for one qualified service does not imply every service it sells is qualified.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>

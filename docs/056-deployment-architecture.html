@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset='utf-8'><title>deployment-architecture.md · SolutionPartner</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:0 auto 60px;color:#2a2a2a;line-height:1.65;padding:0 20px}code{background:#f0f2f5;padding:2px 5px;border-radius:4px;font-size:13px} pre{background:#0B1D32;color:#E7C47D;padding:14px;border-radius:6px;overflow-x:auto} table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:6px 10px}h1,h2,h3{color:#0B1D32} a{color:#0B1D32}</style></head><body><div style='background:#0B1D32;padding:10px 20px;margin-bottom:18px'><a href='../index.html' style='color:#E7C47D;text-decoration:none;font-weight:bold'>← Índex</a></div><h1>Phase 8 — Deployment &amp; Update Architecture</h1>
+<h2>Goal</h2>
+<p>Deploy versioned Business OS components to many client tenants without giving the central AI agent SSH/root access to client infrastructure.</p>
+<h2>Trust boundary</h2>
+<pre><code class="language-text">Release/CI pipeline                 SolutionPartner Control Plane                 Client VPS
+-------------------                 -----------------------------                 ----------
+Ed25519 PRIVATE key                 Ed25519 PUBLIC key                            Ed25519 PUBLIC key
+build artifact  ────&gt; signed manifest ────&gt; registry/approval/rollout ────&gt; pull deployment job
+                                                                                   |
+                                                                                   v
+                                                                          local allowlisted handler
+                                                                                   |
+                                                                                   v
+                                                                          Docker/systemd/etc.
+</code></pre>
+<p>The private signing key must never be copied to a client VPS or stored in a deployment manifest.</p>
+<h2>Release manifest</h2>
+<p>A release manifest binds a component/version to:</p>
+<ul>
+<li>immutable artifact URI;</li>
+<li>SHA-256 artifact digest;</li>
+<li>minimum Business OS version;</li>
+<li>allowed environments;</li>
+<li>component dependencies;</li>
+<li>metadata and signing key ID.</li>
+</ul>
+<p>The Ed25519 signature covers a canonical JSON representation. Any change to version, artifact, digest, dependency or policy invalidates the signature.</p>
+<h2>Deployment strategies</h2>
+<ul>
+<li><code>single</code>: all selected tenants are batch 0.</li>
+<li><code>canary</code>: a deterministic subset is batch 0; remaining tenants are batch 1.</li>
+<li><code>staged</code>: development, then staging, then production.</li>
+<li><code>batch</code>: fixed-size batches.</li>
+</ul>
+<p>Promotion is explicit. A batch can only be promoted when all deployments in the current batch completed and those tenants currently report <code>healthy</code>.</p>
+<h2>Pull model</h2>
+<p>The Control Plane never SSHs into client servers. Each client runs <code>client_deploy_worker.py</code> on a timer/systemd unit. It authenticates using the tenant-specific client key, claims only its own approved job, verifies the signed manifest locally, and runs a locally configured handler.</p>
+<p>The manifest cannot contain shell commands. The mapping from <code>component_type:component_name</code> to executable handler lives on the client VPS in <code>deployment-map.json</code>.</p>
+<h2>Failure model</h2>
+<p>A deployment failure:</p>
+<ol>
+<li>marks the deployment <code>failed</code>;</li>
+<li>records an immutable deployment event;</li>
+<li>marks the rollout target <code>failed</code>;</li>
+<li>pauses the rollout;</li>
+<li>prevents later batches from being claimed.</li>
+</ol>
+<h2>Rollback</h2>
+<p>Rollback is a new deployment to the previous version. It requires:</p>
+<ul>
+<li>a previously completed deployment with <code>from_version</code>;</li>
+<li>an active signed manifest for that previous version;</li>
+<li>a fresh approval before execution.</li>
+</ul>
+<p>This makes rollback auditable and prevents an operator/agent from installing an unsigned historical artifact.</p><div style='margin-top:30px;border-top:1px solid #e3e6ea;padding-top:12px;color:#777;font-size:12px'>SolutionPartner.AI · AI Strategy &amp; Automation</div></body></html>
